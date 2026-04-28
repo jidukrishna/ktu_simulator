@@ -2,7 +2,8 @@
 # 🚀 KTU Open Simulations
 
 A community-built collection of **interactive simulations for KTU students**.  
-Built by students, for students — **open source, zero logins, zero friction**.
+Built by students, for students — **open source, zero logins, zero friction**.  
+Almost all simulation can be build with ai tools like **claude, chatgpt, etc.**
 
 👉 **[Open the site](https://ktu.jidu.dev)**
 
