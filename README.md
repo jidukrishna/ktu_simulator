@@ -21,7 +21,7 @@ Each simulation is a **single self-contained HTML file**.
 
 ---
 
-## 📚 Available Subjects
+## 📚 Structure of Simulations
 
 | Branch | Subjects |
 |--------|----------|
@@ -30,7 +30,7 @@ Each simulation is a **single self-contained HTML file**.
 | ⚡ EEE | *Open for contributions* |
 | ⚙️ MECH | *Open for contributions* |
 | 🏗️ CIVIL | *Open for contributions* |
-| 🔌 APPLIED ELECTRONICS | *Open for contributions* |
+| so on ..... | *Open for contributions* |
 
 ---
 
