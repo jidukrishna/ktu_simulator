@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFA Minimizer — Table Filling Method</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --panel: #111118;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #ff3e6c;
+    --accent3: #a259ff;
+    --text: #e8e8f0;
+    --text-dim: #888898;
+    --state-normal: #1e1e2e;
+    --state-accept: #0d2d1a;
+    --state-border: #3a3a5a;
+    --canvas-bg: #0d0d14;
+    --step-bg: #13131e;
+    --marked: #ff3e6c33;
+    --unmarked: #00e5ff1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* bg grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; }
+
+  header {
+    padding: 24px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; gap: 16px;
+  }
+  header h1 {
+    font-size: 1.6rem; font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  header span {
+    font-family: 'Space Mono', monospace; font-size: .7rem;
+    color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    height: calc(100vh - 61px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    grid-row: 1 / 3;
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .panel-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-section h2 {
+    font-size: .65rem; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+
+  .input-row {
+    display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
+  }
+  .input-row label {
+    font-size: .75rem; color: var(--text-dim); white-space: nowrap; width: 80px;
+    font-family: 'Space Mono', monospace;
+  }
+  input[type="text"] {
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 10px; border-radius: 4px;
+    font-family: 'Space Mono', monospace; font-size: .78rem; flex: 1;
+    outline: none; transition: border-color .2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 7px 14px; border-radius: 4px; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: .78rem;
+    transition: all .2s; letter-spacing: .5px;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+  }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-danger {
+    background: transparent; border: 1px solid var(--accent2); color: var(--accent2);
+  }
+  .btn-danger:hover { background: var(--accent2); color: #fff; }
+  .btn-secondary {
+    background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .btn-secondary:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  .btn-full {
+    width: 100%;
+    padding: 10px; font-size: .85rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: #000; border: none; border-radius: 6px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 800; letter-spacing: 1px;
+    transition: all .2s; text-transform: uppercase;
+  }
+  .btn-full:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,229,255,.3); }
+  .btn-full:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  .state-list {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .state-item {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--state-normal); border: 1px solid var(--state-border);
+    border-radius: 6px; padding: 6px 10px;
+    font-family: 'Space Mono', monospace; font-size: .78rem;
+  }
+  .state-item.accept { border-color: #2ecc71; background: var(--state-accept); }
+  .state-item .state-name { flex: 1; font-weight: 700; color: var(--accent); }
+  .state-item .badge {
+    font-size: .6rem; padding: 2px 6px; border-radius: 3px;
+    background: rgba(46,204,113,.2); color: #2ecc71;
+  }
+  .state-item .badge.start {
+    background: rgba(0,229,255,.2); color: var(--accent);
+  }
+
+  .alphabet-display {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .alpha-chip {
+    font-family: 'Space Mono', monospace; font-size: .75rem;
+    padding: 3px 10px; border-radius: 3px;
+    background: rgba(162,89,255,.15); border: 1px solid var(--accent3);
+    color: var(--accent3);
+  }
+
+  /* Transition table */
+  .trans-table-wrap { overflow-x: auto; }
+  table.trans-table {
+    width: 100%; border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: .72rem;
+  }
+  table.trans-table th, table.trans-table td {
+    border: 1px solid var(--border); padding: 5px 8px; text-align: center;
+  }
+  table.trans-table th { background: #16162a; color: var(--accent); font-size: .65rem; letter-spacing: 1px; }
+  table.trans-table td:first-child { color: var(--accent2); font-weight: 700; }
+  table.trans-table select {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Space Mono', monospace; font-size: .7rem; padding: 2px 4px; width: 60px;
+    border-radius: 3px; outline: none;
+  }
+  table.trans-table select:focus { border-color: var(--accent); }
+
+  /* ── TOP CANVAS ── */
+  .canvas-area {
+    background: var(--canvas-bg); position: relative; overflow: hidden;
+    min-height: 320px;
+  }
+  .canvas-area canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+  }
+  .canvas-instructions {
+    position: absolute; bottom: 12px; right: 16px;
+    font-size: .6rem; color: var(--text-dim); font-family: 'Space Mono', monospace;
+    text-align: right; line-height: 1.7; pointer-events: none;
+  }
+  .canvas-label {
+    position: absolute; top: 12px; left: 16px;
+    font-size: .6rem; color: var(--accent); font-family: 'Space Mono', monospace;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* ── STEPS PANEL ── */
+  .steps-area {
+    overflow-y: auto; padding: 16px;
+    background: var(--bg);
+  }
+  .steps-title {
+    font-size: .65rem; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+  }
+
+  .step-card {
+    background: var(--step-bg); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 12px; overflow: hidden;
+    animation: fadeIn .35s ease both;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+  .step-card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(0,229,255,.04); border-bottom: 1px solid var(--border);
+  }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: #000; font-weight: 800; font-size: .7rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+  .step-card-header span { font-size: .8rem; font-weight: 600; }
+  .step-card-body { padding: 12px 14px; font-size: .78rem; line-height: 1.65; color: var(--text-dim); }
+  .step-card-body code {
+    font-family: 'Space Mono', monospace; color: var(--accent); font-size: .73rem;
+  }
+  .step-card-body .highlight { color: var(--accent2); font-family: 'Space Mono', monospace; }
+
+  /* Table filling viz */
+  .fill-table-wrap { margin-top: 10px; overflow-x: auto; }
+  table.fill-table {
+    border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: .68rem;
+  }
+  table.fill-table th, table.fill-table td {
+    border: 1px solid var(--border); padding: 5px 10px; text-align: center; min-width: 36px;
+  }
+  table.fill-table th { background: #16162a; color: var(--text-dim); }
+  table.fill-table td.marked {
+    background: var(--marked); color: var(--accent2); font-weight: 700;
+  }
+  table.fill-table td.unmarked {
+    background: var(--unmarked); color: var(--accent);
+  }
+  table.fill-table td.empty { background: transparent; }
+  table.fill-table td.diag { background: #1a1a2a; }
+
+  /* Equivalence classes */
+  .eq-class {
+    display: inline-flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;
+  }
+  .eq-chip {
+    font-family: 'Space Mono', monospace; font-size: .7rem;
+    padding: 3px 10px; border-radius: 3px;
+    background: rgba(162,89,255,.15); border: 1px solid var(--accent3); color: var(--accent3);
+  }
+
+  /* Minimized DFA result */
+  .result-section {
+    margin-top: 8px;
+  }
+  .result-section h3 {
+    font-size: .65rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent3); margin-bottom: 10px;
+  }
+
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; gap: 10px; color: var(--text-dim);
+    font-size: .8rem; text-align: center; padding: 24px;
+  }
+  .empty-state .big-icon { font-size: 3rem; opacity: .3; }
+
+  /* Canvas node */
+  .floating-label {
+    position: absolute; pointer-events: none;
+    font-family: 'Space Mono', monospace; font-size: .65rem; color: var(--accent2);
+  }
+
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .checkbox-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .75rem; color: var(--text-dim); cursor: pointer;
+    font-family: 'Space Mono', monospace;
+  }
+  .checkbox-row input[type=checkbox] {
+    accent-color: var(--accent2); width: 14px; height: 14px; cursor: pointer;
+  }
+
+  .info-pill {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-family: 'Space Mono', monospace; font-size: .68rem;
+    background: rgba(0,229,255,.1); border: 1px solid var(--accent); color: var(--accent);
+    margin: 2px;
+  }
+  .info-pill.red {
+    background: rgba(255,62,108,.1); border-color: var(--accent2); color: var(--accent2);
+  }
+  .info-pill.purple {
+    background: rgba(162,89,255,.1); border-color: var(--accent3); color: var(--accent3);
+  }
+
+  .minimized-canvas-wrap {
+    background: var(--canvas-bg); border-radius: 8px;
+    border: 1px solid var(--border); overflow: hidden; margin-top: 8px;
+    position: relative; height: 260px;
+  }
+  .minimized-canvas-wrap canvas {
+    width: 100%; height: 100%;
+  }
+
+  .note-box {
+    background: rgba(162,89,255,.08); border: 1px solid rgba(162,89,255,.3);
+    border-radius: 6px; padding: 10px 12px; margin-top: 8px;
+    font-size: .75rem; color: var(--text-dim); line-height: 1.6;
+  }
+  .note-box strong { color: var(--accent3); }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <h1>DFA Minimizer</h1>
+    <span>Table Filling Method</span>
+  </header>
+
+  <div class="main-grid">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <!-- Alphabet -->
+      <div class="panel-section">
+        <h2>Alphabet Σ</h2>
+        <div class="input-row">
+          <label>Symbols</label>
+          <input type="text" id="alphabetInput" placeholder="e.g. a,b" value="a,b">
+          <button class="btn btn-primary" onclick="applyAlphabet()">Set</button>
+        </div>
+        <div class="alphabet-display" id="alphabetDisplay"></div>
+      </div>
+
+      <!-- Add State -->
+      <div class="panel-section">
+        <h2>Add State</h2>
+        <div class="input-row">
+          <label>Name</label>
+          <input type="text" id="stateNameInput" placeholder="q0">
+        </div>
+        <div class="input-row" style="gap:16px;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="isStartCheck"> Start
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="isAcceptCheck"> Accept
+          </label>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="addState()">Add State</button>
+          <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+        </div>
+      </div>
+
+      <!-- State List -->
+      <div class="panel-section">
+        <h2>States</h2>
+        <div class="state-list" id="stateList"></div>
+      </div>
+
+      <!-- Transition Table -->
+      <div class="panel-section" style="flex:1;">
+        <h2>Transition Function δ</h2>
+        <div class="trans-table-wrap">
+          <table class="trans-table" id="transTable">
+            <thead><tr id="transHead"></tr></thead>
+            <tbody id="transBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Minimize Button -->
+      <div class="panel-section">
+        <button class="btn-full" id="minimizeBtn" onclick="minimizeDFA()" disabled>
+          ⚡ Minimize DFA
+        </button>
+      </div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="canvas-area" id="canvasArea">
+      <div class="canvas-label">Original DFA</div>
+      <canvas id="dfaCanvas"></canvas>
+      <div class="canvas-instructions">
+        Drag states to reposition<br>
+        States auto-arranged on add
+      </div>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps-area" id="stepsArea">
+      <div class="empty-state" id="emptySteps">
+        <div class="big-icon">⚙️</div>
+        <div>Build your DFA using the panel on the left,<br>then click <strong style="color:var(--accent)">Minimize DFA</strong> to see the steps.</div>
+      </div>
+      <div id="stepsContent" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let alphabet = ['a', 'b'];
+let states = [];       // { id, name, isStart, isAccept, x, y }
+let transitions = {};  // transitions[stateId][symbol] = stateId | ''
+let dragging = null;
+let dragOffX = 0, dragOffY = 0;
+
+const canvas = document.getElementById('dfaCanvas');
+const ctx = canvas.getContext('2d');
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+  canvas.addEventListener('touchstart', onTouchStart, {passive:false});
+  canvas.addEventListener('touchmove', onTouchMove, {passive:false});
+  canvas.addEventListener('touchend', onMouseUp);
+  applyAlphabet();
+  loadExample();
+  renderAll();
+}
+
+function resizeCanvas() {
+  const area = document.getElementById('canvasArea');
+  canvas.width = area.clientWidth;
+  canvas.height = area.clientHeight;
+  drawDFA(states, transitions, alphabet, canvas, ctx);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXAMPLE DFA
+// ═══════════════════════════════════════════════════════
+function loadExample() {
+  alphabet = ['a', 'b'];
+  states = [
+    { id:'q0', name:'q0', isStart:true,  isAccept:false, x:80,  y:160 },
+    { id:'q1', name:'q1', isStart:false, isAccept:false, x:220, y:80  },
+    { id:'q2', name:'q2', isStart:false, isAccept:false, x:220, y:240 },
+    { id:'q3', name:'q3', isStart:false, isAccept:true,  x:370, y:80  },
+    { id:'q4', name:'q4', isStart:false, isAccept:true,  x:370, y:240 },
+    { id:'q5', name:'q5', isStart:false, isAccept:false, x:510, y:160 },
+  ];
+  transitions = {
+    q0: { a:'q1', b:'q2' },
+    q1: { a:'q3', b:'q4' },
+    q2: { a:'q4', b:'q3' },
+    q3: { a:'q5', b:'q5' },
+    q4: { a:'q5', b:'q5' },
+    q5: { a:'q5', b:'q5' },
+  };
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// ALPHABET
+// ═══════════════════════════════════════════════════════
+function applyAlphabet() {
+  const raw = document.getElementById('alphabetInput').value;
+  alphabet = raw.split(',').map(s=>s.trim()).filter(s=>s.length>0);
+  if (alphabet.length === 0) alphabet = ['a'];
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// STATES
+// ═══════════════════════════════════════════════════════
+function addState() {
+  let name = document.getElementById('stateNameInput').value.trim();
+  if (!name) name = 'q' + states.length;
+  if (states.find(s=>s.name===name)) { alert('State name already exists'); return; }
+
+  const isStart = document.getElementById('isStartCheck').checked;
+  const isAccept = document.getElementById('isAcceptCheck').checked;
+
+  if (isStart) states.forEach(s=>s.isStart=false);
+
+  // Position in a circle
+  const angle = (states.length / Math.max(1, states.length)) * Math.PI * 2;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const r = Math.min(canvas.width, canvas.height) * 0.35;
+  const x = cx + r * Math.cos(angle);
+  const y = cy + r * Math.sin(angle);
+
+  const id = name;
+  states.push({ id, name, isStart, isAccept, x, y });
+  transitions[id] = {};
+  alphabet.forEach(sym => transitions[id][sym] = '');
+
+  repositionStates();
+  document.getElementById('stateNameInput').value = '';
+  document.getElementById('isStartCheck').checked = false;
+  document.getElementById('isAcceptCheck').checked = false;
+  renderAll();
+}
+
+function repositionStates() {
+  const n = states.length;
+  if (n === 0) return;
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const r = Math.min(cx, cy) * 0.7;
+  states.forEach((s, i) => {
+    const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    s.x = cx + r * Math.cos(angle);
+    s.y = cy + r * Math.sin(angle);
+  });
+}
+
+function removeState(id) {
+  states = states.filter(s=>s.id!==id);
+  delete transitions[id];
+  Object.keys(transitions).forEach(sid => {
+    alphabet.forEach(sym => {
+      if (transitions[sid][sym] === id) transitions[sid][sym] = '';
+    });
+  });
+  renderAll();
+}
+
+function clearAll() {
+  states = []; transitions = {};
+  document.getElementById('stepsContent').style.display = 'none';
+  document.getElementById('emptySteps').style.display = 'flex';
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER ALL UI
+// ═══════════════════════════════════════════════════════
+function renderAll() {
+  renderAlphabetDisplay();
+  renderStateList();
+  renderTransTable();
+  drawDFA(states, transitions, alphabet, canvas, ctx);
+  updateMinimizeBtn();
+}
+
+function renderAlphabetDisplay() {
+  const d = document.getElementById('alphabetDisplay');
+  d.innerHTML = alphabet.map(a=>`<span class="alpha-chip">${a}</span>`).join('');
+}
+
+function renderStateList() {
+  const d = document.getElementById('stateList');
+  if (states.length === 0) { d.innerHTML = '<div style="color:var(--text-dim);font-size:.75rem;font-family:Space Mono,monospace">No states yet</div>'; return; }
+  d.innerHTML = states.map(s => `
+    <div class="state-item ${s.isAccept?'accept':''}">
+      <span class="state-name">${s.name}</span>
+      ${s.isStart ? '<span class="badge start">START</span>' : ''}
+      ${s.isAccept ? '<span class="badge">ACCEPT</span>' : ''}
+      <button class="btn btn-danger" style="padding:2px 7px;font-size:.65rem;" onclick="removeState('${s.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function renderTransTable() {
+  const head = document.getElementById('transHead');
+  const body = document.getElementById('transBody');
+  if (states.length === 0 || alphabet.length === 0) {
+    head.innerHTML = ''; body.innerHTML = ''; return;
+  }
+  head.innerHTML = `<th>δ</th>` + alphabet.map(a=>`<th>${a}</th>`).join('');
+  body.innerHTML = states.map(s => `
+    <tr>
+      <td>${s.isStart?'→':''}${s.isAccept?'*':''}${s.name}</td>
+      ${alphabet.map(sym => {
+        const opts = states.map(t=>`<option value="${t.id}" ${transitions[s.id]?.[sym]===t.id?'selected':''}>${t.name}</option>`).join('');
+        return `<td><select onchange="setTransition('${s.id}','${sym}',this.value)">
+          <option value="" ${!transitions[s.id]?.[sym]?'selected':''}>—</option>${opts}
+        </select></td>`;
+      }).join('')}
+    </tr>
+  `).join('');
+}
+
+function setTransition(stateId, sym, target) {
+  if (!transitions[stateId]) transitions[stateId] = {};
+  transitions[stateId][sym] = target;
+  drawDFA(states, transitions, alphabet, canvas, ctx);
+}
+
+function updateMinimizeBtn() {
+  const btn = document.getElementById('minimizeBtn');
+  const hasStart = states.some(s=>s.isStart);
+  const hasAccept = states.some(s=>s.isAccept);
+  const complete = states.every(s => alphabet.every(sym => transitions[s.id]?.[sym]));
+  btn.disabled = !(states.length >= 2 && hasStart && hasAccept && complete);
+  btn.title = btn.disabled ? 'Add at least 2 states with start, accept states, and complete transitions' : '';
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAW DFA
+// ═══════════════════════════════════════════════════════
+function drawDFA(stateList, trans, alpha, cvs, c, highlight={}) {
+  c.clearRect(0, 0, cvs.width, cvs.height);
+  if (stateList.length === 0) return;
+
+  const R = 28;
+
+  // Draw transitions
+  stateList.forEach(s => {
+    alpha.forEach(sym => {
+      const tid = trans[s.id]?.[sym];
+      if (!tid) return;
+      const t = stateList.find(st=>st.id===tid);
+      if (!t) return;
+      drawArrow(c, s, t, sym, stateList, R, highlight);
+    });
+  });
+
+  // Draw states
+  stateList.forEach(s => {
+    const isHL = highlight.states && highlight.states.includes(s.id);
+    drawState(c, s, R, isHL, highlight);
+  });
+}
+
+function drawState(c, s, R, highlighted, highlight) {
+  const x = s.x, y = s.y;
+  c.save();
+
+  // Glow for highlighted
+  if (highlighted) {
+    c.shadowColor = '#ff3e6c'; c.shadowBlur = 18;
+  }
+
+  // Outer circle (accept = double ring)
+  if (s.isAccept) {
+    c.beginPath(); c.arc(x, y, R+5, 0, Math.PI*2);
+    c.strokeStyle = '#2ecc71'; c.lineWidth = 1.5;
+    c.stroke();
+  }
+
+  // Main circle
+  c.beginPath(); c.arc(x, y, R, 0, Math.PI*2);
+  const grad = c.createRadialGradient(x-6, y-6, 2, x, y, R);
+  if (s.isAccept) {
+    grad.addColorStop(0, '#1a3d2a');
+    grad.addColorStop(1, '#0d2020');
+  } else {
+    grad.addColorStop(0, '#252538');
+    grad.addColorStop(1, '#14141e');
+  }
+  c.fillStyle = grad;
+  c.fill();
+  c.strokeStyle = highlighted ? '#ff3e6c' : (s.isAccept ? '#2ecc71' : '#3a3a5a');
+  c.lineWidth = highlighted ? 2.5 : 1.5;
+  c.stroke();
+
+  // Start arrow
+  if (s.isStart) {
+    c.beginPath();
+    c.moveTo(x - R - 28, y);
+    c.lineTo(x - R - 2, y);
+    c.strokeStyle = '#00e5ff'; c.lineWidth = 1.5;
+    c.stroke();
+    drawArrowHead(c, x - R - 2, y, 0, '#00e5ff');
+  }
+
+  // Label
+  c.shadowBlur = 0;
+  c.fillStyle = highlighted ? '#ff3e6c' : (s.isAccept ? '#2ecc71' : '#e8e8f0');
+  c.font = `bold 12px Space Mono, monospace`;
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(s.name, x, y);
+  c.restore();
+}
+
+function drawArrow(c, from, to, label, stateList, R, highlight) {
+  const isSelf = from.id === to.id;
+  // Collect all symbols for this transition pair
+  // (already called per symbol, so label is single sym)
+  const isHL = highlight.trans && highlight.trans.some(t=>t[0]===from.id&&t[1]===to.id);
+
+  c.save();
+  c.strokeStyle = isHL ? '#ff3e6c' : 'rgba(0,229,255,0.4)';
+  c.fillStyle   = isHL ? '#ff3e6c' : 'rgba(0,229,255,0.4)';
+  c.lineWidth = isHL ? 2 : 1.2;
+
+  if (isSelf) {
+    // Self loop
+    const lx = from.x, ly = from.y - R - 12;
+    c.beginPath();
+    c.arc(lx, ly, 16, 0, Math.PI * 2);
+    c.stroke();
+    // label
+    c.fillStyle = isHL ? '#ff3e6c' : '#a0a0c0';
+    c.font = '10px Space Mono, monospace';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(label, lx, ly - 22);
+    c.restore(); return;
+  }
+
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  const ux = dx/dist, uy = dy/dist;
+
+  // Check if reverse transition exists (for curve)
+  const hasReverse = stateList.some(s => s.id!==from.id && from.id===to.id) ||
+    Object.keys(transitions).some(sid => sid===to.id && transitions[sid] && Object.values(transitions[sid]).includes(from.id));
+
+  let sx = from.x + ux * R, sy = from.y + uy * R;
+  let ex = to.x - ux * R, ey = to.y - uy * R;
+
+  // Offset if bidirectional
+  const px = -uy * 18, py = ux * 18;
+  const curved = false; // simplify for readability
+
+  c.beginPath();
+  c.moveTo(sx, sy);
+  c.lineTo(ex, ey);
+  c.stroke();
+
+  // Arrow head
+  const angle = Math.atan2(ey-sy, ex-sx);
+  drawArrowHead(c, ex, ey, angle, isHL?'#ff3e6c':'rgba(0,229,255,0.7)');
+
+  // Label at midpoint
+  const mx = (sx+ex)/2 - uy*10, my = (sy+ey)/2 + ux*10;
+  c.fillStyle = isHL ? '#ff3e6c' : '#8080a8';
+  c.font = '10px Space Mono, monospace';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(label, mx, my);
+
+  c.restore();
+}
+
+function drawArrowHead(c, x, y, angle, color) {
+  c.save();
+  c.translate(x, y); c.rotate(angle);
+  c.fillStyle = color;
+  c.beginPath();
+  c.moveTo(0,0); c.lineTo(-9, -4); c.lineTo(-9, 4); c.closePath();
+  c.fill();
+  c.restore();
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAG
+// ═══════════════════════════════════════════════════════
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY
+  };
+}
+function onTouchStart(e) { e.preventDefault(); onMouseDown({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY}); }
+function onTouchMove(e)  { e.preventDefault(); onMouseMove({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY}); }
+
+function onMouseDown(e) {
+  const {x, y} = getPos(e);
+  const R = 28;
+  for (let i = states.length-1; i >= 0; i--) {
+    const s = states[i];
+    if (Math.hypot(s.x-x, s.y-y) < R) {
+      dragging = s; dragOffX = x - s.x; dragOffY = y - s.y; return;
+    }
+  }
+}
+function onMouseMove(e) {
+  if (!dragging) return;
+  const {x, y} = getPos(e);
+  dragging.x = x - dragOffX; dragging.y = y - dragOffY;
+  drawDFA(states, transitions, alphabet, canvas, ctx);
+}
+function onMouseUp() { dragging = null; }
+
+// ═══════════════════════════════════════════════════════
+// TABLE FILLING / MINIMIZATION
+// ═══════════════════════════════════════════════════════
+function minimizeDFA() {
+  const stepsDiv = document.getElementById('stepsContent');
+  const emptyDiv = document.getElementById('emptySteps');
+  stepsDiv.innerHTML = '';
+  emptyDiv.style.display = 'none';
+  stepsDiv.style.display = 'block';
+
+  const steps = [];
+
+  // ── Step 1: Validate & setup
+  const startState = states.find(s=>s.isStart);
+  const acceptStates = states.filter(s=>s.isAccept).map(s=>s.id);
+  const nonAccept = states.filter(s=>!s.isAccept).map(s=>s.id);
+  const stateIds = states.map(s=>s.id);
+  const n = stateIds.length;
+
+  steps.push({
+    title: 'Setup: Identify State Categories',
+    body: `We start by splitting all states into two groups:
+<br><br>
+• <span class="highlight">Final (Accept) States F</span>: ${acceptStates.map(id=>`<span class="info-pill red">${id}</span>`).join('')}
+<br>
+• <span class="highlight">Non-Final States Q−F</span>: ${nonAccept.map(id=>`<span class="info-pill">${id}</span>`).join('')}
+<br><br>
+Why? Because a final and non-final state can <em>never</em> be equivalent — one accepts strings, the other rejects them. This is our base case for the table filling algorithm.`
+  });
+
+  // ── Step 2: Create table
+  // Pairs (i,j) where i < j in sorted order
+  const pairs = [];
+  for (let i = 0; i < n-1; i++)
+    for (let j = i+1; j < n; j++)
+      pairs.push([stateIds[i], stateIds[j]]);
+
+  // marked[p] = true means "distinguishable"
+  const marked = {};
+  const pairKey = (a,b) => a<b ? `${a},${b}` : `${b},${a}`;
+  pairs.forEach(([a,b]) => marked[pairKey(a,b)] = false);
+
+  // Mark initial distinguishable pairs (one accept, one not)
+  const initiallyMarked = [];
+  pairs.forEach(([a,b]) => {
+    const aAcc = acceptStates.includes(a);
+    const bAcc = acceptStates.includes(b);
+    if (aAcc !== bAcc) {
+      marked[pairKey(a,b)] = true;
+      initiallyMarked.push([a,b]);
+    }
+  });
+
+  steps.push({
+    title: 'Initialize the Table',
+    body: `Create a triangular table with all unique state pairs. Mark (✗) pairs where exactly one state is a final state — these are <em>immediately distinguishable</em>.
+<br><br>
+Initially marked pairs: ${initiallyMarked.map(([a,b])=>`<span class="info-pill red">(${a},${b})</span>`).join('') || '<em>none</em>'}
+<br><br>
+Unmarked pairs (potentially equivalent): ${pairs.filter(([a,b])=>!marked[pairKey(a,b)]).map(([a,b])=>`<span class="info-pill">(${a},${b})</span>`).join('') || '<em>none</em>'}`,
+    table: buildTableHTML(stateIds, marked, pairKey, 'Initial')
+  });
+
+  // ── Step 3: Iterative marking
+  const iterationLogs = [];
+  let changed = true;
+  let iteration = 0;
+
+  while (changed) {
+    changed = false;
+    iteration++;
+    const thisIterMarked = [];
+
+    pairs.forEach(([a,b]) => {
+      if (marked[pairKey(a,b)]) return;
+      for (const sym of alphabet) {
+        const da = transitions[a]?.[sym] || null;
+        const db = transitions[b]?.[sym] || null;
+        if (da === null || db === null) continue;
+        if (da === db) continue;
+        const subKey = pairKey(da, db);
+        if (marked[subKey]) {
+          marked[pairKey(a,b)] = true;
+          thisIterMarked.push({ pair:[a,b], sym, via:[da,db] });
+          changed = true;
+          break;
+        }
+      }
+    });
+
+    iterationLogs.push({ iteration, marked: thisIterMarked, snapshot: JSON.parse(JSON.stringify(marked)) });
+    if (iteration > 20) break; // safety
+  }
+
+  // Build steps for each iteration
+  iterationLogs.forEach(({ iteration, marked: markedThis, snapshot }) => {
+    const body = markedThis.length === 0
+      ? `No new pairs were marked in this pass. The table has <em>stabilized</em>. We can stop iterating.`
+      : `In this pass, we check each unmarked pair (p,q). For each input symbol, we compute δ(p,sym) and δ(q,sym). If that resulting pair is already marked, then (p,q) must also be marked.
+<br><br>Newly marked: ${markedThis.map(({pair:[a,b],sym,via:[da,db]})=>
+  `<span class="info-pill red">(${a},${b})</span> via <code>${sym}</code> → <span class="info-pill">(${da},${db})</span> already marked`
+).join('<br>')}`;
+
+    steps.push({
+      title: `Iteration ${iteration}: Propagate Markings`,
+      body,
+      table: buildTableHTML(stateIds, snapshot, pairKey, `After Iter ${iteration}`)
+    });
+  });
+
+  // ── Step 4: Find equivalence classes
+  const unmarkedPairs = pairs.filter(([a,b]) => !marked[pairKey(a,b)]);
+
+  steps.push({
+    title: 'Read Off Equivalence Classes',
+    body: `All remaining <em>unmarked</em> pairs are <strong style="color:var(--accent)">indistinguishable</strong> — they can be merged!
+<br><br>
+Unmarked (equivalent) pairs: ${unmarkedPairs.length === 0
+  ? '<em>None — every state is distinguishable!</em>'
+  : unmarkedPairs.map(([a,b])=>`<span class="info-pill">(${a},${b})</span>`).join(' ')
+}
+<br><br>
+We use Union-Find to group states into equivalence classes:`,
+    table: buildTableHTML(stateIds, marked, pairKey, 'Final')
+  });
+
+  // Union-Find
+  const parent = {};
+  stateIds.forEach(id => parent[id] = id);
+  function find(x) { return parent[x] === x ? x : (parent[x] = find(parent[x])); }
+  function union(x, y) { parent[find(x)] = find(y); }
+
+  unmarkedPairs.forEach(([a,b]) => union(a,b));
+
+  const classMap = {};
+  stateIds.forEach(id => {
+    const root = find(id);
+    if (!classMap[root]) classMap[root] = [];
+    classMap[root].push(id);
+  });
+  const eqClasses = Object.values(classMap);
+
+  steps.push({
+    title: 'Equivalence Classes (Merged Groups)',
+    body: `After applying Union-Find, we get these equivalence classes — each class becomes ONE state in the minimized DFA:
+<br><br>
+${eqClasses.map((cls,i) => `<span class="info-pill purple">Class ${i}: {${cls.join(', ')}}</span>`).join('  ')}
+<br><br>
+<div class="note-box"><strong>Why merge?</strong> States in the same class are <em>indistinguishable</em> by any input string — no experiment can tell them apart. So they behave identically and can be collapsed into one.</div>`
+  });
+
+  // ── Build Minimized DFA
+  const minStates = eqClasses.map((cls, i) => {
+    const rep = cls[0]; // representative
+    const isAccept = cls.some(id => acceptStates.includes(id));
+    const isStart = cls.some(id => id === startState.id);
+    return { id: `m${i}`, name: `{${cls.join(',')}}`, isStart, isAccept, rep, cls, x: 0, y: 0 };
+  });
+
+  const minTrans = {};
+  minStates.forEach(ms => {
+    minTrans[ms.id] = {};
+    alphabet.forEach(sym => {
+      const target = transitions[ms.rep]?.[sym];
+      if (target) {
+        const targetClass = minStates.find(m => m.cls.includes(find(target)));
+        if (targetClass) minTrans[ms.id][sym] = targetClass.id;
+      }
+    });
+  });
+
+  // Position minimized states
+  const minCanvas = document.createElement('canvas');
+  const minCtx = minCanvas.getContext('2d');
+
+  // Arrange in circle
+  const minN = minStates.length;
+  minStates.forEach((ms, i) => {
+    const angle = (i/minN)*Math.PI*2 - Math.PI/2;
+    ms.x = 200 + 130 * Math.cos(angle);
+    ms.y = 130 + 100 * Math.sin(angle);
+  });
+
+  steps.push({
+    title: 'Minimized DFA',
+    body: `The minimized DFA has <strong style="color:var(--accent)">${minStates.length}</strong> states (reduced from ${states.length}).
+<br><br>
+<strong>Transition Table:</strong>
+${buildMinTransTable(minStates, minTrans, alphabet)}
+<br>
+<strong>Diagram:</strong>`,
+    minStates,
+    minTrans,
+    isFinal: true
+  });
+
+  // ── Render steps
+  stepsDiv.innerHTML = '';
+  steps.forEach((step, i) => {
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.style.animationDelay = `${i*0.06}s`;
+    card.innerHTML = `
+      <div class="step-card-header">
+        <div class="step-num">${i+1}</div>
+        <span>${step.title}</span>
+      </div>
+      <div class="step-card-body">
+        ${step.body}
+        ${step.table ? `<div class="fill-table-wrap">${step.table}</div>` : ''}
+        ${step.isFinal ? `<div class="minimized-canvas-wrap"><canvas id="minCanvas" width="400" height="260"></canvas></div>` : ''}
+      </div>
+    `;
+    stepsDiv.appendChild(card);
+  });
+
+  // Draw minimized DFA on canvas
+  requestAnimationFrame(() => {
+    const mc = document.getElementById('minCanvas');
+    if (mc) {
+      mc.width = mc.parentElement.clientWidth || 400;
+      mc.height = 260;
+      const mctx = mc.getContext('2d');
+      // Rescale positions
+      const finalMinStates = steps[steps.length-1].minStates;
+      const finalMinTrans  = steps[steps.length-1].minTrans;
+      const mN = finalMinStates.length;
+      finalMinStates.forEach((ms, i) => {
+        const angle = (i/mN)*Math.PI*2 - Math.PI/2;
+        ms.x = mc.width/2 + (mc.width*0.33) * Math.cos(angle);
+        ms.y = mc.height/2 + (mc.height*0.35) * Math.sin(angle);
+      });
+      drawDFA(finalMinStates, finalMinTrans, alphabet, mc, mctx, {});
+    }
+  });
+}
+
+function buildTableHTML(stateIds, marked, pairKey, label) {
+  const n = stateIds.length;
+  if (n < 2) return '';
+
+  // cols: stateIds[0..n-2], rows: stateIds[1..n-1]
+  let html = `<table class="fill-table"><thead><tr><th>${label}</th>`;
+  for (let c = 0; c < n-1; c++) html += `<th>${stateIds[c]}</th>`;
+  html += '</tr></thead><tbody>';
+
+  for (let r = 1; r < n; r++) {
+    html += `<tr><th>${stateIds[r]}</th>`;
+    for (let c = 0; c < n-1; c++) {
+      if (c >= r) { html += `<td class="diag">-</td>`; continue; }
+      const key = pairKey(stateIds[r], stateIds[c]);
+      const isMarked = marked[key];
+      html += `<td class="${isMarked?'marked':'unmarked'}">${isMarked?'✗':'✓'}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+function buildMinTransTable(minStates, minTrans, alpha) {
+  let html = `<table class="trans-table" style="margin-top:8px;font-size:.7rem;"><thead><tr><th>δ</th>`;
+  alpha.forEach(a => html += `<th>${a}</th>`);
+  html += '</tr></thead><tbody>';
+  minStates.forEach(ms => {
+    html += `<tr><td>${ms.isStart?'→':''}${ms.isAccept?'*':''}${ms.name}</td>`;
+    alpha.forEach(sym => {
+      const tid = minTrans[ms.id]?.[sym];
+      const tState = minStates.find(m=>m.id===tid);
+      html += `<td>${tState ? tState.name : '—'}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

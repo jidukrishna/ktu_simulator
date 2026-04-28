@@ -1,0 +1,45 @@
+{
+  "CSE": {
+    "Theory of Computation": [
+      {
+        "title": "DFA Minimization",
+        "description": "Minimize DFA and remove equivalent states visually.",
+        "file": "simulations/cse/toc/dfa_min.html",
+        "author": "Jidu",
+        "author_link": "https://jidu.dev",
+        "date": "2026-04-20"
+      },
+      {
+        "title": "Grammar Simplification & CNF",
+        "description": "Simplify CFG, eliminate useless productions and convert to CNF.",
+        "file": "simulations/cse/toc/cnfconv.html",
+        "author": "Jidu",
+        "author_link": "https://jidu.dev",
+        "date": "2026-04-20"
+      }
+    ],
+    "Operating Systems": [
+      {
+        "title": "CPU Scheduling",
+        "description": "Visualize FCFS, SJF (Non-preemptive), Priority and Round Robin scheduling.",
+        "file": "simulations/cse/os/cpu_scheduler.html",
+        "author": "Jidu",
+        "author_link": "https://jidu.dev",
+        "date": "2026-04-20"
+      },
+      {
+        "title": "Disk Scheduling",
+        "description": "Simulate FCFS, SSTF, SCAN, LOOK, C-LOOK and C-SCAN disk scheduling.",
+        "file": "simulations/cse/os/disk_scheduling.html",
+        "author": "Jidu",
+        "author_link": "https://jidu.dev",
+        "date": "2026-04-20"
+      }
+    ]
+  },
+  "ECE": {},
+  "EEE": {},
+  "MECH": {},
+  "CIVIL": {},
+  "APPLIED ELECTRONICS": {}
+}

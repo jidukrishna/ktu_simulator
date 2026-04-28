@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CFG Simplifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a40;
+    --accent: #7c6dfa; --accent2: #fa6d8e; --accent3: #6dfabc; --accent4: #fad66d;
+    --text: #e8e8f0; --muted: #7878a0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(124,109,250,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(124,109,250,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+  }
+  .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+  .orb1 { width: 400px; height: 400px; background: rgba(124,109,250,0.08); top: -100px; left: -100px; }
+  .orb2 { width: 300px; height: 300px; background: rgba(250,109,142,0.06); bottom: 100px; right: -50px; }
+  .orb3 { width: 200px; height: 200px; background: rgba(109,250,188,0.05); top: 50%; left: 50%; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+  header { padding: 48px 0 40px; text-align: center; }
+  .header-badge {
+    display: inline-block; background: linear-gradient(135deg, rgba(124,109,250,0.2), rgba(250,109,142,0.2));
+    border: 1px solid rgba(124,109,250,0.3); padding: 4px 16px; border-radius: 100px;
+    font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 20px;
+  }
+  h1 {
+    font-size: clamp(2.2rem,5vw,3.8rem); font-weight: 800; line-height: 1.05;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px;
+  }
+  .subtitle { color: var(--muted); font-size: 1rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+  .input-section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 32px; margin-bottom: 32px; position: relative; overflow: hidden;
+  }
+  .input-section::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  }
+  .section-label {
+    font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width:600px) { .input-grid { grid-template-columns: 1fr; } }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 0.05em; }
+  input[type="text"] {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; color: var(--text); font-family: 'Space Mono', monospace;
+    font-size: 13px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,109,250,0.1); }
+  textarea {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 13px;
+    outline: none; resize: vertical; min-height: 160px; width: 100%; line-height: 1.8;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,109,250,0.1); }
+  .textarea-hint { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; margin-top: 6px; }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .btn { padding: 12px 28px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #9b8dff); color: white; box-shadow: 0 4px 20px rgba(124,109,250,0.3); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,109,250,0.4); }
+  .btn-secondary { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+  .btn-example { background: transparent; color: var(--accent3); border: 1px solid rgba(109,250,188,0.3); font-size: 12px; padding: 8px 16px; }
+  .btn-example:hover { background: rgba(109,250,188,0.05); }
+  #results { display: none; }
+  #results.show { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .step-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 20px; overflow: hidden; transition: border-color 0.3s; }
+  .step-card:hover { border-color: rgba(124,109,250,0.3); }
+  .step-header { padding: 20px 28px; display: flex; align-items: center; gap: 16px; cursor: pointer; user-select: none; }
+  .step-num { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .step-1 .step-num { background: rgba(124,109,250,0.2); color: var(--accent); border: 1px solid rgba(124,109,250,0.3); }
+  .step-2 .step-num { background: rgba(250,109,142,0.2); color: var(--accent2); border: 1px solid rgba(250,109,142,0.3); }
+  .step-3 .step-num { background: rgba(109,250,188,0.2); color: var(--accent3); border: 1px solid rgba(109,250,188,0.3); }
+  .cnf-card .step-num { background: rgba(124,109,250,0.2); color: var(--accent); border: 1px solid rgba(124,109,250,0.3); }
+  .gnf-card .step-num { background: rgba(250,109,142,0.2); color: var(--accent2); border: 1px solid rgba(250,109,142,0.3); }
+  .step-title-block { flex: 1; }
+  .step-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .step-subtitle { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .step-arrow { color: var(--muted); transition: transform 0.3s; font-size: 18px; }
+  .step-card.open .step-arrow { transform: rotate(180deg); }
+  .step-body { display: none; padding: 0 28px 28px; border-top: 1px solid var(--border); }
+  .step-card.open .step-body { display: block; animation: fadeIn 0.3s ease; }
+  .grammar-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; font-family: 'Space Mono', monospace; font-size: 13px;
+    line-height: 2.2; margin: 8px 0; overflow-x: auto;
+  }
+  .grammar-box .prod { display: block; }
+  .prod-lhs { color: var(--accent2); }
+  .prod-arrow { color: var(--muted); margin: 0 8px; }
+  .terminal { color: var(--accent4); }
+  .nonterminal { color: var(--accent); }
+  .new-sym { color: var(--accent3); font-weight: 700; }
+  .info-box {
+    background: rgba(124,109,250,0.07); border: 1px solid rgba(124,109,250,0.2);
+    border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--muted); line-height: 1.7; margin: 10px 0;
+  }
+  .info-box strong { color: var(--text); }
+  .warn-box {
+    background: rgba(250,214,109,0.07); border: 1px solid rgba(250,214,109,0.2);
+    border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--accent4); line-height: 1.6; margin: 10px 0;
+  }
+  .set-display { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .tag { padding: 4px 12px; border-radius: 6px; font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; }
+  .tag-nullable { background: rgba(124,109,250,0.15); color: var(--accent); border: 1px solid rgba(124,109,250,0.3); }
+  .tag-unit { background: rgba(250,109,142,0.15); color: var(--accent2); border: 1px solid rgba(250,109,142,0.3); }
+  .tag-useless { background: rgba(255,80,80,0.15); color: #ff8080; border: 1px solid rgba(255,80,80,0.3); }
+  .tag-reachable { background: rgba(250,214,109,0.15); color: var(--accent4); border: 1px solid rgba(250,214,109,0.3); }
+  .tag-generating { background: rgba(109,250,188,0.15); color: var(--accent3); border: 1px solid rgba(109,250,188,0.3); }
+  .tag-new { background: rgba(109,250,188,0.12); color: var(--accent3); border: 1px solid rgba(109,250,188,0.25); }
+  .sub-h {
+    display: block; font-size: 11px; font-family: 'Space Mono', monospace; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.12em; margin: 20px 0 8px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+  .transform-step { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 14px 0; }
+  .transform-step-header {
+    background: rgba(255,255,255,0.02); padding: 12px 18px;
+    display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border);
+  }
+  .ts-badge {
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0;
+  }
+  .ts-c1 { background: rgba(124,109,250,0.15); color: var(--accent); }
+  .ts-c2 { background: rgba(109,250,188,0.15); color: var(--accent3); }
+  .ts-c3 { background: rgba(250,214,109,0.15); color: var(--accent4); }
+  .ts-g1 { background: rgba(250,109,142,0.15); color: var(--accent2); }
+  .ts-g2 { background: rgba(124,109,250,0.15); color: var(--accent); }
+  .ts-g3 { background: rgba(109,250,188,0.15); color: var(--accent3); }
+  .ts-g4 { background: rgba(250,214,109,0.15); color: var(--accent4); }
+  .ts-title { font-size: 14px; font-weight: 700; }
+  .transform-step-body { padding: 16px 18px; }
+  .rule-table { width: 100%; border-collapse: collapse; font-family: 'Space Mono', monospace; font-size: 12px; margin: 8px 0; }
+  .rule-table th { text-align: left; color: var(--muted); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .rule-table td { padding: 7px 10px; border-bottom: 1px solid rgba(42,42,64,0.5); vertical-align: top; }
+  .rule-table tr:last-child td { border-bottom: none; }
+  .lhs-col { color: var(--accent2); width: 55px; }
+  .muted-col { color: var(--muted); }
+  .reason-col { color: var(--muted); font-size: 11px; font-style: italic; }
+  .new-row td { background: rgba(109,250,188,0.04); }
+  .changed-row td { background: rgba(124,109,250,0.04); }
+  .grammar-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+  @media (max-width:640px) { .grammar-compare { grid-template-columns: 1fr; } }
+  .compare-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .nf-divider { text-align: center; margin: 40px 0 24px; position: relative; }
+  .nf-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+  .nf-divider span { position: relative; background: var(--bg); padding: 0 20px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .cnf-card .step-header { background: rgba(124,109,250,0.03); }
+  .gnf-card .step-header { background: rgba(250,109,142,0.03); }
+  .error-box { background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3); border-radius: 10px; padding: 14px 18px; color: #ff8080; font-family: 'Space Mono', monospace; font-size: 13px; margin: 12px 0; }
+  .examples-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .step-intro { padding: 16px 0 4px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .progress-bar { display: flex; gap: 4px; margin: 24px 0; }
+  .progress-step { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.5s; }
+  .progress-step.done { background: var(--accent); }
+  .final-box {
+    background: linear-gradient(135deg, rgba(124,109,250,0.08), rgba(109,250,188,0.05));
+    border: 1px solid rgba(124,109,250,0.25); border-radius: 14px; padding: 20px; margin-top: 20px;
+  }
+  .final-box-title { font-size: 11px; font-family: 'Space Mono', monospace; color: var(--accent3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .step-phase { display: flex; align-items: flex-start; gap: 14px; margin: 10px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; }
+  .phase-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .phase-content { flex: 1; min-width: 0; }
+  .phase-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .phase-text { font-size: 12px; color: var(--muted); line-height: 1.9; font-family: 'Space Mono', monospace; word-break: break-all; }
+  .new-tag { display: inline-block; background: rgba(109,250,188,0.12); color: var(--accent3); border: 1px solid rgba(109,250,188,0.25); font-size: 10px; font-family: 'Space Mono', monospace; padding: 1px 7px; border-radius: 4px; margin-left: 6px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="container">
+  <header>
+    <div class="header-badge">Formal Language Theory</div>
+    <h1>CFG Simplifier</h1>
+    <p class="subtitle">Full step-by-step simplification with detailed CNF &amp;derivations — every transformation explained</p>
+  </header>
+
+  <div class="input-section">
+    <div class="section-label">Grammar Input</div>
+    <div class="input-grid">
+      <div class="field-group">
+        <label>Start Symbol</label>
+        <input type="text" id="startSymbol" value="S" />
+      </div>
+      <div class="field-group">
+        <label>Non-terminals (comma separated)</label>
+        <input type="text" id="nonTerminals" value="S, A, B" />
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Productions (one per line — A → BC | ε | a)</label>
+      <textarea id="productions">S → AB | a
+A → a | ε
+B → b | S</textarea>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+  <div class="textarea-hint">
+    Use ε for epsilon · → for productions · Uppercase = non-terminal · Lowercase = terminal
+  </div>
+
+  <div style="display:flex;gap:6px;">
+    <button class="btn btn-secondary" onclick="copySymbol(this, 'ε')">ε</button>
+    <button class="btn btn-secondary" onclick="copySymbol(this, '→')">→</button>
+  </div>
+</div>
+    </div>
+    <div class="section-label" style="margin-top:20px">Load Example</div>
+    <div class="examples-row">
+      <button class="btn btn-example" onclick="loadExample(0)">Example 1 (ε-prod)</button>
+      <button class="btn btn-example" onclick="loadExample(1)">Example 2 (Unit prod)</button>
+      <button class="btn btn-example" onclick="loadExample(2)">Example 3 (Complex)</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runSimplification()">&#9654; Simplify Grammar</button>
+      <button class="btn btn-secondary" onclick="clearAll()">&#x2715; Clear</button>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="progress-bar">
+      <div class="progress-step" id="p1"></div>
+      <div class="progress-step" id="p2"></div>
+      <div class="progress-step" id="p3"></div>
+      <div class="progress-step" id="p4"></div>
+      <div class="progress-step" id="p5"></div>
+    </div>
+
+    <div class="step-card step-1" id="card1">
+      <div class="step-header" onclick="toggleCard('card1')">
+        <div class="step-num">01</div>
+        <div class="step-title-block">
+          <div class="step-title">Removal of ε-Productions</div>
+          <div class="step-subtitle">Find nullable variables · Expand all combinations</div>
+        </div>
+        <div class="step-arrow">&#9662;</div>
+      </div>
+      <div class="step-body" id="body1"></div>
+    </div>
+
+    <div class="step-card step-2" id="card2">
+      <div class="step-header" onclick="toggleCard('card2')">
+        <div class="step-num">02</div>
+        <div class="step-title-block">
+          <div class="step-title">Removal of Unit Productions</div>
+          <div class="step-subtitle">Compute unit closure · Replace chains</div>
+        </div>
+        <div class="step-arrow">&#9662;</div>
+      </div>
+      <div class="step-body" id="body2"></div>
+    </div>
+
+    <div class="step-card step-3" id="card3">
+      <div class="step-header" onclick="toggleCard('card3')">
+        <div class="step-num">03</div>
+        <div class="step-title-block">
+          <div class="step-title">Removal of Useless Symbols</div>
+          <div class="step-subtitle">Lemma 1: non-generating · Lemma 2: non-reachable</div>
+        </div>
+        <div class="step-arrow">&#9662;</div>
+      </div>
+      <div class="step-body" id="body3"></div>
+    </div>
+
+    <div class="nf-divider"><span>Normal Forms</span></div>
+
+    <div class="step-card cnf-card" id="cardCNF">
+      <div class="step-header" onclick="toggleCard('cardCNF')">
+        <div class="step-num">CNF</div>
+        <div class="step-title-block">
+          <div class="step-title">Chomsky Normal Form</div>
+          <div class="step-subtitle">A &#8594; BC | A &#8594; a — 5 detailed sub-steps with rule-by-rule changes</div>
+        </div>
+        <div class="step-arrow">&#9662;</div>
+      </div>
+      <div class="step-body" id="bodyCNF"></div>
+    </div>
+
+     <div class="step-card gnf-card" id="cardGNF" style="display:none;">
+      <div class="step-header" onclick="toggleCard('cardGNF')">
+        <div class="step-num">GNF</div>
+        <div class="step-title-block">
+          <div class="step-title">Greibach Normal Form</div>
+          <div class="step-subtitle">A &#8594; a&#945; — ordering, substitution, left-recursion elimination, back-sub</div>
+        </div>
+        <div class="step-arrow">&#9662;</div>
+      </div>
+      <div class="step-body" id="bodyGNF"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =================== EXAMPLES ===================
+const EXAMPLES = [
+  { start:'S', nonTerminals:'S, A, B', productions:'S → AB | a\nA → a | ε\nB → b | S' },
+  { start:'S', nonTerminals:'S, A, B, C', productions:'S → A | a\nA → B | b\nB → C | c\nC → a' },
+  { start:'S', nonTerminals:'S, A, B, C, D', productions:'S → AB | aD\nA → a | ε\nB → BC | b\nC → ε | c\nD → d' }
+];
+function loadExample(i) {
+  const e = EXAMPLES[i];
+  document.getElementById('startSymbol').value = e.start;
+  document.getElementById('nonTerminals').value = e.nonTerminals;
+  document.getElementById('productions').value = e.productions;
+}
+function clearAll() {
+  ['startSymbol','nonTerminals','productions'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('results').classList.remove('show');
+}
+function toggleCard(id) { document.getElementById(id).classList.toggle('open'); }
+
+// =================== PARSING ===================
+function parseInput() {
+  const start = document.getElementById('startSymbol').value.trim();
+  const ntRaw = document.getElementById('nonTerminals').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const prodLines = document.getElementById('productions').value.trim().split('\n').filter(Boolean);
+  const productions = {};
+  for (const nt of ntRaw) productions[nt] = [];
+  for (const line of prodLines) {
+    const m = line.match(/^([A-Z][A-Z0-9']*)\s*[→\->]+\s*(.+)$/);
+    if (!m) continue;
+    const lhs = m[1].trim();
+    if (!productions[lhs]) productions[lhs] = [];
+    for (const rhs of m[2].split('|').map(s=>s.trim())) {
+      if (['ε','eps','epsilon',''].includes(rhs)) productions[lhs].push(['ε']);
+      else productions[lhs].push(rhs.split('').filter(c=>c!==' '));
+    }
+  }
+  return { start, nonTerminals: ntRaw, productions };
+}
+
+// =================== UTILITIES ===================
+function deepCopy(o) { return JSON.parse(JSON.stringify(o)); }
+function unique(arr) { const s=new Set(); return arr.filter(r=>{const k=JSON.stringify(r);if(s.has(k))return false;s.add(k);return true;}); }
+function isNT(s) { return typeof s==='string' && s.length>0 && s[0]>='A' && s[0]<='Z'; }
+function isTerm(s) { return typeof s==='string' && s.length>0 && s[0]>='a' && s[0]<='z'; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function symH(c, newSyms) {
+  if (!c) return '';
+  if (c==='ε') return `<span class="terminal">ε</span>`;
+  if (newSyms && newSyms.has(c)) return `<span class="new-sym">${esc(c)}</span>`;
+  if (isNT(c)) return `<span class="nonterminal">${esc(c)}</span>`;
+  return `<span class="terminal">${esc(c)}</span>`;
+}
+function ruleH(rule, newSyms) {
+  if (!Array.isArray(rule)) return esc(rule);
+  if (rule.length===1 && rule[0]==='ε') return `<span class="terminal">ε</span>`;
+  return rule.map(c=>symH(c, newSyms)).join('');
+}
+function renderProds(prods, newSyms) {
+  let h = '<div class="grammar-box">';
+  for (const [lhs, rules] of Object.entries(prods)) {
+    if (!rules || rules.length===0) continue;
+    const lhsClass = (newSyms && newSyms.has(lhs)) ? 'new-sym' : 'prod-lhs';
+    h += `<span class="prod"><span class="${lhsClass}">${esc(lhs)}</span><span class="prod-arrow">→</span>${rules.map(r=>ruleH(r,newSyms)).join(' | ')}</span>`;
+  }
+  return h + '</div>';
+}
+
+// =================== STEP 1: EPSILON ===================
+function findNullable(prods) {
+  const nullable = new Set();
+  for (const [lhs,rules] of Object.entries(prods))
+    for (const r of rules) if (r.length===1&&r[0]==='ε') { nullable.add(lhs); break; }
+  let changed = true;
+  while (changed) { changed=false; for (const [lhs,rules] of Object.entries(prods)) { if (nullable.has(lhs)) continue; for (const r of rules) if (r.every(s=>nullable.has(s))) { nullable.add(lhs); changed=true; break; } } }
+  return nullable;
+}
+function getSubsets(positions) {
+  let res=[new Set()];
+  for (const p of positions) {
+    const ext=res.map(s=>new Set([...s,p]));
+    const all=[...res,...ext]; const seen=new Set(); res=[];
+    for (const s of all) { const k=[...s].sort().join(','); if(!seen.has(k)){seen.add(k);res.push(s);} }
+  }
+  return res;
+}
+
+function copySymbol(btn, symbol) {
+  navigator.clipboard.writeText(symbol).then(() => {
+    const original = btn.innerText;
+    btn.innerText = "Copied!";
+    setTimeout(() => btn.innerText = original, 800);
+  }).catch(() => {
+    alert("Copy failed");
+  });
+}
+
+
+function removeEpsilon(prods, start) {
+  const nullable = findNullable(prods);
+  const newProds = {};
+  const changes = [];
+  for (const lhs of Object.keys(prods)) newProds[lhs]=[];
+  for (const [lhs,rules] of Object.entries(prods)) {
+    const added = [];
+    for (const rule of rules) {
+      if (rule.length===1&&rule[0]==='ε') continue;
+      const nullPos = rule.map((s,i)=>nullable.has(s)?i:-1).filter(i=>i>=0);
+      for (const subset of getSubsets(nullPos)) {
+        const nr = rule.filter((_,i)=>!subset.has(i));
+        if (nr.length>0) { newProds[lhs].push(nr); if(subset.size>0) added.push(nr); }
+      }
+    }
+    newProds[lhs] = unique(newProds[lhs]);
+    const origStrs = new Set(prods[lhs].map(r=>JSON.stringify(r)));
+    const newAdded = added.filter(r=>!origStrs.has(JSON.stringify(r)));
+    const removed = prods[lhs].filter(r=>r.length===1&&r[0]==='ε');
+    if (newAdded.length||removed.length) changes.push({lhs, added:newAdded, removed});
+  }
+  return { newProds, nullable, addEpsilonToStart:nullable.has(start), changes };
+}
+
+// =================== STEP 2: UNIT ===================
+function isUnit(rule) { return rule.length===1 && isNT(rule[0]); }
+function findUnitPairs(prods) {
+  const nts = Object.keys(prods);
+  const pairs = new Set(nts.map(n=>`${n},${n}`));
+  let changed=true;
+  while(changed){changed=false;for(const[lhs,rules]of Object.entries(prods)){for(const r of rules){if(isUnit(r)){const B=r[0];for(const nt of nts){if(pairs.has(`${nt},${lhs}`)&&!pairs.has(`${nt},${B}`)){pairs.add(`${nt},${B}`);changed=true;}}}}}}
+  return pairs;
+}
+function removeUnitProductions(prods) {
+  const unitPairs = findUnitPairs(prods);
+  const newProds = {};
+  for (const lhs of Object.keys(prods)) newProds[lhs]=[];
+  for (const lhs of Object.keys(prods)) {
+    for (const pair of unitPairs) {
+      const [a,b] = pair.split(',');
+      if (a!==lhs) continue;
+      for (const rule of (prods[b]||[])) if (!isUnit(rule)) newProds[lhs].push(rule);
+    }
+    newProds[lhs] = unique(newProds[lhs]);
+  }
+  return { newProds, unitPairs };
+}
+
+// =================== STEP 3: USELESS ===================
+function findGenerating(prods) {
+  const gen=new Set(); let ch=true;
+  while(ch){ch=false;for(const[lhs,rules]of Object.entries(prods)){if(gen.has(lhs))continue;for(const r of rules){if(r.every(s=>s==='ε'||isTerm(s)||gen.has(s))){gen.add(lhs);ch=true;break;}}}}
+  return gen;
+}
+function findReachable(prods,start) {
+  const reach=new Set([start]); let ch=true;
+  while(ch){ch=false;for(const[lhs,rules]of Object.entries(prods)){if(!reach.has(lhs))continue;for(const r of rules){for(const s of r){if(isNT(s)&&!reach.has(s)){reach.add(s);ch=true;}}}}}
+  return reach;
+}
+function removeUseless(prods,start) {
+  const generating=findGenerating(prods);
+  const afterGen={};
+  for(const[lhs,rules]of Object.entries(prods)){
+    if(!generating.has(lhs))continue;
+    afterGen[lhs]=rules.filter(r=>r.every(s=>s==='ε'||isTerm(s)||generating.has(s)));
+  }
+  const reachable=findReachable(afterGen,start);
+  const afterReach={};
+  for(const[lhs,rules]of Object.entries(afterGen)) if(reachable.has(lhs)) afterReach[lhs]=rules;
+  return{newProds:afterReach,generating,reachable,
+    nonGenerating:Object.keys(prods).filter(n=>!generating.has(n)),
+    nonReachable:Object.keys(afterGen).filter(n=>!reachable.has(n))};
+}
+
+// =================== CNF ===================
+function toCNF(prods0, start) {
+  const steps = [];
+  let prods = deepCopy(prods0);
+
+  // SUB-STEP 1: New start symbol if S appears in any RHS
+  let startOnRHS = false;
+  for(const [,rules] of Object.entries(prods)) for(const r of rules) if(r.includes(start)) startOnRHS=true;
+  let newStart = start;
+  const beforeS1 = deepCopy(prods);
+  if (startOnRHS) {
+    newStart = start+'0';
+    prods = { [newStart]:[[start]], ...deepCopy(prods) };
+  }
+  steps.push({
+    id:'s1', badge:'ts-c1', label:'STEP 1', title:'New Start Symbol',
+    body: () => {
+      if (!startOnRHS) return `<div class="warn-box">The start symbol <b>${esc(start)}</b> does not appear in any RHS — no new start symbol is needed.</div>` + renderProds(prods);
+      let h = `<div class="info-box">The start symbol <b>${esc(start)}</b> appears on the right-hand side of some rule. We introduce a fresh start symbol <b><span class="new-sym">${esc(newStart)}</span></b> with the production <b><span class="new-sym">${esc(newStart)}</span> → <span class="nonterminal">${esc(start)}</span></b>.</div>`;
+      h += `<div class="grammar-compare"><div><div class="compare-label">Before</div>${renderProds(beforeS1)}</div>`;
+      h += `<div><div class="compare-label">After</div>${renderProds(prods, new Set([newStart]))}</div></div>`;
+      return h;
+    }
+  });
+
+  // SUB-STEP 2: ε-productions (reference)
+  steps.push({
+    id:'s2', badge:'ts-c2', label:'STEP 2', title:'ε-Productions',
+    body: () => `<div class="info-box">ε-productions were fully eliminated in <strong>Simplification Step 1</strong>. The grammar entering CNF has no ε-rules (except S → ε if ε ∈ L(G)).</div>` + renderProds(prods)
+  });
+
+  // SUB-STEP 3: Unit productions (reference)
+  steps.push({
+    id:'s3', badge:'ts-c3', label:'STEP 3', title:'Unit Productions',
+    body: () => `<div class="info-box">Unit productions were fully eliminated in <strong>Simplification Step 2</strong>. All rules now have |RHS| ≥ 1 with no single-non-terminal right-hand sides.</div>` + renderProds(prods)
+  });
+
+  // SUB-STEP 4: Terminal isolation
+  const termMap = {};
+  function getTermNT(t) { if(!termMap[t]) termMap[t]='T'+t.toUpperCase(); return termMap[t]; }
+  const beforeT = deepCopy(prods);
+  const newProdsT = {};
+  const termChanges = [];
+  for (const lhs of Object.keys(prods)) newProdsT[lhs]=[];
+  for (const [lhs,rules] of Object.entries(prods)) {
+    for (const rule of rules) {
+      if (rule.length < 2) { newProdsT[lhs].push(rule); continue; }
+      const newRule = rule.map(sym => isTerm(sym) ? getTermNT(sym) : sym);
+      if (JSON.stringify(newRule)!==JSON.stringify(rule))
+        termChanges.push({lhs, before:[...rule], after:[...newRule]});
+      newProdsT[lhs].push(newRule);
+    }
+    newProdsT[lhs] = unique(newProdsT[lhs]);
+  }
+  const newTermNTs = new Set();
+  for (const [t,nt] of Object.entries(termMap)) { newProdsT[nt]=[[t]]; newTermNTs.add(nt); }
+  prods = newProdsT;
+  steps.push({
+    id:'s4', badge:'ts-c1', label:'STEP 4', title:'Terminal Isolation',
+    body: () => {
+      let h = `<div class="info-box">For every terminal <b>a</b> appearing inside a rule of length ≥ 2, introduce a dedicated wrapper non-terminal <b><span class="new-sym">Tₐ → a</span></b>, then replace every such occurrence with <span class="new-sym">Tₐ</span>. Rules of the form A → a are already in CNF and left unchanged.</div>`;
+      if (termChanges.length===0) {
+        h += `<div class="warn-box">No terminals appear in rules of length ≥ 2 — this step makes no changes.</div>`;
+      } else {
+        h += `<span class="sub-h">New Terminal Wrappers</span><div class="set-display">`;
+        for (const [t,nt] of Object.entries(termMap)) h+=`<span class="tag tag-new">${esc(nt)} → ${esc(t)}</span>`;
+        h += `</div>`;
+        h += `<span class="sub-h">Rule-by-Rule Changes</span>`;
+        h += `<table class="rule-table"><thead><tr><th>LHS</th><th>Before</th><th></th><th>After</th></tr></thead><tbody>`;
+        for (const c of termChanges) {
+          h += `<tr class="changed-row"><td class="lhs-col">${esc(c.lhs)}</td><td class="muted-col">${ruleH(c.before)}</td><td style="color:var(--accent);padding:7px 6px">→</td><td>${ruleH(c.after, newTermNTs)}</td></tr>`;
+        }
+        h += `</tbody></table>`;
+      }
+      h += `<span class="sub-h">Grammar after Terminal Isolation</span>`;
+      h += renderProds(prods, newTermNTs);
+      return h;
+    },
+    termChanges, newTermNTs
+  });
+
+  // SUB-STEP 5: Binarization
+  const beforeB = deepCopy(prods);
+  const prods2 = {};
+  let xCtr = 0;
+  const binChanges = [];
+  const newBinNTs = new Set();
+  for (const lhs of Object.keys(prods)) prods2[lhs]=[];
+  for (const [lhs,rules] of Object.entries(prods)) {
+    for (const rule of rules) {
+      if (rule.length<=2) { prods2[lhs].push(rule); continue; }
+      const chain = [];
+      let cur=[...rule], curLhs=lhs;
+      while(cur.length>2) {
+        xCtr++;
+        const xnt='X'+xCtr; newBinNTs.add(xnt);
+        if(!prods2[curLhs]) prods2[curLhs]=[];
+        prods2[curLhs].push([cur[0],xnt]);
+        chain.push({lhs:curLhs, rule:[cur[0],xnt], xnt});
+        if(!prods2[xnt]) prods2[xnt]=[];
+        curLhs=xnt; cur=cur.slice(1);
+      }
+      if(!prods2[curLhs]) prods2[curLhs]=[];
+      prods2[curLhs].push(cur);
+      chain.push({lhs:curLhs, rule:cur});
+      binChanges.push({origLhs:lhs, origRule:[...rule], chain});
+    }
+  }
+  for (const lhs of Object.keys(prods)) { if(!prods2[lhs]) prods2[lhs]=[]; }
+  for (const lhs of Object.keys(prods2)) prods2[lhs]=unique(prods2[lhs]);
+  prods = prods2;
+  steps.push({
+    id:'s5', badge:'ts-c2', label:'STEP 5', title:'Binarization of Long Rules',
+    body: () => {
+      let h = `<div class="info-box">Any rule A → X₁X₂…Xₙ with n ≥ 3 violates CNF. We break it into a chain of binary rules by introducing fresh non-terminals <span class="new-sym">X₁, X₂, …</span>. Each new rule has exactly 2 symbols on the right-hand side.</div>`;
+      if (binChanges.length===0) {
+        h += `<div class="warn-box">No rules of length ≥ 3 — binarization makes no changes.</div>`;
+      } else {
+        h += `<span class="sub-h">Binarization Chains</span>`;
+        for (const bc of binChanges) {
+          h += `<div class="step-phase"><div class="phase-icon">&#9868;</div><div class="phase-content">`;
+          h += `<div class="phase-title">Splitting: <span class="prod-lhs">${esc(bc.origLhs)}</span><span class="prod-arrow">→</span>${ruleH(bc.origRule)}</div>`;
+          h += `<div class="phase-text">`;
+          for (const link of bc.chain) {
+            h += `<span class="prod-lhs">${esc(link.lhs)}</span><span class="prod-arrow">→</span>${ruleH(link.rule, newBinNTs)}`;
+            if(link.xnt) h+=` <span class="new-tag">new: ${esc(link.xnt)}</span>`;
+            h += `<br>`;
+          }
+          h += `</div></div></div>`;
+        }
+      }
+      h += `<span class="sub-h">Grammar after Binarization</span>`;
+      h += renderProds(prods, newBinNTs);
+      return h;
+    }
+  });
+
+  return { cnf: prods, steps, termMap, newStart };
+}
+
+// // =================== GNF ===================
+// function toGNF(cnfProds, start) {
+// const ntList = [start, ...Object.keys(cnfProds).filter(n => n !== start)];
+// const ntMap = {};
+// const reverseMap = {};
+
+// ntList.forEach((nt, i) => {
+//   const newName = i === 0 ? 'Z' : `A${i}`; // Z for start, rest A1, A2...
+//   ntMap[nt] = newName;
+//   reverseMap[newName] = nt;
+// });
+//   const gnfSteps = [];
+// let prods = renameProductions(cnfProds, ntMap);
+// const startMapped = ntMap[start];
+// const allNTs = Object.keys(prods);
+//   const idx = {};
+//   allNTs.forEach((n,i)=>idx[n]=i);
+
+//   // GNF STEP 1: Ordering
+//   gnfSteps.push({
+//     id:'g1', badge:'ts-g1', label:'STEP 1', title:'Order the Non-terminals',
+//     body: () => {
+//       let h=`<div class="info-box">We assign a total ordering A₁, A₂, …, Aₙ to all non-terminals. The start symbol is always A₁. The ordering is used in the substitution step: we ensure every rule for Aᵢ starts with either a terminal or Aⱼ where j &gt; i.</div>`;
+//       h+=`<span class="sub-h">Ordering</span>`;
+//       h+=`<table class="rule-table"><thead><tr><th>Index</th><th>Non-terminal</th><th>Current rules</th></tr></thead><tbody>`;
+//       for (const [i,n] of allNTs.entries()) {
+//         const rules=(prods[n]||[]).map(r=>ruleH(r)).join(' | ')||'—';
+//         h+=`<tr><td style="color:var(--accent4);font-weight:700">A${i+1}</td><td class="muted-col" style="color:var(--accent)">${esc(n)}</td><td style="font-size:11px">${rules}</td></tr>`;
+//       }
+//       h+=`</tbody></table>`;
+//       return h;
+//     }
+//   });
+
+//   // GNF STEP 2: Forward substitution
+//   const subsLog = [];
+//   const prodsBeforeFwd = deepCopy(prods);
+//   for (let i=0; i<allNTs.length; i++) {
+//     const Ai=allNTs[i];
+//     if(!prods[Ai]) prods[Ai]=[];
+//     const events=[];
+//     let changed=true, iters=0;
+//     while(changed && iters<30) {
+//       changed=false; iters++;
+//       const newRules=[];
+//       for (const rule of prods[Ai]) {
+//         const fs=rule[0];
+//         if(fs && isNT(fs) && idx[fs]!==undefined && idx[fs]<i) {
+//           const subs=(prods[fs]||[]);
+//           for (const sub of subs) newRules.push([...sub,...rule.slice(1)]);
+//           events.push({replaced:fs, subs:subs.map(s=>[...s]), restOfRule:rule.slice(1)});
+//           changed=true;
+//         } else newRules.push(rule);
+//       }
+//       prods[Ai]=unique(newRules);
+//     }
+//     if(events.length>0) subsLog.push({nt:Ai, events, after:deepCopy(prods[Ai])});
+//   }
+//   gnfSteps.push({
+//     id:'g2', badge:'ts-g2', label:'STEP 2', title:'Forward Substitution',
+//     body: () => {
+//       let h=`<div class="info-box">For each Aᵢ (in order i=1…n), if any rule starts with Aⱼ where j &lt; i, we substitute all productions of Aⱼ into that rule. We repeat until no Aᵢ rule starts with a lower-indexed non-terminal. This guarantees that after this step, each Aᵢ rule either starts with a terminal or with Aⱼ where j &gt; i.</div>`;
+//       if(subsLog.length===0){
+//         h+=`<div class="warn-box">No forward substitutions needed — all rules already satisfy the ordering condition.</div>`;
+//       } else {
+//         h+=`<span class="sub-h">Substitution Events</span>`;
+//         for(const entry of subsLog){
+//           h+=`<div class="step-phase"><div class="phase-icon">&#128257;</div><div class="phase-content">`;
+//           h+=`<div class="phase-title">Processing <span class="nonterminal">${esc(entry.nt)}</span></div>`;
+//           h+=`<div class="phase-text">`;
+//           const seenR=new Set();
+//           for(const ev of entry.events){
+//             const k=ev.replaced+JSON.stringify(ev.restOfRule);
+//             if(seenR.has(k)) continue; seenR.add(k);
+//             h+=`Substitute leading <span class="nonterminal">${esc(ev.replaced)}</span> (${ev.subs.length} production${ev.subs.length>1?'s':''})<br>`;
+//             for(const sub of ev.subs){
+//               const combined=[...sub,...ev.restOfRule];
+//               h+=`&nbsp;&nbsp;<span class="nonterminal">${esc(ev.replaced)}</span><span class="prod-arrow">→</span>${ruleH(sub)} → <span class="nonterminal">${esc(entry.nt)}</span><span class="prod-arrow">→</span>${ruleH(combined)}<br>`;
+//             }
+//           }
+//           h+=`<br><b>Rules for ${esc(entry.nt)} after substitution:</b><br>`;
+//           for(const r of entry.after) h+=`<span class="prod-lhs">${esc(entry.nt)}</span><span class="prod-arrow">→</span>${ruleH(r)}<br>`;
+//           h+=`</div></div></div>`;
+//         }
+//       }
+//       h+=`<span class="sub-h">Grammar after Forward Substitution</span>`;
+//       h+=renderProds(prods);
+//       return h;
+//     }
+//   });
+
+//   // GNF STEP 3: Left recursion elimination
+//   const lrLog=[];
+//   const primedNTs=new Set();
+//   const prodsBeforeLR=deepCopy(prods);
+//   for(let i=0;i<allNTs.length;i++){
+//     const Ai=allNTs[i];
+//     if(!prods[Ai]) continue;
+//     const alphas=[], betas=[];
+//     for(const rule of prods[Ai]){
+//       if(rule[0]===Ai) alphas.push(rule.slice(1));
+//       else betas.push(rule);
+//     }
+//     if(alphas.length>0){
+//       const Ap=Ai+"'"; primedNTs.add(Ap);
+//       prods[Ai]=betas.map(b=>[...b,Ap]);
+//       prods[Ap]=[...alphas.map(a=>[...a,Ap]),...alphas];
+//       lrLog.push({nt:Ai,primed:Ap,alphas:alphas.map(a=>[...a]),betas:betas.map(b=>[...b]),newAi:deepCopy(prods[Ai]),newAp:deepCopy(prods[Ap])});
+//     }
+//   }
+//   gnfSteps.push({
+//     id:'g3', badge:'ts-g3', label:'STEP 3', title:'Eliminate Direct Left Recursion',
+//     body: () => {
+//       let h=`<div class="info-box">If after forward substitution we still have Aᵢ → Aᵢ α (left recursion), we apply the standard transformation:<br>
+//         &nbsp;Aᵢ → β₁ | β₂ | … (non-recursive rules) and Aᵢ → Aᵢ α₁ | Aᵢ α₂ | …<br>
+//         becomes:<br>
+//         &nbsp;<span class="nonterminal">Aᵢ</span> → β₁ <span class="new-sym">Aᵢ'</span> | β₂ <span class="new-sym">Aᵢ'</span> | …<br>
+//         &nbsp;<span class="new-sym">Aᵢ'</span> → α₁ <span class="new-sym">Aᵢ'</span> | α₁ | α₂ <span class="new-sym">Aᵢ'</span> | α₂ | …</div>`;
+//       if(lrLog.length===0){
+//         h+=`<div class="warn-box">No direct left recursion detected — this step makes no changes.</div>`;
+//         h+=`<span class="sub-h">Grammar (unchanged)</span>`+renderProds(prods);
+//       } else {
+//         for(const lr of lrLog){
+//           h+=`<div class="step-phase"><div class="phase-icon">&#9851;</div><div class="phase-content">`;
+//           h+=`<div class="phase-title">Left recursion in <span class="nonterminal">${esc(lr.nt)}</span> — introduced <span class="new-sym">${esc(lr.primed)}</span></div>`;
+//           h+=`<div class="phase-text">`;
+//           h+=`<b>Recursive rules (Aᵢ → Aᵢ α):</b><br>`;
+//           for(const a of lr.alphas) h+=`&nbsp;<span class="prod-lhs">${esc(lr.nt)}</span><span class="prod-arrow">→</span><span class="nonterminal">${esc(lr.nt)}</span>${ruleH(a)}<br>`;
+//           h+=`<b>Non-recursive rules (β):</b><br>`;
+//           for(const b of lr.betas) h+=`&nbsp;<span class="prod-lhs">${esc(lr.nt)}</span><span class="prod-arrow">→</span>${ruleH(b)}<br>`;
+//           h+=`<b>After transformation:</b><br>`;
+//           for(const r of lr.newAi) h+=`&nbsp;<span class="prod-lhs">${esc(lr.nt)}</span><span class="prod-arrow">→</span>${ruleH(r,primedNTs)}<br>`;
+//           for(const r of lr.newAp) h+=`&nbsp;<span class="new-sym">${esc(lr.primed)}</span><span class="prod-arrow">→</span>${ruleH(r,primedNTs)}<br>`;
+//           h+=`</div></div></div>`;
+//         }
+//         h+=`<span class="sub-h">Grammar after Left-Recursion Elimination</span>`;
+//         h+=renderProds(prods, primedNTs);
+//       }
+//       return h;
+//     }
+//   });
+
+//   // GNF STEP 4: Back-substitution
+//   const prodsBeforeBack=deepCopy(prods);
+//   const backEvents=[];
+//   const allNTsNow=Object.keys(prods);
+//   let changed=true, maxIter=60;
+//   while(changed && maxIter-->0){
+//     changed=false;
+//     for(const nt of allNTsNow){
+//       if(!prods[nt]) continue;
+//       const newR=[];
+//       for(const rule of prods[nt]){
+//         if(rule[0] && isNT(rule[0]) && prods[rule[0]]){
+//           const firstNt=rule[0];
+//           for(const sub of prods[firstNt]) newR.push([...sub,...rule.slice(1)]);
+//           backEvents.push({nt, replaced:firstNt});
+//           changed=true;
+//         } else newR.push(rule);
+//       }
+//       prods[nt]=unique(newR);
+//     }
+//   }
+//   // Build GNF: only terminal-starting rules
+//   const gnf={};
+//   for(const nt of Object.keys(prods)){
+//     if(!prods[nt]) continue;
+//     const valid=prods[nt].filter(r=>r.length>0&&isTerm(r[0]));
+//     if(valid.length>0) gnf[nt]=valid;
+//   }
+//   const uniqueBackNTs=[...new Set(backEvents.map(b=>b.nt))];
+//   gnfSteps.push({
+//     id:'g4', badge:'ts-g4', label:'STEP 4', title:'Back-substitution',
+//     body: () => {
+//       let h=`<div class="info-box">Any remaining rule that still starts with a non-terminal is expanded by substituting the leading non-terminal's productions. We repeat until every rule starts with a terminal. Rules that cannot be resolved (still NT-leading after max iterations) are discarded — they indicate unreachable paths.</div>`;
+//       if(uniqueBackNTs.length===0){
+//         h+=`<div class="warn-box">All rules already start with a terminal — no back-substitution needed.</div>`;
+//       } else {
+//         h+=`<span class="sub-h">Non-terminals requiring back-substitution</span>`;
+//         h+=`<div class="set-display">`;
+//         for(const nt of uniqueBackNTs) h+=`<span class="tag tag-unit">${esc(nt)}</span>`;
+//         h+=`</div>`;
+//         h+=`<div class="info-box">After back-substitution, every remaining rule begins with a terminal — achieving the Greibach property A → aα.</div>`;
+//       }
+//       const gnfKeys=Object.keys(gnf).filter(k=>gnf[k]&&gnf[k].length>0);
+//       h+=`<span class="sub-h">Final GNF Grammar</span>`;
+//       if(gnfKeys.length===0){
+//         h+=`<div class="error-box">Back-substitution could not fully resolve all rules (possible mutual left recursion). CNF result is complete and verified.</div>`;
+//         h+=renderProds(gnf);
+//       } else {
+//         h+=renderProds(gnf);
+//         h+=`<div class="info-box" style="margin-top:12px">&#10003; Every rule is of the form <strong>A → aα</strong> where <em>a</em> is a terminal and <em>α ∈ (V<sub>N</sub>)*</em> is a (possibly empty) string of non-terminals.</div>`;
+//       }
+//       return h;
+//     }
+//   });
+
+//   return { gnf, gnfSteps };
+// }
+
+// =================== RENDER SECTION HELPERS ===================
+function renderSubSteps(steps) {
+  return steps.map(s => `
+    <div class="transform-step">
+      <div class="transform-step-header">
+        <span class="ts-badge ${s.badge}">${s.label}</span>
+        <div class="ts-title">${s.title}</div>
+      </div>
+      <div class="transform-step-body">${s.body()}</div>
+    </div>`).join('');
+}
+
+
+function renameProductions(prods, ntMap) {
+  const newProds = {};
+  for (const [lhs, rules] of Object.entries(prods)) {
+    const newLhs = ntMap[lhs];
+    newProds[newLhs] = rules.map(rule =>
+      rule.map(sym => ntMap[sym] || sym)
+    );
+  }
+  return newProds;
+}
+
+
+function renderStep1Body(prods0, nullable, changes, addEpsilonToStart, prods1, start) {
+  let h = `<p class="step-intro">Identify all <strong>nullable variables</strong> (those deriving ε), then for every rule containing a nullable symbol generate all possible versions with that symbol included or excluded.</p>`;
+  h+=`<span class="sub-h">Nullable Variables</span>`;
+  h+=`<div class="set-display">`;
+  if(nullable.size===0) h+=`<span style="color:var(--muted);font-size:13px;font-family:'Space Mono',monospace">None found</span>`;
+  else for(const n of nullable) h+=`<span class="tag tag-nullable">${esc(n)}</span>`;
+  h+=`</div>`;
+  h+=`<div class="info-box">A variable is nullable if it has a direct ε-rule, or if all symbols in one of its rules are themselves nullable. We iterate to fixpoint.</div>`;
+  h+=`<span class="sub-h">Expansion Log</span>`;
+  if(changes.length===0){
+    h+=`<div class="warn-box">No expansions needed — no rule of length ≥ 2 contains a nullable symbol.</div>`;
+  } else {
+    h+=`<table class="rule-table"><thead><tr><th>LHS</th><th>New rules added (nullable symbol removed)</th></tr></thead><tbody>`;
+    for(const c of changes){
+      h+=`<tr class="new-row"><td class="lhs-col">${esc(c.lhs)}</td><td>${c.added.map(r=>ruleH(r)).join(' | ')||'—'}</td></tr>`;
+    }
+    h+=`</tbody></table>`;
+  }
+  if(addEpsilonToStart) h+=`<div class="info-box">The start symbol was nullable → <strong>S → ε</strong> is preserved since ε ∈ L(G).</div>`;
+  h+=`<span class="sub-h">Grammar after ε-Removal</span>`+renderProds(prods1);
+  return h;
+}
+
+function renderStep2Body(prods1, unitPairs, prods2) {
+  let h = `<p class="step-intro">A <strong>unit production</strong> is A → B where B is a single non-terminal. We compute the reflexive-transitive closure (unit pairs), then copy real productions and delete all unit rules.</p>`;
+  h+=`<span class="sub-h">Unit Pairs (A →* B via unit rules)</span>`;
+  const pairList=[...unitPairs].map(p=>p.split(',')).filter(([a,b])=>a!==b);
+  if(pairList.length===0){
+    h+=`<div class="warn-box">No unit pairs found — no unit productions exist in this grammar.</div>`;
+  } else {
+    h+=`<table class="rule-table"><thead><tr><th>A derives</th><th>B (via unit chain)</th></tr></thead><tbody>`;
+    for(const[a,b]of pairList) h+=`<tr><td class="lhs-col">${esc(a)}</td><td style="color:var(--accent2)">${esc(b)}</td></tr>`;
+    h+=`</tbody></table>`;
+    h+=`<div class="info-box">For each pair (A, B), all non-unit productions of B are added to A. The unit rules themselves are then removed.</div>`;
+  }
+  h+=`<span class="sub-h">Grammar after Unit Production Removal</span>`+renderProds(prods2);
+  return h;
+}
+
+function renderStep3Body(prods2, generating, reachable, nonGenerating, nonReachable, prods3) {
+  let h = `<p class="step-intro">A symbol is <strong>useless</strong> if it can never contribute to deriving a terminal string from the start. Two lemmas are applied sequentially.</p>`;
+
+  h+=`<div class="transform-step">
+    <div class="transform-step-header"><span class="ts-badge ts-g3">LEMMA 1</span><div class="ts-title">Remove Non-generating Symbols</div></div>
+    <div class="transform-step-body">`;
+  h+=`<div class="info-box">A symbol is <strong>generating</strong> if it can derive at least one string of terminals. Compute iteratively: first add all variables with a rule of all terminals, then add any variable all of whose symbols in some rule are already generating.</div>`;
+  h+=`<span class="sub-h">Generating variables ✓</span><div class="set-display">`;
+  for(const n of generating) h+=`<span class="tag tag-generating">${esc(n)}</span>`;
+  h+=`</div>`;
+  if(nonGenerating.length>0){
+    h+=`<span class="sub-h">Non-generating (removed)</span><div class="set-display">`;
+    for(const n of nonGenerating) h+=`<span class="tag tag-useless">${esc(n)} ✗</span>`;
+    h+=`</div>`;
+  } else h+=`<div class="warn-box">All variables are generating — Lemma 1 removes nothing.</div>`;
+  h+=`</div></div>`;
+
+  h+=`<div class="transform-step">
+    <div class="transform-step-header"><span class="ts-badge ts-g2">LEMMA 2</span><div class="ts-title">Remove Non-reachable Symbols</div></div>
+    <div class="transform-step-body">`;
+  h+=`<div class="info-box">A symbol is <strong>reachable</strong> if it appears in some sentential form derivable from the start symbol. Start the reachable set with {S}, then add every non-terminal appearing in the RHS of a reachable variable's rules.</div>`;
+  h+=`<span class="sub-h">Reachable variables ✓</span><div class="set-display">`;
+  for(const n of reachable) h+=`<span class="tag tag-reachable">${esc(n)}</span>`;
+  h+=`</div>`;
+  if(nonReachable.length>0){
+    h+=`<span class="sub-h">Non-reachable (removed)</span><div class="set-display">`;
+    for(const n of nonReachable) h+=`<span class="tag tag-useless">${esc(n)} ✗</span>`;
+    h+=`</div>`;
+  } else h+=`<div class="warn-box">All variables are reachable — Lemma 2 removes nothing.</div>`;
+  h+=`</div></div>`;
+
+  h+=`<span class="sub-h">Simplified Grammar</span>`+renderProds(prods3);
+  return h;
+}
+
+// =================== MAIN ===================
+function runSimplification() {
+  let start, nonTerminals, productions;
+  try { ({start,nonTerminals,productions}=parseInput()); }
+  catch(e) { alert('Parse error: '+e.message); return; }
+
+  const results=document.getElementById('results');
+  results.classList.add('show');
+  ['card1','card2','card3','cardCNF','cardGNF'].forEach(id=>document.getElementById(id).classList.add('open'));
+  ['p1','p2','p3','p4','p5'].forEach(id=>document.getElementById(id).classList.remove('done'));
+
+  const{newProds:prods1,nullable,addEpsilonToStart,changes}=removeEpsilon(productions,start);
+  document.getElementById('p1').classList.add('done');
+  document.getElementById('body1').innerHTML=renderStep1Body(productions,nullable,changes,addEpsilonToStart,prods1,start);
+
+  const{newProds:prods2,unitPairs}=removeUnitProductions(prods1);
+  document.getElementById('p2').classList.add('done');
+  document.getElementById('body2').innerHTML=renderStep2Body(prods1,unitPairs,prods2);
+
+  const{newProds:prods3,generating,reachable,nonGenerating,nonReachable}=removeUseless(prods2,start);
+  document.getElementById('p3').classList.add('done');
+  document.getElementById('body3').innerHTML=renderStep3Body(prods2,generating,reachable,nonGenerating,nonReachable,prods3);
+
+  const{cnf,steps:cnfSteps,termMap,newStart}=toCNF(prods3,start);
+  document.getElementById('p4').classList.add('done');
+  let hCNF=`<p class="step-intro">Convert to <strong>Chomsky Normal Form</strong> where every production is either A → BC (exactly two non-terminals) or A → a (single terminal). We work through 5 sub-steps.</p>`;
+  hCNF+=renderSubSteps(cnfSteps);
+  hCNF+=`<div class="final-box"><div class="final-box-title">&#10003; Final Chomsky Normal Form</div>${renderProds(cnf)}</div>`;
+  document.getElementById('bodyCNF').innerHTML=hCNF;
+
+  // const{gnf,gnfSteps}=toGNF(cnf,newStart||start);
+  // document.getElementById('p5').classList.add('done');
+  // let hGNF=`<p class="step-intro">Convert to <strong>Greibach Normal Form</strong> where every production is A → aα — a terminal followed by zero or more non-terminals. We use 4 systematic sub-steps.</p>`;
+  // hGNF+=renderSubSteps(gnfSteps);
+  // hGNF+=`<div class="final-box"><div class="final-box-title">&#10003; Final Greibach Normal Form</div>${Object.keys(gnf).filter(k=>gnf[k]&&gnf[k].length>0).length>0?renderProds(gnf):'<div class="error-box">GNF could not be fully resolved for this grammar. The CNF result above is complete.</div>'}</div>`;
+  // document.getElementById('bodyGNF').innerHTML=hGNF;
+
+  setTimeout(()=>results.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+</script>
+</body>
+</html>
