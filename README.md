@@ -35,7 +35,7 @@ Read the full guide → **[CONTRIBUTING.md](./CONTRIBUTING.md)**
 Short version:
 1. Fork the repo
 2. Add your `.html` file under `simulations/branch/subject/`
-3. Add one entry to `simulations.json`
+3. Add one entry to `data/simulations.json`
 4. Open a PR
 
 **Don't know GitHub?**  
@@ -53,7 +53,7 @@ python -m http.server
 
 Open `http://localhost:8000`
 
-> Direct file open (`file://`) won't work — the page fetches `simulations.json` which needs a server.
+> Direct file open (`file://`) won't work — the page fetches `data/simulations.json` which needs a server.
 
 ---
 

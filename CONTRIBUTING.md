@@ -82,9 +82,9 @@ Name your file clearly, all lowercase, no spaces:
 
 **If your subject folder doesn't exist yet, create it.**
 
-### 4. Add your entry to `simulations.json`
+### 4. Add your entry to `data/simulations.json`
 
-Open `simulations.json` and add your entry under the correct branch and subject.
+Open `data/simulations.json` and add your entry under the correct branch and subject.
 
 ```json
 {
