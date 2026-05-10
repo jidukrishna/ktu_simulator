@@ -20,7 +20,7 @@
       {
         "title": "Turing Machine Simulation",
         "description": "Simulate Turing Machine with customizable states, transitions and tape.",
-        "file": "simulations/cse/toc/turing_nachine.html",
+        "file": "simulations/cse/toc/turing_machine.html",
         "author": "Jidu",
         "author_link": "https://jidu.dev",
         "date": "2026-05-10"
