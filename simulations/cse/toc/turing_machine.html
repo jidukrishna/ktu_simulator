@@ -760,22 +760,56 @@ function loadExample(name){
     transitions.push({from:0,to:0,read:'0',write:'1',move:'R'},{from:0,to:0,read:'1',write:'0',move:'R'},{from:0,to:1,read:'_',write:'_',move:'S'});
     toast('Bit flip: 1011010 → 0100101','ok');
   } else if(name==='palindrome'){
+    // Correct palindrome TM over {0,1}
+    // Works for any length including odd. Test: 1001 ✓, 101 ✓, 10 ✗, 1 ✓
+    // IDs: q0=0,q1=1,q2=2,q3=3,q4=4,q5=5,qacc=6,qrej=7
     document.getElementById('tape-input').value='1001';
-    placeState('q0','start',140,220);placeState('q1','normal',310,130);placeState('q2','normal',480,220);
-    placeState('q3','normal',310,310);placeState('q4','normal',140,340);placeState('qacc','accept',650,200);placeState('qrej','reject',650,340);
+    //         name     type      x    y
+    placeState('q0',  'start',  110, 220);  // id=0: read leftmost symbol
+    placeState('q1',  'normal', 280, 130);  // id=1: saw 0, seek right end
+    placeState('q2',  'normal', 460, 130);  // id=2: check rightmost = 0
+    placeState('q3',  'normal', 280, 310);  // id=3: saw 1, seek right end
+    placeState('q4',  'normal', 460, 310);  // id=4: check rightmost = 1
+    placeState('q5',  'normal', 630, 220);  // id=5: scan all way back left
+    placeState('qacc','accept', 800, 130);  // id=6
+    placeState('qrej','reject', 800, 310);  // id=7
+
     transitions.push(
-      {from:0,to:1,read:'0',write:'X',move:'R'},{from:0,to:3,read:'1',write:'X',move:'R'},
-      {from:0,to:5,read:'X',write:'X',move:'R'},{from:0,to:5,read:'_',write:'_',move:'S'},
-      {from:1,to:1,read:'0',write:'0',move:'R'},{from:1,to:1,read:'1',write:'1',move:'R'},
-      {from:1,to:1,read:'X',write:'X',move:'R'},{from:1,to:2,read:'_',write:'_',move:'L'},
-      {from:2,to:4,read:'0',write:'X',move:'L'},{from:2,to:6,read:'1',write:'1',move:'S'},
-      {from:2,to:5,read:'X',write:'X',move:'S'},{from:3,to:3,read:'0',write:'0',move:'R'},
-      {from:3,to:3,read:'1',write:'1',move:'R'},{from:3,to:3,read:'X',write:'X',move:'R'},
-      {from:3,to:2,read:'_',write:'_',move:'L'},{from:4,to:4,read:'0',write:'0',move:'L'},
-      {from:4,to:4,read:'1',write:'1',move:'L'},{from:4,to:4,read:'X',write:'X',move:'L'},
-      {from:4,to:0,read:'_',write:'_',move:'R'}
+      // q0: read leftmost
+      {from:0, to:1, read:'0', write:'_', move:'R'},  // erase 0, go find right end
+      {from:0, to:3, read:'1', write:'_', move:'R'},  // erase 1, go find right end
+      {from:0, to:6, read:'_', write:'_', move:'S'},  // tape empty (or all erased) → accept
+      {from:0, to:6, read:'X', write:'X', move:'S'},  // shouldn't happen but safe
+
+      // q1: saw leftmost=0, scan right skipping 0,1,X
+      {from:1, to:1, read:'0', write:'0', move:'R'},
+      {from:1, to:1, read:'1', write:'1', move:'R'},
+      {from:1, to:1, read:'X', write:'X', move:'R'},
+      {from:1, to:2, read:'_', write:'_', move:'L'},  // hit blank → back one = rightmost
+
+      // q2: check rightmost is 0
+      {from:2, to:5, read:'0', write:'_', move:'L'},  // match! erase, go back left
+      {from:2, to:7, read:'1', write:'1', move:'S'},  // mismatch → reject
+      {from:2, to:6, read:'_', write:'_', move:'S'},  // only blanks left (odd length mid) → accept
+
+      // q3: saw leftmost=1, scan right skipping 0,1,X
+      {from:3, to:3, read:'0', write:'0', move:'R'},
+      {from:3, to:3, read:'1', write:'1', move:'R'},
+      {from:3, to:3, read:'X', write:'X', move:'R'},
+      {from:3, to:4, read:'_', write:'_', move:'L'},  // hit blank → back one = rightmost
+
+      // q4: check rightmost is 1
+      {from:4, to:5, read:'1', write:'_', move:'L'},  // match! erase, go back left
+      {from:4, to:7, read:'0', write:'0', move:'S'},  // mismatch → reject
+      {from:4, to:6, read:'_', write:'_', move:'S'},  // only blanks left (odd length mid) → accept
+
+      // q5: scan all the way left back to first real symbol
+      {from:5, to:5, read:'0', write:'0', move:'L'},
+      {from:5, to:5, read:'1', write:'1', move:'L'},
+      {from:5, to:5, read:'X', write:'X', move:'L'},
+      {from:5, to:0, read:'_', write:'_', move:'R'}   // hit left blank → go right to q0
     );
-    toast('Palindrome checker loaded','ok');
+    toast('Palindrome checker — try 1001 ✓, 101 ✓, 10 ✗','ok');
   }
   updateSelects();updateTransList();applyTape();setTimeout(resetZoom,50);
 }
