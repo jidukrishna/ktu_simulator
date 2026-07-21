@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turing Machine Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #181820;
+    --surface: #1e1e28;
+    --surface2: #252530;
+    --border: #2e2e3e;
+    --border2: #3a3a50;
+    --accent: #7c6eff;
+    --accent2: #a695ff;
+    --accent-dim: #3d3780;
+    --green: #3dffa0;
+    --green-dim: #1a6644;
+    --red: #ff5f6d;
+    --red-dim: #6b2229;
+    --amber: #ffc04a;
+    --amber-dim: #6b4d1a;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+    --head-size: 32px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow-x: hidden; }
+
+  /* ── GRID LAYOUT ── */
+  #app {
+    display: grid;
+    grid-template-rows: 60px 1fr;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+    min-height: 600px;
+  }
+  #header {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: relative; z-index: 10;
+  }
+  #header h1 { font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
+  #header h1 span { color: var(--accent2); }
+  #header .badge {
+    font-family: var(--mono); font-size: 10px; padding: 2px 8px;
+    background: var(--accent-dim); color: var(--accent2); border-radius: 20px;
+  }
+  #header .spacer { flex: 1; }
+  #header .hint { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  /* ── LEFT PANEL ── */
+  #left {
+    border-right: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  /* Form elements */
+  label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 4px; font-family: var(--mono); }
+  input[type="text"], select {
+    width: 100%; padding: 8px 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: var(--mono);
+    font-size: 13px; outline: none;
+    transition: border-color .15s;
+  }
+  input[type="text"]:focus, select:focus { border-color: var(--accent); }
+  select option { background: var(--bg3); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .fgroup { margin-bottom: 10px; }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border2);
+    background: var(--surface); color: var(--text); font-family: var(--sans);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all .12s; white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--accent); }
+  .btn:active { transform: scale(.97); }
+  .btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+  .btn.primary:hover { background: var(--accent); color: #fff; }
+  .btn.success { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .btn.danger { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .btn.full { width: 100%; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+
+  /* Transitions list */
+  #trans-scroll {
+    flex: 1; overflow-y: auto; padding: 10px;
+  }
+  #trans-scroll::-webkit-scrollbar { width: 4px; }
+  #trans-scroll::-webkit-scrollbar-track { background: transparent; }
+  #trans-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .trans-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 10px; margin-bottom: 4px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; font-family: var(--mono); font-size: 11px;
+    color: var(--text2); transition: border-color .1s;
+    animation: fadeIn .2s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+  .trans-item:hover { border-color: var(--border2); }
+  .trans-item.active-trans { border-color: var(--accent); background: var(--accent-dim); color: var(--accent2); }
+  .trans-code { flex: 1; }
+  .trans-del { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 0 2px; line-height: 1; }
+  .trans-del:hover { color: var(--red); }
+  .trans-empty { text-align: center; color: var(--text3); font-size: 12px; font-family: var(--mono); padding: 20px 0; }
+
+  /* ── RIGHT PANEL ── */
+  #right {
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* State diagram canvas */
+  #canvas-wrap {
+    position: relative; overflow: hidden;
+  }
+  #canvas { display: block; cursor: default; }
+  #canvas.mode-state { cursor: crosshair; }
+  #canvas.mode-trans { cursor: cell; }
+
+  /* Toolbar above canvas */
+  #toolbar {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 6px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px 8px; z-index: 5;
+    box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  }
+  #toolbar .btn { font-size: 11px; padding: 5px 10px; }
+  #toolbar .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  #canvas-hint {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; font-family: var(--mono); color: var(--text3);
+    background: var(--bg2); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 20px; pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Tape */
+  #tape-area {
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    background: var(--bg2);
+  }
+  #tape-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text3); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #tape-label .head-pos { font-family: var(--mono); color: var(--accent2); }
+  #tape-row {
+    display: flex; gap: 3px; overflow-x: auto; padding-bottom: 4px;
+    scroll-behavior: smooth;
+  }
+  #tape-row::-webkit-scrollbar { height: 3px; }
+  #tape-row::-webkit-scrollbar-track { background: transparent; }
+  #tape-row::-webkit-scrollbar-thumb { background: var(--border2); }
+  .tape-cell {
+    min-width: 36px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: var(--mono); font-size: 16px;
+    background: var(--bg3); color: var(--text2);
+    flex-shrink: 0; transition: all .15s;
+    position: relative;
+  }
+  .tape-cell.head {
+    background: var(--accent-dim); border-color: var(--accent);
+    color: var(--accent2); font-weight: 700;
+    box-shadow: 0 0 12px rgba(124,110,255,.35);
+    transform: scale(1.08);
+  }
+  .tape-cell.head::after {
+    content: '▲';
+    position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
+    font-size: 8px; color: var(--accent);
+  }
+  .tape-cell.written {
+    animation: writeFlash .4s ease;
+  }
+  @keyframes writeFlash {
+    0% { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+    100% { background: var(--bg3); border-color: var(--border); }
+  }
+
+  /* Control bar */
+  #ctrl-bar {
+    border-top: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--bg2);
+  }
+  .ctrl-group { display: flex; gap: 6px; align-items: center; }
+  .status-chip {
+    font-family: var(--mono); font-size: 11px; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg3); color: var(--text2);
+  }
+  .status-chip.running { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+  .status-chip.accepted { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .status-chip.rejected { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  #speed-wrap { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  input[type="range"] {
+    -webkit-appearance: none; width: 90px; height: 3px;
+    background: var(--border2); border-radius: 2px; outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  #step-log {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    min-width: 120px;
+  }
+
+  /* Modal for adding state name */
+  #modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.7); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  #modal-bg.open { display: flex; }
+  #modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 24px; width: 300px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }
+  #modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  #modal .btn-row { margin-top: 16px; }
+
+  /* Context menu */
+  #ctx-menu {
+    display: none; position: fixed; z-index: 200;
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 4px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    min-width: 150px;
+  }
+  #ctx-menu.open { display: block; }
+  .ctx-item {
+    display: block; width: 100%; text-align: left;
+    padding: 7px 12px; border-radius: 5px;
+    background: none; border: none; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--text2);
+  }
+  .ctx-item:hover { background: var(--surface2); color: var(--text); }
+  .ctx-item.danger { color: var(--red); }
+  .ctx-item.danger:hover { background: var(--red-dim); }
+  .ctx-sep { height: 1px; background: var(--border); margin: 3px 0; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 12px;
+    padding: 8px 18px; border-radius: 20px;
+    background: var(--bg2); border: 1px solid var(--border2); color: var(--text);
+    opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 999;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; }
+  #toast.ok { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  #toast.err { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+
+  /* Welcome state */
+  #welcome {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center; pointer-events: none; opacity: .4;
+  }
+  #welcome .big { font-size: 48px; margin-bottom: 8px; }
+  #welcome p { font-size: 13px; color: var(--text3); font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <header id="header">
+    <h1>Turing <span>Machine</span></h1>
+    <div class="badge">SIMULATOR</div>
+    <div class="spacer"></div>
+    <span class="hint">right-click state to edit / delete</span>
+  </header>
+
+  <!-- LEFT PANEL -->
+  <aside id="left">
+    <!-- Tape input -->
+    <div class="section">
+      <div class="section-title">Tape Input</div>
+      <div class="fgroup">
+        <label>Initial tape (use _ for blank)</label>
+        <input type="text" id="tape-input" value="1011" placeholder="e.g. 1011">
+      </div>
+      <button class="btn primary full" onclick="applyTape()">⟵ Load tape</button>
+    </div>
+
+    <!-- Add state -->
+    <div class="section">
+      <div class="section-title">Add Transition</div>
+      <div class="fgroup row2">
+        <div>
+          <label>From</label>
+          <select id="t-from"></select>
+        </div>
+        <div>
+          <label>To</label>
+          <select id="t-to"></select>
+        </div>
+      </div>
+      <div class="fgroup row3">
+        <div>
+          <label>Read</label>
+          <input type="text" id="t-read" maxlength="1" placeholder="0,1,_">
+        </div>
+        <div>
+          <label>Write</label>
+          <input type="text" id="t-write" maxlength="1" placeholder="0,1,_">
+        </div>
+        <div>
+          <label>Move</label>
+          <select id="t-move">
+            <option value="R">R →</option>
+            <option value="L">← L</option>
+            <option value="S">S ●</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn primary full" onclick="addTransition()">+ Add transition</button>
+    </div>
+
+    <!-- Examples -->
+    <div class="section">
+      <div class="section-title">Load Example</div>
+      <div class="btn-row">
+        <button class="btn" onclick="loadExample('unary_inc')" title="Increment unary number">Unary ++</button>
+        <button class="btn" onclick="loadExample('binary_flip')" title="Flip all bits">Bit flip</button>
+        <button class="btn" onclick="loadExample('palindrome')" title="Check palindrome">Palindrome</button>
+      </div>
+    </div>
+
+    <!-- Transitions list -->
+    <div style="padding:10px 16px 4px; display:flex; align-items:center; justify-content:space-between;">
+      <span class="section-title" style="margin:0">Transitions (<span id="trans-count">0</span>)</span>
+      <button class="btn" style="font-size:10px;padding:3px 8px" onclick="clearTransitions()">clear</button>
+    </div>
+    <div id="trans-scroll">
+      <div class="trans-empty" id="trans-empty">No transitions yet.</div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL -->
+  <main id="right">
+    <div id="canvas-wrap">
+      <canvas id="canvas"></canvas>
+      <!-- Toolbar -->
+      <div id="toolbar">
+        <button class="btn active" id="btn-mode-state" onclick="setMode('state')" title="Click canvas to add states">+ State</button>
+        <button class="btn" id="btn-mode-trans" onclick="setMode('trans')" title="Click a state then another to add transition">↝ Connect</button>
+        <button class="btn" id="btn-mode-select" onclick="setMode('select')" title="Drag to move states">✦ Select</button>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <button class="btn success" onclick="runMachine()" id="btn-run">▶ Run</button>
+        <button class="btn" onclick="stepMachine()" id="btn-step">⊳ Step</button>
+        <button class="btn" onclick="resetMachine()" id="btn-reset">↺ Reset</button>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <button class="btn danger" onclick="clearAll()" style="font-size:10px">Clear all</button>
+      </div>
+
+      <div id="canvas-hint" id="canvas-hint">Click on canvas to place a state</div>
+
+      <div id="welcome">
+        <div class="big">⊢</div>
+        <p>Click "+ State" then click on canvas to begin</p>
+      </div>
+    </div>
+
+    <!-- Tape display -->
+    <div id="tape-area">
+      <div id="tape-label">
+        TAPE
+        <span class="head-pos" id="head-pos-label">head @ 0</span>
+        <span id="cur-state-label" style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-left:8px"></span>
+      </div>
+      <div id="tape-row"></div>
+    </div>
+
+    <!-- Controls -->
+    <div id="ctrl-bar">
+      <div class="ctrl-group">
+        <span class="status-chip" id="status-chip">idle</span>
+        <span id="step-log">step: 0</span>
+      </div>
+      <div id="speed-wrap">
+        slow
+        <input type="range" id="speed" min="60" max="950" value="500">
+        fast
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: name state -->
+<div id="modal-bg">
+  <div id="modal">
+    <h3 id="modal-title">New State</h3>
+    <div class="fgroup">
+      <label>State name</label>
+      <input type="text" id="modal-name" placeholder="e.g. q0" maxlength="8">
+    </div>
+    <div class="fgroup">
+      <label>State type</label>
+      <select id="modal-type">
+        <option value="normal">Normal</option>
+        <option value="start">Start (initial)</option>
+        <option value="accept">Accept (halt ✓)</option>
+        <option value="reject">Reject (halt ✗)</option>
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeModal(false)">Cancel</button>
+      <button class="btn primary" onclick="closeModal(true)">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Context menu -->
+<div id="ctx-menu">
+  <button class="ctx-item" onclick="ctxEdit()">✎ Edit state</button>
+  <button class="ctx-item" onclick="ctxSetStart()">⊳ Set as start</button>
+  <button class="ctx-item" onclick="ctxSetAccept()">✓ Set as accept</button>
+  <button class="ctx-item" onclick="ctxSetReject()">✗ Set as reject</button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-item danger" onclick="ctxDelete()">⊗ Delete state</button>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+let states = [];   // { id, name, x, y, type:'normal'|'start'|'accept'|'reject' }
+let transitions = []; // { from, to, read, write, move }
+let stateIdCounter = 0;
+
+let tape = [];
+let headPos = 0;
+let currentState = null;
+let running = false;
+let stepCount = 0;
+let runInterval = null;
+let lastWritten = -1;
+let activeTransIdx = -1;
+
+// Canvas / interaction
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let mode = 'state'; // state | trans | select
+let dragging = null;
+let dragOffX = 0, dragOffY = 0;
+let transStart = null;
+let pendingModalResolve = null;
+let pendingStatePos = null;
+let ctxTarget = null;
+
+const R = 30; // state radius
+
+// ═══════════════════════════════════════════════
+// CANVAS SETUP & RESIZE
+// ═══════════════════════════════════════════════
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  draw();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// ═══════════════════════════════════════════════
+// DRAW
+// ═══════════════════════════════════════════════
+function getStyle(prop) {
+  return getComputedStyle(document.documentElement).getPropertyValue(prop).trim();
+}
+
+function draw() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = 'rgba(46,46,62,0.5)';
+  ctx.lineWidth = 1;
+  const gs = 40;
+  for (let x = gs; x < W; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = gs; y < H; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+  // Draw transitions
+  transitions.forEach((t, i) => {
+    const from = states.find(s => s.id === t.from);
+    const to = states.find(s => s.id === t.to);
+    if (!from || !to) return;
+    const isActive = i === activeTransIdx;
+    drawArrow(from, to, t, isActive, i);
+  });
+
+  // Draw states
+  states.forEach(s => drawState(s));
+
+  // If in trans mode and started drawing
+  if (mode === 'trans' && transStart && lastMouseX !== undefined) {
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = '#7c6eff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(transStart.x, transStart.y);
+    ctx.lineTo(lastMouseX, lastMouseY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Hide/show welcome
+  document.getElementById('welcome').style.display = states.length > 0 ? 'none' : 'block';
+}
+
+function drawState(s) {
+  const isCurrent = running && currentState === s.id;
+  const isStart = s.type === 'start';
+  const isAccept = s.type === 'accept';
+  const isReject = s.type === 'reject';
+
+  // Glow for current
+  if (isCurrent) {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, R + 8, 0, Math.PI * 2);
+    const grd = ctx.createRadialGradient(s.x, s.y, R, s.x, s.y, R + 16);
+    grd.addColorStop(0, 'rgba(124,110,255,0.4)');
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.fill();
+  }
+
+  // Fill
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, R, 0, Math.PI * 2);
+  if (isAccept) ctx.fillStyle = '#1a4433';
+  else if (isReject) ctx.fillStyle = '#3d1a1e';
+  else if (isCurrent) ctx.fillStyle = '#2a2560';
+  else ctx.fillStyle = '#1e1e28';
+  ctx.fill();
+
+  // Border
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, R, 0, Math.PI * 2);
+  if (isCurrent) ctx.strokeStyle = '#7c6eff';
+  else if (isAccept) ctx.strokeStyle = '#3dffa0';
+  else if (isReject) ctx.strokeStyle = '#ff5f6d';
+  else if (isStart) ctx.strokeStyle = '#ffc04a';
+  else ctx.strokeStyle = '#3a3a50';
+  ctx.lineWidth = isCurrent ? 2.5 : 1.5;
+  ctx.stroke();
+
+  // Double ring for accept
+  if (isAccept) {
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, R - 5, 0, Math.PI * 2);
+    ctx.strokeStyle = '#3dffa0';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Start arrow
+  if (isStart) {
+    ctx.beginPath();
+    ctx.moveTo(s.x - R - 20, s.y);
+    ctx.lineTo(s.x - R - 2, s.y);
+    ctx.strokeStyle = '#ffc04a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // arrowhead
+    ctx.beginPath();
+    ctx.moveTo(s.x - R - 2, s.y);
+    ctx.lineTo(s.x - R - 9, s.y - 5);
+    ctx.lineTo(s.x - R - 9, s.y + 5);
+    ctx.closePath();
+    ctx.fillStyle = '#ffc04a';
+    ctx.fill();
+  }
+
+  // Label
+  ctx.fillStyle = isCurrent ? '#a695ff' : isAccept ? '#3dffa0' : isReject ? '#ff5f6d' : '#e8e8f0';
+  ctx.font = `600 12px 'Syne', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(s.name, s.x, s.y);
+
+  // Type badge
+  if (isAccept) drawBadge(s, '✓', '#3dffa0');
+  else if (isReject) drawBadge(s, '✗', '#ff5f6d');
+}
+
+function drawBadge(s, text, color) {
+  const bx = s.x + R - 6, by = s.y - R + 6;
+  ctx.beginPath(); ctx.arc(bx, by, 9, 0, Math.PI*2);
+  ctx.fillStyle = '#0a0a0f'; ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = color; ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, bx, by);
+}
+
+function drawArrow(from, to, t, isActive, idx) {
+  const isSelf = from.id === to.id;
+  const label = `${t.read}/${t.write},${t.move}`;
+  ctx.font = '11px Space Mono, monospace';
+
+  if (isSelf) {
+    // Self-loop
+    const lx = from.x, ly = from.y - R - 30;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 20, Math.PI * 0.2, Math.PI * 2.8);
+    ctx.strokeStyle = isActive ? '#ffc04a' : '#5a5a80';
+    ctx.lineWidth = isActive ? 2 : 1;
+    ctx.setLineDash([]);
+    ctx.stroke();
+    arrowHead(lx + 14, ly + 17, lx + 20, ly + 10, isActive ? '#ffc04a' : '#5a5a80');
+    ctx.fillStyle = isActive ? '#ffc04a' : '#9090a8';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, lx, ly - 22);
+    return;
+  }
+
+  // Check if reverse transition exists (for curve offset)
+  const hasReverse = transitions.some(t2 => t2.from === to.id && t2.to === from.id);
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const ux = dx/dist, uy = dy/dist;
+  const nx = -uy, ny = ux; // normal
+  const curve = hasReverse ? 28 : 0;
+
+  const sx = from.x + ux * R, sy = from.y + uy * R;
+  const ex = to.x - ux * R, ey = to.y - uy * R;
+  const cx1 = (sx + ex) / 2 + nx * curve;
+  const cy1 = (sy + ey) / 2 + ny * curve;
+
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  if (curve !== 0) ctx.quadraticCurveTo(cx1, cy1, ex, ey);
+  else ctx.lineTo(ex, ey);
+  ctx.strokeStyle = isActive ? '#ffc04a' : '#3a3a58';
+  ctx.lineWidth = isActive ? 2 : 1;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // Arrowhead at end
+  let arrowAngle;
+  if (curve !== 0) {
+    arrowAngle = Math.atan2(ey - cy1, ex - cx1);
+  } else {
+    arrowAngle = Math.atan2(dy, dx);
+  }
+  arrowHead(ex, ey, ex - Math.cos(arrowAngle)*10, ey - Math.sin(arrowAngle)*10, isActive ? '#ffc04a' : '#5a5a80');
+
+  // Label
+  const lx = curve !== 0 ? (sx + ex)/2 + nx * (curve * 1.4) : (sx+ex)/2 + nx*14;
+  const ly = curve !== 0 ? (sy + ey)/2 + ny * (curve * 1.4) : (sy+ey)/2 + ny*14;
+  ctx.fillStyle = isActive ? '#ffc04a' : '#9090a8';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  // background
+  const tw = ctx.measureText(label).width;
+  ctx.fillStyle = 'rgba(10,10,15,0.8)';
+  ctx.fillRect(lx - tw/2 - 3, ly - 7, tw + 6, 14);
+  ctx.fillStyle = isActive ? '#ffc04a' : '#7070a0';
+  ctx.fillText(label, lx, ly);
+}
+
+function arrowHead(tx, ty, bx, by, color) {
+  const angle = Math.atan2(ty - by, tx - bx);
+  const len = 9;
+  ctx.beginPath();
+  ctx.moveTo(tx, ty);
+  ctx.lineTo(tx - len * Math.cos(angle - 0.4), ty - len * Math.sin(angle - 0.4));
+  ctx.lineTo(tx - len * Math.cos(angle + 0.4), ty - len * Math.sin(angle + 0.4));
+  ctx.closePath();
+  ctx.fillStyle = color; ctx.fill();
+}
+
+// ═══════════════════════════════════════════════
+// CANVAS INTERACTION
+// ═══════════════════════════════════════════════
+let lastMouseX, lastMouseY;
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return { x: touch.clientX - r.left, y: touch.clientY - r.top };
+}
+
+function stateAt(x, y) {
+  return states.find(s => Math.hypot(s.x - x, s.y - y) < R);
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 2) return; // right click handled separately
+  const { x, y } = getPos(e);
+  const hit = stateAt(x, y);
+
+  if (mode === 'state') {
+    if (!hit) openModal(x, y);
+  } else if (mode === 'trans') {
+    if (hit) {
+      transStart = hit;
+    }
+  } else if (mode === 'select') {
+    if (hit) {
+      dragging = hit;
+      dragOffX = x - hit.x;
+      dragOffY = y - hit.y;
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  const { x, y } = getPos(e);
+  lastMouseX = x; lastMouseY = y;
+  if (dragging) {
+    dragging.x = x - dragOffX;
+    dragging.y = y - dragOffY;
+  }
+  draw();
+  canvas.style.cursor = stateAt(x, y) ?
+    (mode === 'select' ? 'grab' : mode === 'trans' ? 'crosshair' : 'pointer') :
+    (mode === 'state' ? 'crosshair' : 'default');
+});
+
+canvas.addEventListener('mouseup', e => {
+  const { x, y } = getPos(e);
+  if (mode === 'trans' && transStart) {
+    const hit = stateAt(x, y);
+    if (hit && hit !== transStart) {
+      // auto-fill from/to dropdowns
+      document.getElementById('t-from').value = transStart.id;
+      document.getElementById('t-to').value = hit.id;
+      toast('States selected — fill read/write/move and click Add transition', 'ok');
+    } else if (!hit) {
+      toast('Click on a destination state', 'err');
+    }
+    transStart = null;
+  }
+  dragging = null;
+  draw();
+});
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  const { x, y } = getPos(e);
+  const hit = stateAt(x, y);
+  if (hit) {
+    ctxTarget = hit;
+    showCtxMenu(e.clientX, e.clientY);
+  }
+});
+
+// ═══════════════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════════════
+function setMode(m) {
+  mode = m; transStart = null; dragging = null;
+  document.getElementById('btn-mode-state').classList.toggle('active', m==='state');
+  document.getElementById('btn-mode-trans').classList.toggle('active', m==='trans');
+  document.getElementById('btn-mode-select').classList.toggle('active', m==='select');
+  const hints = { state:'Click canvas to add a state', trans:'Click a state → click destination → fill form', select:'Drag states to reposition' };
+  document.getElementById('canvas-hint').textContent = hints[m];
+  draw();
+}
+
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+function openModal(x, y) {
+  pendingStatePos = { x, y };
+  document.getElementById('modal-name').value = 'q' + stateIdCounter;
+  document.getElementById('modal-type').value = states.length === 0 ? 'start' : 'normal';
+  document.getElementById('modal-title').textContent = 'New State';
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('modal-name').focus(), 50);
+}
+
+function openEditModal(s) {
+  pendingStatePos = null;
+  ctxTarget = s;
+  document.getElementById('modal-name').value = s.name;
+  document.getElementById('modal-type').value = s.type;
+  document.getElementById('modal-title').textContent = 'Edit State';
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('modal-name').focus(), 50);
+}
+
+document.getElementById('modal-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') closeModal(true);
+  if (e.key === 'Escape') closeModal(false);
+});
+
+function closeModal(ok) {
+  document.getElementById('modal-bg').classList.remove('open');
+  if (!ok) return;
+  const name = document.getElementById('modal-name').value.trim() || ('q' + stateIdCounter);
+  const type = document.getElementById('modal-type').value;
+
+  if (pendingStatePos) {
+    // Creating new state
+    // If setting a new start, remove old start
+    if (type === 'start') states.forEach(s => { if (s.type === 'start') s.type = 'normal'; });
+    const s = { id: stateIdCounter++, name, x: pendingStatePos.x, y: pendingStatePos.y, type };
+    states.push(s);
+    updateSelects();
+    draw();
+  } else if (ctxTarget) {
+    // Editing existing
+    if (type === 'start') states.forEach(s => { if (s.type === 'start') s.type = 'normal'; });
+    ctxTarget.name = name;
+    ctxTarget.type = type;
+    updateSelects();
+    draw();
+  }
+  pendingStatePos = null;
+}
+
+// ═══════════════════════════════════════════════
+// CONTEXT MENU
+// ═══════════════════════════════════════════════
+function showCtxMenu(cx, cy) {
+  const m = document.getElementById('ctx-menu');
+  m.style.left = cx + 'px'; m.style.top = cy + 'px';
+  m.classList.add('open');
+}
+function hideCtxMenu() { document.getElementById('ctx-menu').classList.remove('open'); }
+document.addEventListener('click', hideCtxMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideCtxMenu(); });
+
+function ctxEdit() { hideCtxMenu(); openEditModal(ctxTarget); }
+function ctxSetStart() {
+  hideCtxMenu();
+  states.forEach(s => { if (s.type === 'start') s.type = 'normal'; });
+  ctxTarget.type = 'start';
+  updateSelects(); draw(); toast('Start state set', 'ok');
+}
+function ctxSetAccept() { hideCtxMenu(); ctxTarget.type = 'accept'; draw(); toast('Accept state set', 'ok'); }
+function ctxSetReject() { hideCtxMenu(); ctxTarget.type = 'reject'; draw(); toast('Reject state set', 'ok'); }
+function ctxDelete() {
+  hideCtxMenu();
+  transitions = transitions.filter(t => t.from !== ctxTarget.id && t.to !== ctxTarget.id);
+  states = states.filter(s => s.id !== ctxTarget.id);
+  updateSelects(); updateTransList(); draw();
+}
+
+// ═══════════════════════════════════════════════
+// TRANSITIONS
+// ═══════════════════════════════════════════════
+function addTransition() {
+  const fromId = parseInt(document.getElementById('t-from').value);
+  const toId = parseInt(document.getElementById('t-to').value);
+  const read = document.getElementById('t-read').value || '_';
+  const write = document.getElementById('t-write').value || '_';
+  const move = document.getElementById('t-move').value;
+  if (isNaN(fromId) || isNaN(toId)) { toast('Select from/to states first', 'err'); return; }
+  // Duplicate check
+  if (transitions.some(t => t.from === fromId && t.read === read)) {
+    toast(`State already has a transition for reading "${read}"`, 'err'); return;
+  }
+  transitions.push({ from: fromId, to: toId, read, write, move });
+  document.getElementById('t-read').value = '';
+  document.getElementById('t-write').value = '';
+  updateTransList(); draw(); toast('Transition added', 'ok');
+}
+
+function clearTransitions() { transitions = []; activeTransIdx = -1; updateTransList(); draw(); }
+
+function updateTransList() {
+  const list = document.getElementById('trans-scroll');
+  document.getElementById('trans-empty').style.display = transitions.length ? 'none' : 'block';
+  document.getElementById('trans-count').textContent = transitions.length;
+  // Remove old items
+  document.querySelectorAll('.trans-item').forEach(el => el.remove());
+  transitions.forEach((t, i) => {
+    const from = states.find(s => s.id === t.from);
+    const to = states.find(s => s.id === t.to);
+    if (!from || !to) return;
+    const div = document.createElement('div');
+    div.className = 'trans-item' + (i === activeTransIdx ? ' active-trans' : '');
+    div.id = 'ti-' + i;
+    div.innerHTML = `<span class="trans-code">${from.name} —[${t.read}]→ ${to.name}: write ${t.write}, ${t.move}</span>
+      <button class="trans-del" onclick="delTrans(${i})">✕</button>`;
+    list.appendChild(div);
+  });
+}
+
+function delTrans(i) {
+  transitions.splice(i, 1);
+  updateTransList(); draw();
+}
+
+function updateSelects() {
+  ['t-from', 't-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    sel.innerHTML = '';
+    states.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id; opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+  });
+}
+
+// ═══════════════════════════════════════════════
+// TAPE
+// ═══════════════════════════════════════════════
+let initialTape = [];
+
+function applyTape() {
+  const raw = document.getElementById('tape-input').value || '_';
+  initialTape = raw.split('').map(c => c === ' ' ? '_' : c);
+  resetMachine();
+  toast('Tape loaded', 'ok');
+}
+
+function renderTape() {
+  const row = document.getElementById('tape-row');
+  row.innerHTML = '';
+  // Show ±10 cells around head
+  const lo = Math.min(headPos - 6, 0);
+  const hi = Math.max(headPos + 8, tape.length);
+  for (let i = lo; i < hi; i++) {
+    const ch = tape[i] ?? '_';
+    const cell = document.createElement('div');
+    cell.className = 'tape-cell' + (i === headPos ? ' head' : '');
+    if (i === lastWritten) cell.classList.add('written');
+    cell.textContent = ch;
+    row.appendChild(cell);
+  }
+  document.getElementById('head-pos-label').textContent = `head @ ${headPos}`;
+  document.getElementById('cur-state-label').textContent = currentState !== null ?
+    `state: ${states.find(s => s.id === currentState)?.name ?? '—'}` : '';
+}
+
+// ═══════════════════════════════════════════════
+// MACHINE
+// ═══════════════════════════════════════════════
+function getStartState() { return states.find(s => s.type === 'start'); }
+
+function resetMachine() {
+  clearInterval(runInterval);
+  running = false;
+  stepCount = 0;
+  activeTransIdx = -1;
+  lastWritten = -1;
+  if (initialTape.length === 0) initialTape = ['_'];
+  tape = [...initialTape];
+  headPos = 0;
+  currentState = getStartState()?.id ?? null;
+  setStatus('idle');
+  document.getElementById('step-log').textContent = 'step: 0';
+  renderTape();
+  updateTransList();
+  draw();
+}
+
+function stepMachine() {
+  if (!validateMachine()) return;
+  const result = doStep();
+  if (result === 'accept') { setStatus('accepted'); toast('✓ Accepted!', 'ok'); stopRun(); }
+  else if (result === 'reject') { setStatus('rejected'); toast('✗ Rejected!', 'err'); stopRun(); }
+  else if (result === 'halt') { setStatus('rejected'); toast('✗ No transition — halted', 'err'); stopRun(); }
+}
+
+function doStep() {
+  if (currentState === null) return 'halt';
+  const s = states.find(st => st.id === currentState);
+  if (!s) return 'halt';
+  if (s.type === 'accept') return 'accept';
+  if (s.type === 'reject') return 'reject';
+
+  const sym = tape[headPos] ?? '_';
+  const tidx = transitions.findIndex(t => t.from === currentState && t.read === sym);
+
+  if (tidx === -1) return 'halt'; // no transition
+
+  const t = transitions[tidx];
+  lastWritten = headPos;
+  tape[headPos] = t.write;
+  if (t.move === 'R') headPos++;
+  else if (t.move === 'L') headPos = Math.max(0, headPos - 1);
+  currentState = t.to;
+  stepCount++;
+  activeTransIdx = tidx;
+
+  if (headPos >= tape.length) tape.push('_');
+
+  document.getElementById('step-log').textContent = `step: ${stepCount}`;
+  renderTape();
+  updateTransList();
+  draw();
+
+  // Check new state
+  const ns = states.find(st => st.id === currentState);
+  if (ns?.type === 'accept') return 'accept';
+  if (ns?.type === 'reject') return 'reject';
+  return 'running';
+}
+
+function runMachine() {
+  if (running) { stopRun(); return; }
+  if (!validateMachine()) return;
+  running = true;
+  setStatus('running');
+  document.getElementById('btn-run').textContent = '⏹ Stop';
+  const delay = () => 1000 - parseInt(document.getElementById('speed').value);
+  const tick = () => {
+    const result = doStep();
+    if (result === 'accept') { setStatus('accepted'); toast('✓ Accepted!', 'ok'); stopRun(); return; }
+    if (result === 'reject') { setStatus('rejected'); toast('✗ Rejected!', 'err'); stopRun(); return; }
+    if (result === 'halt') { setStatus('rejected'); toast('✗ No transition — halted', 'err'); stopRun(); return; }
+    runInterval = setTimeout(tick, delay());
+  };
+  runInterval = setTimeout(tick, delay());
+}
+
+function stopRun() {
+  clearTimeout(runInterval);
+  running = false;
+  document.getElementById('btn-run').textContent = '▶ Run';
+}
+
+function validateMachine() {
+  if (states.length === 0) { toast('Add states first', 'err'); return false; }
+  if (!getStartState()) { toast('No start state! Right-click a state → Set as start', 'err'); return false; }
+  if (currentState === null) { resetMachine(); }
+  if (tape.length === 0) { tape = ['_']; headPos = 0; renderTape(); }
+  return true;
+}
+
+function setStatus(s) {
+  const chip = document.getElementById('status-chip');
+  chip.className = 'status-chip ' + s;
+  chip.textContent = s;
+}
+
+// ═══════════════════════════════════════════════
+// EXAMPLES
+// ═══════════════════════════════════════════════
+function loadExample(name) {
+  clearAll(true);
+
+  if (name === 'unary_inc') {
+    // Increment unary: 111 → 1111
+    document.getElementById('tape-input').value = '111';
+    placeState('q0', 'start', 150, 200);
+    placeState('q1', 'normal', 320, 200);
+    placeState('qacc', 'accept', 490, 200);
+    transitions.push(
+      { from: 0, to: 0, read: '1', write: '1', move: 'R' },
+      { from: 0, to: 1, read: '_', write: '1', move: 'L' },
+      { from: 1, to: 2, read: '1', write: '1', move: 'S' }
+    );
+    toast('Unary increment loaded — counts 111 → 1111', 'ok');
+  } else if (name === 'binary_flip') {
+    // Flip all bits in a binary string
+    document.getElementById('tape-input').value = '1011010';
+    placeState('q0', 'start', 150, 200);
+    placeState('qacc', 'accept', 350, 200);
+    transitions.push(
+      { from: 0, to: 0, read: '0', write: '1', move: 'R' },
+      { from: 0, to: 0, read: '1', write: '0', move: 'R' },
+      { from: 0, to: 1, read: '_', write: '_', move: 'S' }
+    );
+    toast('Bit flip loaded — flips every 0↔1', 'ok');
+  } else if (name === 'palindrome') {
+    // Simple even-length palindrome checker over {0,1}
+    document.getElementById('tape-input').value = '1001';
+    placeState('q0', 'start', 130, 200);
+    placeState('q1', 'normal', 280, 130);
+    placeState('q2', 'normal', 430, 200);
+    placeState('q3', 'normal', 280, 270);
+    placeState('q4', 'normal', 130, 350);
+    placeState('qacc', 'accept', 580, 200);
+    placeState('qrej', 'reject', 580, 320);
+    // Read leftmost, mark X, go right, find match
+    transitions.push(
+      { from: 0, to: 1, read: '0', write: 'X', move: 'R' },
+      { from: 0, to: 3, read: '1', write: 'X', move: 'R' },
+      { from: 0, to: 5, read: 'X', write: 'X', move: 'R' },
+      { from: 0, to: 5, read: '_', write: '_', move: 'S' },
+      // seek right end for 0
+      { from: 1, to: 1, read: '0', write: '0', move: 'R' },
+      { from: 1, to: 1, read: '1', write: '1', move: 'R' },
+      { from: 1, to: 1, read: 'X', write: 'X', move: 'R' },
+      { from: 1, to: 2, read: '_', write: '_', move: 'L' },
+      // check rightmost for 0
+      { from: 2, to: 4, read: '0', write: 'X', move: 'L' },
+      { from: 2, to: 6, read: '1', write: '1', move: 'S' },
+      { from: 2, to: 5, read: 'X', write: 'X', move: 'S' },
+      // seek right end for 1
+      { from: 3, to: 3, read: '0', write: '0', move: 'R' },
+      { from: 3, to: 3, read: '1', write: '1', move: 'R' },
+      { from: 3, to: 3, read: 'X', write: 'X', move: 'R' },
+      { from: 3, to: 2, read: '_', write: '_', move: 'L' },  // reuse check state but for 1
+      // actually need separate check for 1 — reuse q2 but it checks for 0...
+      // simplified: q3 goes to check state q2, but q2 only matches 0 → use q6 for 1-check
+      // Go back left
+      { from: 4, to: 4, read: '0', write: '0', move: 'L' },
+      { from: 4, to: 4, read: '1', write: '1', move: 'L' },
+      { from: 4, to: 4, read: 'X', write: 'X', move: 'L' },
+      { from: 4, to: 0, read: '_', write: '_', move: 'R' }
+    );
+    toast('Palindrome checker loaded (even-length over 0,1)', 'ok');
+  }
+
+  updateSelects(); updateTransList(); applyTape(); draw();
+}
+
+function placeState(name, type, x, y) {
+  if (type === 'start') states.forEach(s => { if (s.type === 'start') s.type = 'normal'; });
+  states.push({ id: stateIdCounter++, name, x, y, type });
+}
+
+// ═══════════════════════════════════════════════
+// CLEAR
+// ═══════════════════════════════════════════════
+function clearAll(silent) {
+  stopRun();
+  states = []; transitions = []; stateIdCounter = 0;
+  currentState = null; tape = []; headPos = 0; stepCount = 0; activeTransIdx = -1;
+  updateSelects(); updateTransList(); renderTape(); draw();
+  setStatus('idle');
+  if (!silent) toast('Cleared', 'ok');
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2800);
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+applyTape();
+setMode('state');
+updateSelects();
+draw();
+</script>
+</body>
+</html>

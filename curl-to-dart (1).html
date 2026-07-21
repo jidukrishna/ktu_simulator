@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cURL → Dart Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0e0e12; --surface: #16161d; --surface2: #1e1e28;
+    --border: #2a2a38; --border-hover: #3d3d55;
+    --accent: #7c6af7; --accent-dim: #4a3fa3; --accent-glow: rgba(124,106,247,0.15);
+    --dart: #54c5f8; --json-col: #f0a05a;
+    --text: #e8e6ff; --text-muted: #7a7890; --text-dim: #4a4860;
+    --success: #4ade80; --error: #f87171;
+    --mono: 'JetBrains Mono', monospace; --sans: 'Syne', sans-serif;
+  }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+
+  header { padding:.9rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:1rem; background:var(--surface); flex-shrink:0; }
+  .logo { display:flex; align-items:center; gap:.6rem; }
+  .logo-icon { width:30px; height:30px; background:var(--accent); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+  .logo-text { font-size:.95rem; font-weight:700; letter-spacing:-.02em; }
+  .logo-text .c { color:var(--accent); } .logo-text .d { color:var(--dart); }
+  .badge { margin-left:auto; font-family:var(--mono); font-size:.62rem; padding:2px 9px; border-radius:999px; background:var(--accent-glow); border:1px solid var(--accent-dim); color:var(--accent); }
+
+  main { flex:1; display:flex; flex-direction:row; min-height:0; overflow:hidden; }
+  .panel { display:flex; flex-direction:column; min-height:0; overflow:hidden; flex-shrink:0; }
+  .panel:first-child { width:50%; }
+  .panel:last-child { flex:1; min-width:0; }
+
+  .divider {
+    width:5px; flex-shrink:0; cursor:col-resize;
+    background:var(--border);
+    position:relative; z-index:10;
+    transition:background .15s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .divider:hover, .divider.dragging { background:var(--accent); }
+  .divider::after {
+    content:'';
+    width:1px; height:40px;
+    background:currentColor; opacity:.4;
+    border-radius:1px;
+  }
+
+  .panel-header { padding:.65rem 1.1rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.5rem; background:var(--surface); flex-shrink:0; }
+  .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .panel-label { font-family:var(--mono); font-size:.65rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; }
+
+  .btn { font-family:var(--mono); font-size:.65rem; padding:3px 10px; border-radius:4px; border:1px solid var(--border); background:var(--surface2); color:var(--text-muted); cursor:pointer; transition:all .15s; }
+  .btn:hover { border-color:var(--border-hover); color:var(--text); background:var(--border); }
+  .btn.copied { border-color:var(--success); color:var(--success); background:rgba(74,222,128,.1); }
+  .panel-actions { margin-left:auto; display:flex; gap:.4rem; align-items:center; }
+
+  .examples-bar { padding:.4rem 1.1rem; border-bottom:1px solid var(--border); background:var(--surface); display:flex; gap:.35rem; align-items:center; flex-wrap:wrap; flex-shrink:0; }
+  .examples-label { font-family:var(--mono); font-size:.6rem; color:var(--text-dim); margin-right:.2rem; }
+  .ex-btn { font-family:var(--mono); font-size:.6rem; padding:2px 8px; border-radius:3px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+  .ex-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-glow); }
+
+  textarea { flex:1; width:100%; background:var(--bg); color:var(--text); font-family:var(--mono); font-size:.78rem; line-height:1.75; padding:1.1rem; border:none; outline:none; resize:none; tab-size:2; }
+  textarea::placeholder { color:var(--text-dim); }
+
+  .tabs { display:flex; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+  .tab { font-family:var(--mono); font-size:.64rem; padding:.55rem .9rem; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-muted); transition:all .15s; letter-spacing:.05em; display:flex; align-items:center; gap:.35rem; }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--text); border-bottom-color:var(--accent); }
+  .tab .tdot { width:6px; height:6px; border-radius:50%; }
+  .tab-actions { margin-left:auto; display:flex; align-items:center; padding-right:.75rem; }
+
+  .tab-panel { display:none; flex:1; flex-direction:column; min-height:0; overflow:hidden; }
+  .tab-panel.active { display:flex; }
+
+  .output-area { flex:1; overflow:auto; padding:1.1rem; background:var(--bg); font-family:var(--mono); font-size:.76rem; line-height:1.75; white-space:pre; }
+  .output-area.empty { display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:.72rem; white-space:normal; text-align:center; }
+
+  .j-key{color:#82aaff} .j-str{color:#c3e88d} .j-num{color:#f78c6c} .j-bool{color:#c792ea} .j-null{color:#c792ea}
+  .tk{color:#c792ea} .tt{color:var(--dart)} .ts{color:#c3e88d} .tc{color:#546e7a;font-style:italic} .tm{color:#f0a05a} .tn{color:#f78c6c}
+
+  .flutter-scroll { flex:1; overflow:auto; background:var(--bg); }
+  .fl-section { border-bottom:1px solid var(--border); }
+  .fl-head { padding:.4rem 1.1rem; background:var(--surface2); font-family:var(--mono); font-size:.6rem; color:var(--text-dim); letter-spacing:.08em; display:flex; align-items:center; gap:.5rem; }
+  .fl-pill { font-size:.58rem; padding:1px 6px; border-radius:3px; background:rgba(84,197,248,.1); border:1px solid rgba(84,197,248,.25); color:var(--dart); }
+  .fl-code { padding:.85rem 1.1rem; font-family:var(--mono); font-size:.74rem; line-height:1.75; white-space:pre; overflow-x:auto; }
+
+  .status-bar { height:24px; background:var(--surface); border-top:1px solid var(--border); display:flex; align-items:center; padding:0 1.1rem; gap:1rem; flex-shrink:0; }
+  .si { display:flex; align-items:center; gap:.35rem; font-family:var(--mono); font-size:.62rem; color:var(--text-muted); }
+  .ind { width:5px; height:5px; border-radius:50%; background:var(--text-dim); }
+  .ind.ok { background:var(--success); } .ind.err { background:var(--error); }
+  .error-msg { color:var(--error); background:rgba(248,113,113,.07); border:1px solid rgba(248,113,113,.2); border-radius:5px; padding:.6rem .9rem; font-size:.73rem; margin:.9rem; font-family:var(--mono); }
+
+  .btn-firebase { font-family:var(--mono); font-size:.65rem; padding:3px 11px; border-radius:4px; border:1px solid #f5820d; background:rgba(245,130,13,.1); color:#f5820d; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:.35rem; }
+  .btn-firebase:hover { background:#f5820d; color:#fff; }
+  .btn-firebase:disabled { opacity:.4; cursor:not-allowed; }
+
+  /* Modal overlay */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:100; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal { background:var(--surface); border:1px solid var(--border-hover); border-radius:10px; width:420px; max-width:92vw; padding:0; overflow:hidden; transform:translateY(8px) scale(.98); transition:transform .2s; }
+  .modal-overlay.open .modal { transform:translateY(0) scale(1); }
+  .modal-head { padding:1rem 1.2rem .8rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.6rem; }
+  .modal-head .fire { font-size:1.1rem; }
+  .modal-title { font-size:.85rem; font-weight:600; }
+  .modal-sub { font-family:var(--mono); font-size:.62rem; color:var(--text-muted); margin-top:.15rem; }
+  .modal-body { padding:1rem 1.2rem; display:flex; flex-direction:column; gap:.75rem; }
+  .modal-field { display:flex; flex-direction:column; gap:.35rem; }
+  .modal-label { font-family:var(--mono); font-size:.6rem; color:var(--text-muted); letter-spacing:.08em; text-transform:uppercase; }
+  .modal-input { background:var(--bg); border:1px solid var(--border); border-radius:5px; padding:.45rem .7rem; font-family:var(--mono); font-size:.75rem; color:var(--text); outline:none; transition:border .15s; }
+  .modal-input:focus { border-color:var(--accent); }
+  .modal-hint { font-family:var(--mono); font-size:.6rem; color:var(--text-dim); line-height:1.5; }
+  .modal-preview { background:var(--bg); border:1px solid var(--border); border-radius:5px; padding:.6rem .8rem; font-family:var(--mono); font-size:.65rem; color:var(--text-muted); max-height:120px; overflow:auto; white-space:pre; line-height:1.6; }
+  .modal-footer { padding:.8rem 1.2rem 1rem; border-top:1px solid var(--border); display:flex; gap:.5rem; justify-content:flex-end; }
+  .modal-cancel { font-family:var(--mono); font-size:.68rem; padding:5px 14px; border-radius:4px; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+  .modal-cancel:hover { border-color:var(--border-hover); color:var(--text); }
+  .modal-confirm { font-family:var(--mono); font-size:.68rem; padding:5px 16px; border-radius:4px; border:1px solid #f5820d; background:#f5820d; color:#fff; cursor:pointer; transition:all .15s; font-weight:500; }
+  .modal-confirm:hover { background:#d4720b; border-color:#d4720b; }
+  .modal-confirm:disabled { opacity:.5; cursor:not-allowed; }
+  .modal-status { font-family:var(--mono); font-size:.65rem; padding:.5rem .8rem; border-radius:5px; display:none; }
+  .modal-status.ok { display:block; background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.25); color:var(--success); }
+  .modal-status.err { display:block; background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.2); color:var(--error); }
+  .modal-status.info { display:block; background:rgba(124,106,247,.08); border:1px solid rgba(124,106,247,.25); color:var(--accent); }
+
+  @media(max-width:700px){ main{flex-direction:column} .divider{width:100%;height:5px;cursor:row-resize;} .divider::after{width:40px;height:1px;} .panel:first-child{width:100%!important;} .panel{min-height:280px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text"><span class="c">curl</span> → <span class="d">dart</span> + json</div>
+  </div>
+  <span class="badge">CLIENT-SIDE · NO DATA SENT</span>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <div class="dot" style="background:var(--json-col)"></div>
+      <span class="panel-label" style="color:var(--json-col)">curl command</span>
+      <div class="panel-actions"><button class="btn" onclick="clearInput()">clear</button></div>
+    </div>
+    <div class="examples-bar">
+      <span class="examples-label">examples:</span>
+      <button class="ex-btn" onclick="loadEx('get')">GET</button>
+      <button class="ex-btn" onclick="loadEx('post')">POST</button>
+      <button class="ex-btn" onclick="loadEx('json')">JSON</button>
+      <button class="ex-btn" onclick="loadEx('auth')">Auth</button>
+      <button class="ex-btn" onclick="loadEx('headers')">Headers</button>
+      <button class="ex-btn" onclick="loadEx('form')">Form</button>
+    </div>
+    <textarea id="curlInput" spellcheck="false" placeholder="Paste your curl command here…&#10;&#10;curl https://api.example.com/data \&#10;  -H 'Authorization: Bearer token'"></textarea>
+  </div>
+
+  <div class="divider" id="divider"></div>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active" id="tab-dart" onclick="switchTab('dart')"><div class="tdot" style="background:var(--dart)"></div>DART</div>
+      <div class="tab" id="tab-json" onclick="switchTab('json')"><div class="tdot" style="background:var(--json-col)"></div>JSON CONFIG</div>
+      <div class="tab" id="tab-flutter" onclick="switchTab('flutter')"><div class="tdot" style="background:var(--dart)"></div>FLUTTER USAGE</div>
+      <div class="tab-actions" style="gap:.5rem;">
+        <button class="btn-firebase" id="firebaseBtn" onclick="openFirebaseModal()" disabled title="Convert a curl command first">🔥 Upload to Firebase</button>
+        <button class="btn" id="copyBtn" onclick="copyActive()">copy</button>
+      </div>
+    </div>
+    <div class="tab-panel active" id="panel-dart">
+      <div id="dartOut" class="output-area empty">← paste a curl command</div>
+    </div>
+    <div class="tab-panel" id="panel-json">
+      <div id="jsonOut" class="output-area empty">← paste a curl command</div>
+    </div>
+    <div class="tab-panel" id="panel-flutter">
+      <div class="flutter-scroll" id="flutterOut">
+        <div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-dim);font-family:var(--mono);font-size:.72rem;">← paste a curl command</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div class="si"><div class="ind" id="statusDot"></div><span id="statusText">ready</span></div>
+  <div class="si" style="margin-left:auto">no data leaves your browser</div>
+</div>
+
+<script>
+const EX = {
+  get:`curl 'https://api.example.com/users?page=1&limit=10' \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer eyJhbGc.token'`,
+  post:`curl -X POST 'https://api.example.com/users' \\\n  -H 'Content-Type: application/x-www-form-urlencoded' \\\n  -d 'name=John+Doe&email=john%40example.com&role=admin'`,
+  json:`curl -X POST 'https://api.example.com/messages' \\\n  -H 'Content-Type: application/json' \\\n  -H 'X-API-Key: sk-abc123' \\\n  -d '{"text":"Hello world","channel":"general","notify":true}'`,
+  auth:`curl 'https://api.example.com/protected' \\\n  -u 'myuser:mypassword' \\\n  -H 'Accept: application/json'`,
+  headers:`curl -X PUT 'https://api.example.com/items/42' \\\n  -H 'Authorization: Bearer token123' \\\n  -H 'Content-Type: application/json' \\\n  -H 'X-Request-ID: req-abc-xyz' \\\n  -d '{"status":"active"}'`,
+  form:`curl -X POST 'https://api.example.com/upload' \\\n  -H 'Authorization: Bearer token' \\\n  -F 'title=My Document' \\\n  -F 'category=reports' \\\n  -F 'published=true'`
+};
+
+let activeTab='dart';
+
+function loadEx(k){ document.getElementById('curlInput').value=EX[k]; convert(); }
+
+function clearInput(){
+  document.getElementById('curlInput').value='';
+  setOut('dart','empty',''); setOut('json','empty',''); setFlutter(null);
+  setStatus('ready',false,false);
+}
+
+document.getElementById('curlInput').addEventListener('input',()=>{
+  const v=document.getElementById('curlInput').value.trim();
+  if(v) convert(); else clearInput();
+});
+
+function switchTab(t){
+  activeTab=t;
+  ['dart','json','flutter'].forEach(x=>{
+    document.getElementById('tab-'+x).className='tab'+(x===t?' active':'');
+    document.getElementById('panel-'+x).className='tab-panel'+(x===t?' active':'');
+  });
+}
+
+// ── Parser ────────────────────────────────────────────────────────────────────
+function tokenize(cmd){
+  const tokens=[]; let i=0;
+  const s=cmd.replace(/\\\n/g,' ').replace(/\\\r\n/g,' ');
+  while(i<s.length){
+    while(i<s.length&&/\s/.test(s[i]))i++;
+    if(i>=s.length)break;
+    if(s[i]==="'"||s[i]==='"'){
+      const q=s[i++]; let tok='';
+      while(i<s.length&&s[i]!==q){ if(s[i]==='\\'&&q==='"'){i++;tok+=s[i]||'';i++;}else tok+=s[i++]; }
+      i++; tokens.push(tok);
+    }else{ let tok=''; while(i<s.length&&!/\s/.test(s[i]))tok+=s[i++]; tokens.push(tok); }
+  }
+  return tokens;
+}
+
+function parseCurl(raw){
+  const tokens=tokenize(raw.trim());
+  if(!tokens.length||tokens[0].toLowerCase()!=='curl') throw new Error("Input must start with 'curl'");
+  const r={url:null,method:null,headers:{},data:null,isForm:false,formData:{},basicAuth:null};
+  let i=1; const nx=()=>tokens[i++];
+  while(i<tokens.length){
+    const t=nx();
+    switch(t){
+      case'-X':case'--request': r.method=nx().toUpperCase(); break;
+      case'-H':case'--header':{ const h=nx(),ci=h.indexOf(':'); if(ci!==-1)r.headers[h.slice(0,ci).trim()]=h.slice(ci+1).trim(); break; }
+      case'-d':case'--data':case'--data-ascii':case'--data-raw': r.data=nx(); break;
+      case'--data-urlencode': r.data=(r.data?r.data+'&':'')+nx(); break;
+      case'-F':case'--form':{ const fv=nx(),eq=fv.indexOf('='); if(eq!==-1){r.formData[fv.slice(0,eq)]=fv.slice(eq+1);r.isForm=true;} break; }
+      case'-u':case'--user':{ const up=nx(),co=up.indexOf(':'); r.basicAuth=co!==-1?{user:up.slice(0,co),pass:up.slice(co+1)}:{user:up,pass:''}; break; }
+      case'-G':case'--get': r.method='GET'; break;
+      case'-L':case'--location':case'--compressed':case'-s':case'--silent':case'-v':case'--verbose':case'-i':case'--include':case'-k':case'--insecure': break;
+      case'--connect-timeout':case'--max-time':case'-m': nx(); break;
+      default: if(!t.startsWith('-')&&!r.url) r.url=t;
+    }
+  }
+  if(!r.url) throw new Error('No URL found in curl command');
+  if(r.basicAuth&&!gH(r.headers,'Authorization'))
+    r.headers['Authorization']='Basic '+btoa(`${r.basicAuth.user}:${r.basicAuth.pass}`);
+  if(!r.method) r.method=(r.data||r.isForm)?'POST':'GET';
+  if((r.data||r.isForm)&&!gH(r.headers,'content-type'))
+    r.headers['Content-Type']=r.isForm?'multipart/form-data':'application/x-www-form-urlencoded';
+  return r;
+}
+
+function gH(h,n){ const l=n.toLowerCase(); for(const k of Object.keys(h)) if(k.toLowerCase()===l) return h[k]; return null; }
+function tryURL(u){ try{return new URL(u);}catch{return null;} }
+function parseUE(d){ try{ const p=new URLSearchParams(d),o={}; let has=false; for(const[k,v]of p.entries()){o[k]=v;has=true;} return has?o:null; }catch{return null;} }
+
+// ── JSON config ───────────────────────────────────────────────────────────────
+function toConfig(p){
+  const {url,method,headers,data,isForm,formData}=p;
+  const uo=tryURL(url);
+  const ct=gH(headers,'content-type')||'';
+  const isJson=ct.includes('application/json');
+  const isMulti=isForm||ct.includes('multipart/form-data');
+  const ch={...headers}; if(isMulti) delete ch['Content-Type'];
+  const qp={};
+  if(uo&&uo.search) for(const[k,v]of uo.searchParams.entries()) qp[k]=v;
+  let body=null,bodyType=null;
+  if(isJson&&data){ try{body=JSON.parse(data);bodyType='json';}catch{body=data;bodyType='raw';} }
+  else if(isMulti){ body=formData; bodyType='multipart'; }
+  else if(data){ const pr=parseUE(data); body=pr||data; bodyType=pr?'form':'raw'; }
+
+  // Always emit every possible key so Firebase param is self-documenting.
+  // Keys that don't apply for this request get null.
+  return {
+    method,
+    url: uo?(uo.origin+uo.pathname):url,
+    queryParameters: Object.keys(qp).length ? qp : null,
+    headers: Object.keys(ch).length ? ch : null,
+    body: body,
+    bodyType: bodyType,
+  };
+}
+
+// ── Dart codegen ──────────────────────────────────────────────────────────────
+function esc(s){ return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\${/g,'\\\${'); }
+function dartObj(o,ind){
+  const pad=' '.repeat(ind),inner=' '.repeat(ind+2);
+  if(o===null)return'null'; if(typeof o==='string')return`'${esc(o)}'`;
+  if(typeof o==='number')return String(o); if(typeof o==='boolean')return String(o);
+  if(Array.isArray(o)){ if(!o.length)return'[]'; return`[\n${o.map(v=>inner+dartObj(v,ind+2)).join(',\n')},\n${pad}]`; }
+  const ks=Object.keys(o); if(!ks.length)return'{}';
+  return`{\n${ks.map(k=>`${inner}'${esc(k)}': ${dartObj(o[k],ind+2)}`).join(',\n')},\n${pad}}`;
+}
+
+function toDart(p){
+  const {url,method,headers,data,isForm,formData}=p;
+  const L=[]; const ct=gH(headers,'content-type')||'';
+  const isJson=ct.includes('application/json'), isMulti=isForm||ct.includes('multipart/form-data');
+  const uo=tryURL(url);
+  L.push(`import 'package:http/http.dart' as http;`);
+  if(isJson) L.push(`import 'dart:convert';`);
+  L.push('','Future<void> main() async {');
+  if(uo&&uo.search){
+    L.push(`  final uri = Uri.parse('${url.split('?')[0]}').replace(queryParameters: {`);
+    for(const[k,v]of uo.searchParams.entries()) L.push(`    '${esc(k)}': '${esc(v)}',`);
+    L.push('  });');
+  } else { L.push(`  final uri = Uri.parse('${esc(url)}');`); }
+  const eh={...headers}; if(isMulti)delete eh['Content-Type'];
+  const ek=Object.keys(eh);
+  if(ek.length){ L.push('  final headers = <String, String>{'); for(const k of ek)L.push(`    '${esc(k)}': '${esc(eh[k])}',`); L.push('  };'); }
+  if(isJson&&data){ try{const o=JSON.parse(data);L.push(`  final body = json.encode(${dartObj(o,2)});`);}catch{L.push(`  final body = '${esc(data)}';`);} }
+  else if(isMulti&&Object.keys(formData).length){
+    L.push('  final request = http.MultipartRequest(');
+    L.push(`    '${method}',`); L.push('    uri,'); L.push('  );');
+    if(ek.length)L.push('  request.headers.addAll(headers);');
+    L.push('  request.fields.addAll({');
+    for(const[k,v]of Object.entries(formData))L.push(`    '${esc(k)}': '${esc(v)}',`);
+    L.push('  });','','  final streamed = await request.send();');
+    L.push('  final response = await http.Response.fromStream(streamed);');
+    L.push('','  if (response.statusCode == 200) {');
+    L.push(`    print('Success: \${response.body}');`,'  } else {');
+    L.push(`    print('Error \${response.statusCode}: \${response.body}');`,'  }','}');
+    return L.join('\n');
+  } else if(data){ const pr=parseUE(data); if(pr&&!isJson){L.push('  final body = {');for(const[k,v]of Object.entries(pr))L.push(`    '${esc(k)}': '${esc(v)}',`);L.push('  };');}else L.push(`  final body = '${esc(data)}';`); }
+  L.push('');
+  const m=method.toLowerCase(), hh=ek.length>0, hb=!!data;
+  if(m==='get'||m==='delete'||m==='head'){
+    const a=['uri']; if(hh)a.push('headers: headers'); if(m==='delete'&&hb)a.push('body: body');
+    L.push(`  final response = await http.${m}(\n    ${a.join(',\n    ')},\n  );`);
+  } else {
+    const a=['uri']; if(hh)a.push('headers: headers'); if(hb){a.push('body: body');if(isJson)a.push('encoding: utf8');}
+    L.push(`  final response = await http.${m}(\n    ${a.join(',\n    ')},\n  );`);
+  }
+  L.push('','  if (response.statusCode == 200) {');
+  L.push(`    print('Success: \${response.body}');`,'  } else {');
+  L.push(`    print('Error \${response.statusCode}: \${response.body}');`,'  }','}');
+  return L.join('\n');
+}
+
+// ── Flutter snippet ───────────────────────────────────────────────────────────
+function toFlutterSections(p, cfg){
+  const ct=gH(p.headers,'content-type')||'';
+  const isJson=ct.includes('application/json'), isMulti=p.isForm||ct.includes('multipart/form-data');
+  const hq=cfg.queryParameters&&Object.keys(cfg.queryParameters).length;
+  const hh=cfg.headers&&Object.keys(cfg.headers).length;
+  const hb=cfg.body!=null;
+  const m=p.method.toLowerCase();
+
+  const pubspec=
+`# pubspec.yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0`;
+
+  const imports=`import 'package:http/http.dart' as http;`+(isJson?`\nimport 'dart:convert';`:'');
+
+  const cfgJson=`// Store this in Firebase Remote Config, your backend, or assets/config.json.
+// Your Flutter app fetches this JSON and calls executeRequest(config).
+final Map<String, dynamic> requestConfig = ${JSON.stringify(cfg, null, 2)};`;
+
+  let exec=`Future<http.Response> executeRequest(Map<String, dynamic> cfg) async {\n`;
+  exec+=hq
+    ? `  final uri = Uri.parse(cfg['url']).replace(\n    queryParameters: Map<String, String>.from(cfg['queryParameters'] ?? {}),\n  );\n`
+    : `  final uri = Uri.parse(cfg['url']);\n`;
+  if(hh) exec+=`  final headers = Map<String, String>.from(cfg['headers'] ?? {});\n`;
+
+  if(isMulti){
+    exec+=`\n  final request = http.MultipartRequest(cfg['method'], uri);\n`;
+    if(hh) exec+=`  request.headers.addAll(headers);\n`;
+    exec+=`  final fields = Map<String, String>.from(cfg['body'] ?? {});\n`;
+    exec+=`  request.fields.addAll(fields);\n`;
+    exec+=`  final streamed = await request.send();\n`;
+    exec+=`  return http.Response.fromStream(streamed);\n`;
+  } else if(isJson&&hb){
+    exec+=`\n  final body = json.encode(cfg['body']);\n`;
+    if(!hh) exec+=`  final headers = <String, String>{};\n`;
+    exec+=`  headers['Content-Type'] = 'application/json';\n`;
+    exec+=`\n  return http.${m}(\n    uri,\n    headers: headers,\n    body: body,\n  );\n`;
+  } else if(hb){
+    exec+=`\n  final body = Map<String, String>.from(cfg['body'] ?? {});\n`;
+    exec+=`\n  return http.${m}(\n    uri,\n`+(hh?`    headers: headers,\n`:'')+`    body: body,\n  );\n`;
+  } else {
+    exec+=`\n  return http.${m}(uri,`+(hh?'\n    headers: headers,':'')+`\n  );\n`;
+  }
+  exec+=`}`;
+
+  const caller=
+`// In your widget or service class:
+void fetchData() async {
+  final response = await executeRequest(requestConfig);
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    // TODO: use data...
+    print(data);
+  } else {
+    print('Request failed: \${response.statusCode}');
+    print(response.body);
+  }
+}`;
+
+  return [
+    {label:'1. Add dependency', pill:'pubspec.yaml', code:pubspec},
+    {label:'2. Imports', pill:'dart', code:imports},
+    {label:'3. JSON config — store in Firebase Remote Config, backend, or local assets', pill:'config.json', code:cfgJson},
+    {label:'4. Generic executor — paste once into your service class', pill:'service.dart', code:exec},
+    {label:'5. Call from your widget', pill:'widget.dart', code:caller},
+  ];
+}
+
+// ── Highlighters ──────────────────────────────────────────────────────────────
+function hlDart(code){
+  const kw=['import','final','void','await','Future','if','print','async','const','var','new','return'];
+  const ty=['String','Map','List','Uri','http','int','bool','dynamic','Response'];
+  return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/'([^'\\]|\\.)*'/g,m=>`<span class="ts">${m}</span>`)
+    .replace(/\/\/[^\n]*/g,m=>`<span class="tc">${m}</span>`)
+    .replace(/\b(\d+)\b/g,'<span class="tn">$1</span>')
+    .replace(new RegExp(`\\b(${kw.join('|')})\\b`,'g'),'<span class="tk">$1</span>')
+    .replace(new RegExp(`\\b(${ty.join('|')})\\b`,'g'),'<span class="tt">$1</span>')
+    .replace(/\b([a-z][a-zA-Z0-9]*)(?=\()/g,'<span class="tm">$1</span>');
+}
+
+function hlJson(obj){
+  const raw=JSON.stringify(obj,null,2);
+  return raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,m=>{
+      if(/^"/.test(m)) return /:$/.test(m)?`<span class="j-key">${m}</span>`:`<span class="j-str">${m}</span>`;
+      if(/true|false/.test(m)) return`<span class="j-bool">${m}</span>`;
+      if(/null/.test(m)) return`<span class="j-null">${m}</span>`;
+      return`<span class="j-num">${m}</span>`;
+    });
+}
+
+function hlFlutter(code){
+  const kw=['import','final','void','await','Future','if','print','async','const','var','new','return','Map','String','dynamic','List'];
+  return code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/#[^\n]*/g,m=>`<span class="tc">${m}</span>`)
+    .replace(/\/\/[^\n]*/g,m=>`<span class="tc">${m}</span>`)
+    .replace(/'([^'\\]|\\.)*'/g,m=>`<span class="ts">${m}</span>`)
+    .replace(/\b(\d+)\b/g,'<span class="tn">$1</span>')
+    .replace(new RegExp(`\\b(${kw.join('|')})\\b`,'g'),'<span class="tk">$1</span>')
+    .replace(/\b([a-z][a-zA-Z0-9]*)(?=\()/g,'<span class="tm">$1</span>');
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+function setOut(tab,mode,content){
+  const el=document.getElementById(tab==='dart'?'dartOut':'jsonOut');
+  if(mode==='empty'){ el.className='output-area empty'; el.innerHTML=content||'← paste a curl command'; }
+  else if(mode==='error'){ el.className='output-area empty'; el.innerHTML=`<div class="error-msg">⚠ ${content}</div>`; }
+  else{ el.className='output-area'; el.innerHTML=tab==='dart'?hlDart(content):hlJson(content); }
+}
+
+function setFlutter(parsed){
+  const el=document.getElementById('flutterOut');
+  if(!parsed){ el.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text-dim);font-family:var(--mono);font-size:.72rem;">← paste a curl command</div>`; return; }
+  const cfg=toConfig(parsed);
+  const secs=toFlutterSections(parsed,cfg);
+  el.innerHTML=secs.map(s=>`
+    <div class="fl-section">
+      <div class="fl-head">${s.label} <span class="fl-pill">${s.pill}</span></div>
+      <div class="fl-code">${hlFlutter(s.code)}</div>
+    </div>`).join('');
+}
+
+function setStatus(text,ok,err){
+  document.getElementById('statusText').textContent=text;
+  document.getElementById('statusDot').className='ind'+(ok?' ok':err?' err':'');
+}
+
+function convert(){
+  const raw=document.getElementById('curlInput').value.trim();
+  if(!raw){clearInput();return;}
+  try{
+    const p=parseCurl(raw);
+    const dart=toDart(p);
+    const cfg=toConfig(p);
+    setOut('dart','code',dart);
+    setOut('json','code',cfg);
+    setFlutter(p);
+    const host=tryURL(p.url)?.hostname||p.url;
+    setStatus(`${p.method} · ${host}`,true,false);
+  }catch(e){
+    setOut('dart','error',e.message);
+    setOut('json','empty','');
+    setFlutter(null);
+    setStatus(e.message,false,true);
+  }
+}
+
+function copyActive(){
+  let text='';
+  if(activeTab==='dart') text=document.getElementById('dartOut').innerText;
+  else if(activeTab==='json') text=document.getElementById('jsonOut').innerText;
+  else text=document.getElementById('flutterOut').innerText;
+  if(!text||text.includes('←'))return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.textContent='✓ copied'; b.className='btn copied';
+    setTimeout(()=>{b.textContent='copy';b.className='btn';},2000);
+  });
+}
+
+// ── Divider drag ──────────────────────────────────────────────────────────────
+(function(){
+  const divider=document.getElementById('divider');
+  const main=document.querySelector('main');
+  const leftPanel=main.querySelector('.panel:first-child');
+  let dragging=false, startX=0, startW=0;
+
+  divider.addEventListener('mousedown',e=>{
+    dragging=true; startX=e.clientX; startW=leftPanel.offsetWidth;
+    divider.classList.add('dragging');
+    document.body.style.cursor='col-resize';
+    document.body.style.userSelect='none';
+  });
+
+  document.addEventListener('mousemove',e=>{
+    if(!dragging)return;
+    const totalW=main.offsetWidth - divider.offsetWidth;
+    const newW=Math.min(Math.max(startW+(e.clientX-startX), totalW*0.2), totalW*0.8);
+    leftPanel.style.width=newW+'px';
+  });
+
+  document.addEventListener('mouseup',()=>{
+    if(!dragging)return;
+    dragging=false;
+    divider.classList.remove('dragging');
+    document.body.style.cursor='';
+    document.body.style.userSelect='';
+  });
+
+  // Touch support
+  divider.addEventListener('touchstart',e=>{
+    dragging=true; startX=e.touches[0].clientX; startW=leftPanel.offsetWidth;
+    divider.classList.add('dragging');
+  },{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(!dragging)return;
+    const totalW=main.offsetWidth - divider.offsetWidth;
+    const newW=Math.min(Math.max(startW+(e.touches[0].clientX-startX), totalW*0.2), totalW*0.8);
+    leftPanel.style.width=newW+'px';
+  },{passive:true});
+  document.addEventListener('touchend',()=>{ dragging=false; divider.classList.remove('dragging'); });
+})();
+
+loadEx('json');
+</script>
+<!-- Firebase Upload Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="fire">🔥</span>
+      <div>
+        <div class="modal-title">Upload to Firebase Remote Config</div>
+        <div class="modal-sub">This will create or update a parameter in your project</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <div class="modal-label">Firebase Project ID</div>
+        <input class="modal-input" id="fbProjectId" placeholder="my-firebase-project" autocomplete="off" spellcheck="false">
+        <div class="modal-hint">Found in Firebase Console → Project Settings → General</div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Remote Config Parameter Key</div>
+        <input class="modal-input" id="fbParamKey" placeholder="api_request_config" autocomplete="off" spellcheck="false">
+        <div class="modal-hint">The key name used in your Flutter app to fetch this config</div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Access Token (OAuth2)</div>
+        <input class="modal-input" id="fbToken" type="password" placeholder="ya29.a0AfH6SM..." autocomplete="off" spellcheck="false">
+        <div class="modal-hint">Run: <strong style="color:var(--text)">gcloud auth print-access-token</strong> — or get from Google OAuth Playground</div>
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">JSON Config Preview</div>
+        <div class="modal-preview" id="modalPreview">{}</div>
+      </div>
+      <div class="modal-status" id="modalStatus"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" id="modalConfirm" onclick="doFirebaseUpload()">Proceed to Upload</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

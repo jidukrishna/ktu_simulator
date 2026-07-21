@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cURL → Dart Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e12;
+    --surface: #16161d;
+    --surface2: #1e1e28;
+    --border: #2a2a38;
+    --border-hover: #3d3d55;
+    --accent: #7c6af7;
+    --accent-dim: #4a3fa3;
+    --accent-glow: rgba(124,106,247,0.15);
+    --dart: #54c5f8;
+    --dart-dim: #1a4a60;
+    --text: #e8e6ff;
+    --text-muted: #7a7890;
+    --text-dim: #4a4860;
+    --success: #4ade80;
+    --error: #f87171;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .logo-arrow {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  .logo-dart {
+    color: var(--dart);
+  }
+
+  .badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-height: 0;
+  }
+
+  .panel:last-child { border-right: none; }
+
+  .panel-header {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .panel-label.curl { color: #f0a05a; }
+  .panel-label.dart { color: var(--dart); }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .dot.curl { color: #f0a05a; }
+  .dot.dart { color: var(--dart); }
+
+  .panel-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 4px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  .btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+    background: var(--border);
+  }
+
+  .btn.primary {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn.primary:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn.copy-btn {
+    min-width: 64px;
+  }
+
+  .btn.copied {
+    border-color: var(--success);
+    color: var(--success);
+    background: rgba(74,222,128,0.1);
+  }
+
+  textarea {
+    flex: 1;
+    width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    padding: 1.25rem;
+    border: none;
+    outline: none;
+    resize: none;
+    tab-size: 2;
+  }
+
+  textarea::placeholder {
+    color: var(--text-dim);
+  }
+
+  .output-area {
+    flex: 1;
+    overflow: auto;
+    padding: 1.25rem;
+    background: var(--bg);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .output-area.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .token-keyword { color: #c792ea; }
+  .token-type    { color: var(--dart); }
+  .token-string  { color: #c3e88d; }
+  .token-comment { color: #546e7a; font-style: italic; }
+  .token-var     { color: #82aaff; }
+  .token-method  { color: #f0a05a; }
+  .token-num     { color: #f78c6c; }
+
+  .status-bar {
+    height: 28px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .status-item .indicator {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+  }
+
+  .status-item .indicator.ok { background: var(--success); }
+  .status-item .indicator.err { background: var(--error); }
+
+  .examples-bar {
+    padding: 0.5rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  .examples-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-right: 0.25rem;
+  }
+
+  .ex-btn {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    padding: 2px 9px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ex-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .error-msg {
+    color: var(--error);
+    background: rgba(248,113,113,0.07);
+    border: 1px solid rgba(248,113,113,0.2);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    margin: 1rem;
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    textarea, .output-area { min-height: 240px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">
+      <span>curl</span> → <span class="logo-dart">dart</span>
+    </div>
+  </div>
+  <span class="badge">STATIC · CLIENT-SIDE</span>
+</header>
+
+<main>
+  <!-- Input panel -->
+  <div class="panel" style="display:flex;flex-direction:column;">
+    <div class="panel-header">
+      <div class="dot curl"></div>
+      <span class="panel-label curl">curl command</span>
+      <div class="panel-actions">
+        <button class="btn" onclick="clearInput()">clear</button>
+      </div>
+    </div>
+    <div class="examples-bar">
+      <span class="examples-label">examples:</span>
+      <button class="ex-btn" onclick="loadExample('get')">GET</button>
+      <button class="ex-btn" onclick="loadExample('post')">POST</button>
+      <button class="ex-btn" onclick="loadExample('json')">JSON body</button>
+      <button class="ex-btn" onclick="loadExample('auth')">Basic Auth</button>
+      <button class="ex-btn" onclick="loadExample('headers')">Headers</button>
+      <button class="ex-btn" onclick="loadExample('form')">Form data</button>
+    </div>
+    <textarea id="curlInput" spellcheck="false"
+      placeholder="Paste your curl command here…&#10;&#10;curl https://api.example.com/data \&#10;  -H 'Authorization: Bearer token'"></textarea>
+  </div>
+
+  <!-- Output panel -->
+  <div class="panel" style="display:flex;flex-direction:column;">
+    <div class="panel-header">
+      <div class="dot dart"></div>
+      <span class="panel-label dart">dart (http package)</span>
+      <div class="panel-actions">
+        <button class="btn copy-btn" id="copyBtn" onclick="copyOutput()">copy</button>
+      </div>
+    </div>
+    <div id="outputArea" class="output-area empty">
+      ← paste a curl command to convert
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div class="status-item">
+    <div class="indicator" id="statusDot"></div>
+    <span id="statusText">ready</span>
+  </div>
+  <div class="status-item" style="margin-left:auto;">
+    <span>no data leaves your browser</span>
+  </div>
+</div>
+
+<script>
+const examples = {
+  get: `curl 'https://api.example.com/users?page=1&limit=10' \\
+  -H 'Accept: application/json' \\
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.token'`,
+
+  post: `curl -X POST 'https://api.example.com/users' \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  -d 'name=John+Doe&email=john%40example.com&role=admin'`,
+
+  json: `curl -X POST 'https://api.example.com/messages' \\
+  -H 'Content-Type: application/json' \\
+  -H 'X-API-Key: sk-abc123' \\
+  -d '{"text":"Hello world","channel":"general","notify":true}'`,
+
+  auth: `curl 'https://api.example.com/protected' \\
+  -u 'myuser:mypassword' \\
+  -H 'Accept: application/json'`,
+
+  headers: `curl -X PUT 'https://api.example.com/items/42' \\
+  -H 'Authorization: Bearer token123' \\
+  -H 'Content-Type: application/json' \\
+  -H 'X-Request-ID: req-abc-xyz' \\
+  -H 'Cache-Control: no-cache' \\
+  -d '{"status":"active"}'`,
+
+  form: `curl -X POST 'https://api.example.com/upload' \\
+  -H 'Authorization: Bearer token' \\
+  -F 'title=My Document' \\
+  -F 'category=reports' \\
+  -F 'published=true'`
+};
+
+function loadExample(key) {
+  document.getElementById('curlInput').value = examples[key];
+  convert();
+}
+
+function clearInput() {
+  document.getElementById('curlInput').value = '';
+  setOutput('empty', '');
+  setStatus('ready', false, false);
+}
+
+document.getElementById('curlInput').addEventListener('input', () => {
+  const val = document.getElementById('curlInput').value.trim();
+  if (val) convert();
+  else { setOutput('empty', ''); setStatus('ready', false, false); }
+});
+
+// ── Parser ──────────────────────────────────────────────────────────────────
+
+function tokenize(cmd) {
+  const tokens = [];
+  let i = 0;
+  const s = cmd.replace(/\\\n/g, ' ').replace(/\\\r\n/g, ' ');
+  while (i < s.length) {
+    while (i < s.length && /\s/.test(s[i])) i++;
+    if (i >= s.length) break;
+    if (s[i] === "'" || s[i] === '"') {
+      const q = s[i++];
+      let tok = '';
+      while (i < s.length && s[i] !== q) {
+        if (s[i] === '\\' && q === '"') { i++; tok += s[i] || ''; i++; }
+        else tok += s[i++];
+      }
+      i++;
+      tokens.push(tok);
+    } else {
+      let tok = '';
+      while (i < s.length && !/\s/.test(s[i])) tok += s[i++];
+      tokens.push(tok);
+    }
+  }
+  return tokens;
+}
+
+function parseCurl(raw) {
+  const tokens = tokenize(raw.trim());
+  if (!tokens.length || tokens[0].toLowerCase() !== 'curl') throw new Error("Input must start with 'curl'");
+
+  const result = {
+    url: null,
+    method: null,
+    headers: {},
+    data: null,
+    dataUrlEncoded: false,
+    formData: {},
+    isForm: false,
+    basicAuth: null,
+  };
+
+  let i = 1;
+  const peek = () => tokens[i];
+  const next = () => tokens[i++];
+
+  while (i < tokens.length) {
+    const tok = next();
+    switch (tok) {
+      case '-X': case '--request':
+        result.method = next().toUpperCase();
+        break;
+      case '-H': case '--header': {
+        const hdr = next();
+        const colon = hdr.indexOf(':');
+        if (colon !== -1) {
+          const k = hdr.slice(0, colon).trim();
+          const v = hdr.slice(colon + 1).trim();
+          result.headers[k] = v;
+        }
+        break;
+      }
+      case '-d': case '--data': case '--data-ascii': case '--data-raw':
+        result.data = next();
+        break;
+      case '--data-urlencode':
+        result.data = (result.data ? result.data + '&' : '') + next();
+        result.dataUrlEncoded = true;
+        break;
+      case '-F': case '--form': {
+        const fv = next();
+        const eq = fv.indexOf('=');
+        if (eq !== -1) {
+          result.formData[fv.slice(0, eq)] = fv.slice(eq + 1);
+          result.isForm = true;
+        }
+        break;
+      }
+      case '-u': case '--user': {
+        const up = next();
+        const co = up.indexOf(':');
+        if (co !== -1) result.basicAuth = { user: up.slice(0, co), pass: up.slice(co + 1) };
+        else result.basicAuth = { user: up, pass: '' };
+        break;
+      }
+      case '-G': case '--get':
+        result.method = 'GET';
+        break;
+      case '-L': case '--location':
+      case '--compressed':
+      case '-s': case '--silent':
+      case '-v': case '--verbose':
+      case '-i': case '--include':
+      case '-k': case '--insecure':
+        break;
+      case '--connect-timeout': case '--max-time': case '-m':
+        next(); // consume value
+        break;
+      default:
+        if (!tok.startsWith('-') && !result.url) result.url = tok;
+    }
+  }
+
+  if (!result.url) throw new Error('No URL found in curl command');
+
+  // Inject basic auth into Authorization header
+  if (result.basicAuth && !result.headers['Authorization']) {
+    const cred = btoa(`${result.basicAuth.user}:${result.basicAuth.pass}`);
+    result.headers['Authorization'] = `Basic ${cred}`;
+  }
+
+  // Infer method
+  if (!result.method) {
+    result.method = (result.data || result.isForm) ? 'POST' : 'GET';
+  }
+
+  // Infer content-type if missing for body requests
+  if ((result.data || result.isForm) && !getHeader(result.headers, 'content-type')) {
+    if (result.isForm) result.headers['Content-Type'] = 'multipart/form-data';
+    else result.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+  }
+
+  return result;
+}
+
+function getHeader(headers, name) {
+  const lower = name.toLowerCase();
+  for (const k of Object.keys(headers)) {
+    if (k.toLowerCase() === lower) return headers[k];
+  }
+  return null;
+}
+
+// ── Dart codegen ────────────────────────────────────────────────────────────
+
+function toDart(parsed) {
+  const { url, method, headers, data, isForm, formData } = parsed;
+  const lines = [];
+  const ct = getHeader(headers, 'content-type') || '';
+  const isJson = ct.includes('application/json');
+  const isMultipart = isForm || ct.includes('multipart/form-data');
+
+  lines.push(`import 'package:http/http.dart' as http;`);
+  if (isJson) lines.push(`import 'dart:convert';`);
+  lines.push('');
+  lines.push('Future<void> main() async {');
+
+  // URL
+  const urlObj = tryParseUrl(url);
+  if (urlObj && urlObj.search) {
+    const base = url.split('?')[0];
+    const params = urlObj.searchParams;
+    lines.push(`  final uri = Uri.parse('${base}').replace(queryParameters: {`);
+    for (const [k, v] of params.entries()) {
+      lines.push(`    '${esc(k)}': '${esc(v)}',`);
+    }
+    lines.push('  });');
+  } else {
+    lines.push(`  final uri = Uri.parse('${esc(url)}');`);
+  }
+
+  // Headers
+  const headerKeys = Object.keys(headers);
+  // Remove Content-Type from headers if multipart (http package sets it)
+  const effectiveHeaders = { ...headers };
+  if (isMultipart) delete effectiveHeaders['Content-Type'];
+
+  const effKeys = Object.keys(effectiveHeaders);
+  if (effKeys.length) {
+    lines.push('  final headers = <String, String>{');
+    for (const k of effKeys) {
+      lines.push(`    '${esc(k)}': '${esc(effectiveHeaders[k])}',`);
+    }
+    lines.push('  };');
+  }
+
+  // Body
+  if (isJson && data) {
+    try {
+      const obj = JSON.parse(data);
+      lines.push(`  final body = json.encode(${jsObjectToDart(obj, 2)});`);
+    } catch {
+      lines.push(`  final body = '${esc(data)}';`);
+    }
+  } else if (isMultipart && Object.keys(formData).length) {
+    lines.push('  final request = http.MultipartRequest(');
+    lines.push(`    '${method}',`);
+    lines.push('    uri,');
+    lines.push('  );');
+    if (effKeys.length) lines.push('  request.headers.addAll(headers);');
+    lines.push('  request.fields.addAll({');
+    for (const [k, v] of Object.entries(formData)) {
+      lines.push(`    '${esc(k)}': '${esc(v)}',`);
+    }
+    lines.push('  });');
+    lines.push('');
+    lines.push('  final streamedResponse = await request.send();');
+    lines.push('  final response = await http.Response.fromStream(streamedResponse);');
+    lines.push('');
+    lines.push(`  if (response.statusCode == 200) {`);
+    lines.push(`    print('Success: \${response.body}');`);
+    lines.push('  } else {');
+    lines.push(`    print('Error \${response.statusCode}: \${response.body}');`);
+    lines.push('  }');
+    lines.push('}');
+    return lines.join('\n');
+  } else if (data) {
+    const pairs = parseUrlEncoded(data);
+    if (pairs && !isJson) {
+      lines.push('  final body = {');
+      for (const [k, v] of Object.entries(pairs)) {
+        lines.push(`    '${esc(k)}': '${esc(v)}',`);
+      }
+      lines.push('  };');
+    } else {
+      lines.push(`  final body = '${esc(data)}';`);
+    }
+  }
+
+  lines.push('');
+
+  // Request call
+  const m = method.toLowerCase();
+  const hasHeaders = effKeys.length > 0;
+  const hasBody = !!(data);
+
+  if (m === 'get' || m === 'delete' || m === 'head') {
+    const args = [];
+    args.push('uri');
+    if (hasHeaders) args.push('headers: headers');
+    if (m === 'delete' && hasBody) args.push('body: body');
+    lines.push(`  final response = await http.${m}(`);
+    lines.push(`    ${args.join(',\n    ')},`);
+    lines.push('  );');
+  } else {
+    const args = ['uri'];
+    if (hasHeaders) args.push('headers: headers');
+    if (hasBody) {
+      args.push('body: body');
+      if (isJson) args.push(`encoding: utf8`);
+    }
+    lines.push(`  final response = await http.${m}(`);
+    lines.push(`    ${args.join(',\n    ')},`);
+    lines.push('  );');
+  }
+
+  lines.push('');
+  lines.push(`  if (response.statusCode == 200) {`);
+  lines.push(`    print('Success: \${response.body}');`);
+  lines.push('  } else {');
+  lines.push(`    print('Error \${response.statusCode}: \${response.body}');`);
+  lines.push('  }');
+  lines.push('}');
+
+  return lines.join('\n');
+}
+
+function tryParseUrl(url) {
+  try { return new URL(url); } catch { return null; }
+}
+
+function parseUrlEncoded(data) {
+  try {
+    const p = new URLSearchParams(data);
+    const obj = {};
+    let hasKeys = false;
+    for (const [k, v] of p.entries()) { obj[k] = v; hasKeys = true; }
+    return hasKeys ? obj : null;
+  } catch { return null; }
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\${/g, '\\\${');
+}
+
+function jsObjectToDart(obj, indent) {
+  const pad = ' '.repeat(indent);
+  const inner = ' '.repeat(indent + 2);
+  if (obj === null) return 'null';
+  if (typeof obj === 'string') return `'${esc(obj)}'`;
+  if (typeof obj === 'number') return String(obj);
+  if (typeof obj === 'boolean') return String(obj);
+  if (Array.isArray(obj)) {
+    if (!obj.length) return '[]';
+    const items = obj.map(v => inner + jsObjectToDart(v, indent + 2));
+    return `[\n${items.join(',\n')},\n${pad}]`;
+  }
+  const keys = Object.keys(obj);
+  if (!keys.length) return '{}';
+  const items = keys.map(k => `${inner}'${esc(k)}': ${jsObjectToDart(obj[k], indent + 2)}`);
+  return `{\n${items.join(',\n')},\n${pad}}`;
+}
+
+// ── Syntax highlighter ───────────────────────────────────────────────────────
+
+function highlight(code) {
+  const keywords = ['import', 'final', 'void', 'await', 'Future', 'if', 'print', 'async', 'const', 'var', 'new'];
+  const types = ['String', 'Map', 'List', 'Uri', 'http', 'int', 'bool', 'dynamic'];
+
+  return code
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // strings
+    .replace(/'([^'\\]|\\.)*'/g, m => `<span class="token-string">${m}</span>`)
+    // comments
+    .replace(/\/\/[^\n]*/g, m => `<span class="token-comment">${m}</span>`)
+    // numbers
+    .replace(/\b(\d+)\b/g, '<span class="token-num">$1</span>')
+    // keywords
+    .replace(new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'), '<span class="token-keyword">$1</span>')
+    // types
+    .replace(new RegExp(`\\b(${types.join('|')})\\b`, 'g'), '<span class="token-type">$1</span>')
+    // method calls
+    .replace(/\b([a-z][a-zA-Z0-9]*)(?=\()/g, '<span class="token-method">$1</span>');
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+
+function setOutput(mode, content) {
+  const el = document.getElementById('outputArea');
+  if (mode === 'empty') {
+    el.className = 'output-area empty';
+    el.innerHTML = content || '← paste a curl command to convert';
+  } else if (mode === 'error') {
+    el.className = 'output-area empty';
+    el.innerHTML = `<div class="error-msg">⚠ ${content}</div>`;
+  } else {
+    el.className = 'output-area';
+    el.innerHTML = highlight(content);
+  }
+}
+
+function setStatus(text, ok, err) {
+  const dot = document.getElementById('statusDot');
+  document.getElementById('statusText').textContent = text;
+  dot.className = 'indicator' + (ok ? ' ok' : err ? ' err' : '');
+}
+
+function convert() {
+  const raw = document.getElementById('curlInput').value.trim();
+  if (!raw) { setOutput('empty', ''); setStatus('ready', false, false); return; }
+  try {
+    const parsed = parseCurl(raw);
+    const dart = toDart(parsed);
+    setOutput('code', dart);
+    setStatus(`${parsed.method} · ${tryParseUrl(parsed.url)?.hostname || parsed.url}`, true, false);
+  } catch (e) {
+    setOutput('error', e.message);
+    setStatus(e.message, false, true);
+  }
+}
+
+function copyOutput() {
+  const el = document.getElementById('outputArea');
+  if (el.classList.contains('empty')) return;
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ copied';
+    btn.className = 'btn copy-btn copied';
+    setTimeout(() => { btn.textContent = 'copy'; btn.className = 'btn copy-btn'; }, 2000);
+  });
+}
+
+// Initial load
+loadExample('get');
+</script>
+</body>
+</html>
