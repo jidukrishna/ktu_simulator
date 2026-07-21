@@ -16,14 +16,6 @@
         "author": "Jidu",
         "author_link": "https://jidu.dev",
         "date": "2026-04-20"
-      },
-      {
-        "title": "Turing Machine Simulation",
-        "description": "Simulate Turing Machine with customizable states, transitions and tape.",
-        "file": "simulations/cse/toc/turing_machine.html",
-        "author": "Jidu",
-        "author_link": "https://jidu.dev",
-        "date": "2026-05-10"
       }
     ],
     "Operating Systems": [
@@ -43,7 +35,16 @@
         "author_link": "https://jidu.dev",
         "date": "2026-04-20"
       }
-    ]
+    ],
+    "web programming" :[{
+      "title" : "Web Programming module 1 and 2",
+      "description" : "intro html, css, js, typescript",
+      "file" : "simulations/cse/web_program/web-programming-study-notes.html",
+      "author" : "Jidu",
+      "author_link" : "https://jidu.dev",
+      "date" : "2026-07-21"
+    }
+  ]
   },
   "ECE": {},
   "EEE": {},

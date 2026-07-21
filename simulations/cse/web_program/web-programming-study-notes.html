@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Programming — Study Notes | Module 1 & 2</title>
+<style>
+  :root{
+    --bg:#0f0e11;
+    --card:#1e1c22;
+    --border:#2e2c35;
+    --gold:#c4a35a;
+    --blue:#7c9ec9;
+    --green:#8dbf8d;
+    --red:#c98a7c;
+    --text:#e8e6ea;
+    --text-dim:#a29fac;
+    --mono: 'JetBrains Mono','Fira Code','Courier New',monospace;
+    --sans: 'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    padding-bottom:60px;
+  }
+  a{color:var(--blue);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ---------- NAV ---------- */
+  .topnav{
+    position:sticky;top:0;z-index:100;
+    background:rgba(15,14,17,0.95);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+    padding:10px 20px;
+  }
+  .topnav-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    font-weight:700;
+    color:var(--gold);
+    font-size:1.05rem;
+    white-space:nowrap;
+  }
+  .navtoggle{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:7px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:0.85rem;
+  }
+  .navtoggle:hover{border-color:var(--gold);}
+  .navtoggle .hamburger-icon{font-size:1rem;line-height:1;}
+  .navtoggle .chev{
+    font-size:0.7rem;
+    color:var(--text-dim);
+    transition:transform 0.2s ease;
+  }
+  .topnav.nav-open .navtoggle .chev{transform:rotate(180deg);}
+
+  .navpanel{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height 0.25s ease, margin-top 0.25s ease;
+    margin-top:0;
+  }
+  .topnav.nav-open .navpanel{
+    max-height:400px;
+    margin-top:12px;
+  }
+  .navpanel-inner{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    padding-bottom:2px;
+  }
+  .topnav .navlinks{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .topnav a.navlink{
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:0.85rem;
+    color:var(--text);
+    border:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .topnav a.navlink:hover{
+    border-color:var(--gold);
+    background:var(--card);
+    text-decoration:none;
+  }
+  .navbtn{
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:0.8rem;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--gold);
+    cursor:pointer;
+  }
+  .navbtn:hover{border-color:var(--gold);}
+  .navsep{
+    width:1px;
+    height:20px;
+    background:var(--border);
+    margin:0 2px;
+  }
+
+  /* ---------- DIAGRAMS ---------- */
+  .diagram{
+    background:#151318;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    margin:14px 0;
+    overflow-x:auto;
+    text-align:center;
+  }
+  .diagram svg{
+    max-width:100%;
+    height:auto;
+    display:inline-block;
+  }
+  .diagram-caption{
+    font-size:0.78rem;
+    color:var(--text-dim);
+    margin-top:8px;
+    text-align:center;
+  }
+
+  /* ---------- OUTPUT PREVIEW ---------- */
+  .output-box{
+    border:1px solid var(--green);
+    border-radius:10px;
+    margin:6px 0 14px;
+    overflow:hidden;
+    background:#14181a;
+  }
+  .output-box .output-label{
+    background:rgba(141,191,141,0.12);
+    color:var(--green);
+    font-size:0.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    padding:5px 12px;
+    border-bottom:1px solid var(--green);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .output-box .output-body{
+    padding:12px 16px;
+    font-size:0.92rem;
+    color:var(--text);
+  }
+  .output-box.browser .output-label::before{content:"🖥️";}
+  .output-box.console .output-label::before{content:"⌨️";}
+  .output-box.console .output-body{
+    font-family:var(--mono);
+    font-size:0.82rem;
+    background:#0c0e10;
+    color:#8dbf8d;
+  }
+  .output-box.alertbox .output-label::before{content:"🔔";}
+  .output-box.alertbox .output-body{
+    display:flex;
+    justify-content:center;
+  }
+  .output-box.alertbox .fake-alert{
+    background:#2b2930;
+    border:1px solid #46424f;
+    border-radius:8px;
+    padding:14px 18px;
+    min-width:220px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  }
+  .output-box.alertbox .fake-alert .fake-alert-title{
+    font-size:0.72rem;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .output-box.alertbox .fake-alert button{
+    margin-top:10px;
+    background:#3a3742;
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:4px 16px;
+    border-radius:5px;
+    font-size:0.8rem;
+  }
+  .output-box .output-body h1,
+  .output-box .output-body h2,
+  .output-box .output-body h3{margin:4px 0;}
+  .output-box .output-body table{border-collapse:collapse;width:100%;}
+  .output-box .output-body table td, .output-box .output-body table th{
+    border:1px solid #3a3742;padding:6px 10px;font-size:0.85rem;
+  }
+  .output-box .output-body table th{background:#22262a;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:46px 20px 20px;
+    max-width:980px;
+    margin:0 auto;
+  }
+  .hero h1{
+    font-size:2rem;
+    margin:0 0 8px;
+    color:var(--text);
+  }
+  .hero h1 span{color:var(--gold);}
+  .hero p{color:var(--text-dim);margin-top:0;}
+  .legend{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:16px;
+    font-size:0.78rem;
+  }
+  .legend span{
+    padding:4px 10px;
+    border-radius:20px;
+    border:1px solid var(--border);
+  }
+  .legend .l-def{color:var(--gold);border-color:var(--gold);}
+  .legend .l-warn{color:var(--red);border-color:var(--red);}
+  .legend .l-note{color:var(--blue);border-color:var(--blue);}
+  .legend .l-ex{color:var(--green);border-color:var(--green);}
+  .legend .l-fire{color:#e8b34a;border-color:#e8b34a;}
+
+  /* ---------- MODULE ---------- */
+  .module{
+    max-width:980px;
+    margin:26px auto;
+    padding:0 20px;
+  }
+  .module-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+    padding:16px 20px;
+    background:linear-gradient(135deg,#1e1c22,#26232b);
+    border:1px solid var(--border);
+    border-radius:14px;
+    user-select:none;
+  }
+  .module-header h2{
+    margin:0;
+    font-size:1.25rem;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .module-header .hours{
+    font-size:0.75rem;
+    color:var(--text-dim);
+    font-weight:400;
+    border:1px solid var(--border);
+    padding:2px 10px;
+    border-radius:20px;
+  }
+  .module-toggle-icon{
+    font-size:1.1rem;
+    color:var(--text-dim);
+    transition:transform 0.2s ease;
+  }
+  .module.collapsed .module-toggle-icon{transform:rotate(-90deg);}
+  .module-body{
+    margin-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .module.collapsed .module-body{display:none;}
+
+  /* ---------- TOPIC CARD ---------- */
+  .topic{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    scroll-margin-top:80px;
+  }
+  .topic-header{
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+    gap:10px;
+  }
+  .topic-header:hover{background:#242229;}
+  .topic-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    font-size:1rem;
+  }
+  .fire{
+    font-size:0.85rem;
+    background:rgba(232,179,74,0.12);
+    color:#e8b34a;
+    border:1px solid rgba(232,179,74,0.4);
+    padding:1px 8px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .topic-toggle-icon{
+    color:var(--text-dim);
+    transition:transform 0.2s ease;
+    flex-shrink:0;
+  }
+  .topic.collapsed .topic-toggle-icon{transform:rotate(-90deg);}
+  .topic-content{
+    padding:0 18px 18px;
+    border-top:1px solid var(--border);
+    animation:fadein 0.15s ease;
+  }
+  .topic.collapsed .topic-content{display:none;}
+  @keyframes fadein{from{opacity:0;}to{opacity:1;}}
+
+  .topic-content p{color:var(--text);}
+  .topic-content h4{
+    color:var(--text-dim);
+    font-size:0.78rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin:18px 0 8px;
+  }
+  .topic-content ul{
+    margin:6px 0;
+    padding-left:22px;
+  }
+  .topic-content li{margin-bottom:4px;}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{
+    border-radius:10px;
+    padding:12px 16px;
+    margin:12px 0;
+    border:1px solid;
+    font-size:0.92rem;
+  }
+  .callout .callout-label{
+    font-weight:700;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    display:block;
+    margin-bottom:4px;
+  }
+  .callout.def{background:rgba(196,163,90,0.08);border-color:var(--gold);}
+  .callout.def .callout-label{color:var(--gold);}
+  .callout.warn{background:rgba(201,138,124,0.08);border-color:var(--red);}
+  .callout.warn .callout-label{color:var(--red);}
+  .callout.note{background:rgba(124,158,201,0.08);border-color:var(--blue);}
+  .callout.note .callout-label{color:var(--blue);}
+  .callout.example{background:rgba(141,191,141,0.08);border-color:var(--green);}
+  .callout.example .callout-label{color:var(--green);}
+
+  /* ---------- CODE ---------- */
+  pre{
+    background:#151318;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    overflow-x:auto;
+    font-family:var(--mono);
+    font-size:0.82rem;
+    color:#d7d4de;
+    margin:10px 0;
+  }
+  code{
+    font-family:var(--mono);
+    background:#151318;
+    padding:2px 6px;
+    border-radius:5px;
+    font-size:0.85em;
+    color:var(--green);
+  }
+  pre code{background:none;padding:0;color:inherit;}
+
+  /* ---------- TABLES ---------- */
+  table.data{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0;
+    font-size:0.88rem;
+  }
+  table.data th, table.data td{
+    border:1px solid var(--border);
+    padding:8px 10px;
+    text-align:left;
+  }
+  table.data th{
+    background:#26232b;
+    color:var(--gold);
+  }
+  table.data tr:nth-child(even) td{background:#1a181e;}
+
+  /* ---------- GRID ---------- */
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:14px 0;
+  }
+  .grid-2 .col{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .grid-2 .col.pros{border-color:var(--green);}
+  .grid-2 .col.cons{border-color:var(--red);}
+  .grid-2 .col h5{
+    margin:0 0 8px;
+    font-size:0.85rem;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .grid-2 .col.pros h5{color:var(--green);}
+  .grid-2 .col.cons h5{color:var(--red);}
+  .grid-2 .col ul{margin:0;padding-left:18px;}
+
+  @media(max-width:640px){
+    .grid-2{grid-template-columns:1fr;}
+    .hero h1{font-size:1.5rem;}
+    .brand{font-size:0.95rem;}
+    .topnav a.navlink{font-size:0.78rem;padding:5px 9px;}
+  }
+
+  footer{
+    max-width:980px;
+    margin:40px auto 0;
+    padding:20px;
+    color:var(--text-dim);
+    font-size:0.8rem;
+    border-top:1px solid var(--border);
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav" id="topnav">
+  <div class="topnav-bar">
+    <div class="brand">📘 Web Programming Notes</div>
+    <button class="navtoggle" id="navToggleBtn">
+      <span class="hamburger-icon">☰</span> Menu <span class="chev">▾</span>
+    </button>
+  </div>
+  <div class="navpanel">
+    <div class="navpanel-inner">
+      <div class="navlinks">
+        <a class="navlink" href="#module1">Module 1: Intro to Web</a>
+        <a class="navlink" href="#module2">Module 2: JS & DOM</a>
+      </div>
+      <div class="navsep"></div>
+      <button class="navbtn" id="expandAllBtn">Expand All</button>
+      <button class="navbtn" id="collapseAllBtn">Collapse All</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Web Programming <span>— Exam Study Notes</span></h1>
+  <p>Covers Module 1 (Introduction to Web) and Module 2 (JavaScript & DOM Manipulation). Click any module or topic header to collapse/expand it. 🔥 marks topics that are frequently examined.</p>
+  <div class="legend">
+    <span class="l-def">🟡 Definition</span>
+    <span class="l-warn">🔴 Warning / Common Mistake</span>
+    <span class="l-note">🔵 Note</span>
+    <span class="l-ex">🟢 Example</span>
+    <span class="l-fire">🔥 High-Yield Topic</span>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODULE 1 -->
+<!-- ======================================================= -->
+<section class="module" id="module1">
+  <div class="module-header" onclick="toggleModule(this)">
+    <h2>📦 Module 1: Introduction to Web <span class="hours">6 Hours</span></h2>
+    <span class="module-toggle-icon">▾</span>
+  </div>
+  <div class="module-body">
+
+    <!-- TOPIC 1.1 -->
+    <div class="topic" id="www-basics">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🌐 WWW, HTTP/HTTPS, Browsers & Servers, URL, DNS <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+
+        <h4>What is the WWW?</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          The <strong>World Wide Web (WWW)</strong> is a service that operates over the Internet and provides access to linked multimedia documents (text, images, video, audio). It was invented by <strong>Tim Berners-Lee in 1989</strong> at <strong>CERN</strong> so scientists could easily share information.
+        </div>
+
+        <h4>How the WWW Works (step by step)</h4>
+        <ul>
+          <li>You type a URL (e.g. <code>https://www.example.com</code>) into a browser.</li>
+          <li>The browser sends a <strong>request</strong> to a web server for that page.</li>
+          <li>The server <strong>responds</strong> with the web page (files).</li>
+          <li>The browser <strong>renders</strong> the content using HTML, CSS and JavaScript.</li>
+        </ul>
+
+        <div class="diagram">
+          <svg viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="55" width="150" height="70" rx="10" fill="#1e1c22" stroke="#7c9ec9" stroke-width="2"/>
+            <text x="95" y="85" text-anchor="middle" fill="#7c9ec9" font-family="Inter,sans-serif" font-size="13" font-weight="600">Browser</text>
+            <text x="95" y="103" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="11">(Client)</text>
+
+            <rect x="470" y="55" width="150" height="70" rx="10" fill="#1e1c22" stroke="#c4a35a" stroke-width="2"/>
+            <text x="545" y="85" text-anchor="middle" fill="#c4a35a" font-family="Inter,sans-serif" font-size="13" font-weight="600">Web Server</text>
+            <text x="545" y="103" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="11">(hosts the site)</text>
+
+            <line x1="170" y1="70" x2="465" y2="70" stroke="#8dbf8d" stroke-width="2" marker-end="url(#arrowGreen)"/>
+            <text x="320" y="60" text-anchor="middle" fill="#8dbf8d" font-family="monospace" font-size="11">1. Request (URL)</text>
+
+            <line x1="465" y1="110" x2="170" y2="110" stroke="#c98a7c" stroke-width="2" marker-end="url(#arrowRed)"/>
+            <text x="320" y="128" text-anchor="middle" fill="#c98a7c" font-family="monospace" font-size="11">2. Response (HTML/CSS/JS)</text>
+
+            <defs>
+              <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8dbf8d"/></marker>
+              <marker id="arrowRed" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c98a7c"/></marker>
+            </defs>
+
+            <text x="320" y="20" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="12" font-weight="600">How the WWW Works</text>
+            <text x="95" y="150" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">3. Browser renders content</text>
+            <text x="545" y="150" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Stores HTML/CSS/JS files</text>
+          </svg>
+          <div class="diagram-caption">Fig 1.1 — Basic request/response flow between a browser and a web server</div>
+        </div>
+
+        <h4>Browsers vs Servers</h4>
+        <ul>
+          <li><strong>Web Browser</strong> (client) — software like Chrome/Firefox that requests and displays web pages.</li>
+          <li><strong>Web Server</strong> — a computer/software that stores web pages and sends them to browsers on request.</li>
+        </ul>
+
+        <h4>URL and URI</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          A <strong>URI</strong> (Uniform Resource Identifier) identifies a resource. It can be a <strong>URL</strong> (Uniform Resource Locator — locates the resource) or a <strong>URN</strong> (Uniform Resource Name).
+        </div>
+        <pre><code>https://www.google.com/search?q=chatgpt
+  |          |            |
+scheme    domain        path/query
+
+Domain   = www.google.com
+Protocol = https
+Path     = /search
+Query    = q=chatgpt</code></pre>
+
+        <h4>HTTP vs HTTPS</h4>
+        <table class="data">
+          <tr><th>Feature</th><th>HTTP</th><th>HTTPS</th></tr>
+          <tr><td>Full form</td><td>HyperText Transfer Protocol</td><td>HTTP Secure</td></tr>
+          <tr><td>Security</td><td>Sends data in plain text — readable by anyone monitoring traffic</td><td>Encrypts data using SSL/TLS — unreadable to eavesdroppers</td></tr>
+          <tr><td>Default Port</td><td>80</td><td>443</td></tr>
+          <tr><td>Use case</td><td>Not suitable for passwords / card details</td><td>Standard for most modern websites</td></tr>
+        </table>
+
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Don't confuse HTTP/HTTPS (application-layer protocols for transferring web data) with URL (the address) or DNS (the naming system) — these are frequently mixed up in exams.
+        </div>
+
+        <h4>Domain Name System (DNS)</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          DNS translates human-readable domain names (like <code>www.google.com</code>) into machine-readable IP addresses, so browsers can locate servers.
+        </div>
+
+        <h4>Evolution of the Web: Web 1.0 → 3.0 🔥</h4>
+        <table class="data">
+          <tr><th>Version</th><th>Era</th><th>Focus</th><th>Key Tech</th></tr>
+          <tr><td><strong>Web 1.0</strong> — Read-Only Web</td><td>Early–mid 1990s</td><td>Static pages, information consumption; content made by a few webmasters, users passively read</td><td>HTML, basic scripting</td></tr>
+          <tr><td><strong>Web 2.0</strong> — Participatory Web</td><td>Late 1990s–2010s</td><td>User-generated content, social networking (Facebook, YouTube), blogs/forums</td><td>JavaScript, AJAX, dynamic frameworks</td></tr>
+          <tr><td><strong>Web 3.0</strong> — Semantic, Decentralized Web</td><td>2010s–Present</td><td>Semantic web, decentralization (blockchain), personalization, AI</td><td>dApps, cryptocurrencies, NFTs, metaverse</td></tr>
+        </table>
+
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          Web 1.0 = an online brochure you only read. Web 2.0 = commenting and posting on Facebook. Web 3.0 = a decentralized app (dApp) that runs on blockchain without a central owner.
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 680 190" xmlns="http://www.w3.org/2000/svg">
+            <line x1="60" y1="95" x2="620" y2="95" stroke="#2e2c35" stroke-width="3"/>
+            <circle cx="120" cy="95" r="9" fill="#7c9ec9"/>
+            <circle cx="350" cy="95" r="9" fill="#8dbf8d"/>
+            <circle cx="580" cy="95" r="9" fill="#c4a35a"/>
+
+            <text x="120" y="55" text-anchor="middle" fill="#7c9ec9" font-family="Inter,sans-serif" font-size="14" font-weight="700">Web 1.0</text>
+            <text x="120" y="72" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Read-Only</text>
+            <text x="120" y="125" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">Static pages</text>
+            <text x="120" y="140" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">Few publishers,</text>
+            <text x="120" y="155" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">many readers</text>
+
+            <text x="350" y="55" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="14" font-weight="700">Web 2.0</text>
+            <text x="350" y="72" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Read-Write</text>
+            <text x="350" y="125" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">User-generated</text>
+            <text x="350" y="140" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">content, social</text>
+            <text x="350" y="155" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">media, AJAX</text>
+
+            <text x="580" y="55" text-anchor="middle" fill="#c4a35a" font-family="Inter,sans-serif" font-size="14" font-weight="700">Web 3.0</text>
+            <text x="580" y="72" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Read-Write-Own</text>
+            <text x="580" y="125" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">Semantic web,</text>
+            <text x="580" y="140" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">decentralized,</text>
+            <text x="580" y="155" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="10">AI-driven</text>
+          </svg>
+          <div class="diagram-caption">Fig 1.2 — Evolution of the Web from 1.0 to 3.0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.2 -->
+    <div class="topic" id="web-apps">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🏗️ Web Application Architecture <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+
+        <h4>Basic Structure of a Web Application</h4>
+        <p>A web application has two broad sides that communicate over the network:</p>
+        <div class="grid-2">
+          <div class="col pros">
+            <h5>Client-Side (Frontend)</h5>
+            <ul>
+              <li><strong>UI:</strong> what the user sees — built with HTML (structure), CSS (styling), JS (behavior)</li>
+              <li><strong>Client-side logic:</strong> JavaScript handles input, basic processing, talks to the server</li>
+              <li><em>Example:</em> a form validates input with JS before sending it to the server</li>
+            </ul>
+          </div>
+          <div class="col cons">
+            <h5>Server-Side (Backend)</h5>
+            <ul>
+              <li><strong>Application server:</strong> core logic engine — receives requests, processes rules, talks to the DB</li>
+              <li><strong>Database:</strong> stores and manages all application data</li>
+              <li><strong>Server-side logic:</strong> written in Python, Java, Ruby, PHP, Node.js — handles auth, validation, business rules</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 660 220" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="70" width="160" height="80" rx="10" fill="#1e1c22" stroke="#7c9ec9" stroke-width="2"/>
+            <text x="100" y="100" text-anchor="middle" fill="#7c9ec9" font-family="Inter,sans-serif" font-size="13" font-weight="700">Frontend</text>
+            <text x="100" y="118" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">HTML / CSS / JS</text>
+            <text x="100" y="134" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">(Client / Browser)</text>
+
+            <rect x="250" y="70" width="160" height="80" rx="10" fill="#1e1c22" stroke="#8dbf8d" stroke-width="2"/>
+            <text x="330" y="95" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="13" font-weight="700">Backend</text>
+            <text x="330" y="113" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Server + API logic</text>
+            <text x="330" y="129" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">(Python/Node/Java)</text>
+
+            <rect x="480" y="70" width="160" height="80" rx="10" fill="#1e1c22" stroke="#c4a35a" stroke-width="2"/>
+            <text x="560" y="100" text-anchor="middle" fill="#c4a35a" font-family="Inter,sans-serif" font-size="13" font-weight="700">Database</text>
+            <text x="560" y="118" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">Stores &amp; manages</text>
+            <text x="560" y="134" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">application data</text>
+
+            <line x1="180" y1="98" x2="245" y2="98" stroke="#e8e6ea" stroke-width="2" marker-end="url(#arrowW1)"/>
+            <text x="212" y="90" text-anchor="middle" fill="#e8e6ea" font-family="monospace" font-size="10">Request</text>
+            <line x1="245" y1="122" x2="180" y2="122" stroke="#e8e6ea" stroke-width="2" marker-end="url(#arrowW2)"/>
+            <text x="212" y="140" text-anchor="middle" fill="#e8e6ea" font-family="monospace" font-size="10">Response</text>
+
+            <line x1="410" y1="98" x2="475" y2="98" stroke="#e8e6ea" stroke-width="2" marker-end="url(#arrowW3)"/>
+            <text x="442" y="90" text-anchor="middle" fill="#e8e6ea" font-family="monospace" font-size="10">Query</text>
+            <line x1="475" y1="122" x2="410" y2="122" stroke="#e8e6ea" stroke-width="2" marker-end="url(#arrowW4)"/>
+            <text x="442" y="140" text-anchor="middle" fill="#e8e6ea" font-family="monospace" font-size="10">Data</text>
+
+            <defs>
+              <marker id="arrowW1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e8e6ea"/></marker>
+              <marker id="arrowW2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e8e6ea"/></marker>
+              <marker id="arrowW3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e8e6ea"/></marker>
+              <marker id="arrowW4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e8e6ea"/></marker>
+            </defs>
+            <text x="330" y="25" text-anchor="middle" fill="#e8e6ea" font-family="Inter,sans-serif" font-size="12" font-weight="600">Web Application Architecture</text>
+            <text x="330" y="190" text-anchor="middle" fill="#a29fac" font-family="Inter,sans-serif" font-size="10">API sits between Frontend and Backend, defining how they talk to each other</text>
+          </svg>
+          <div class="diagram-caption">Fig 1.3 — Frontend, backend and database working together</div>
+        </div>
+
+        <h4>Frontend vs Backend Roles</h4>
+        <table class="data">
+          <tr><th></th><th>Frontend Development</th><th>Backend Development</th></tr>
+          <tr><td>Focus</td><td>UI and UX</td><td>Server-side logic, databases, infrastructure</td></tr>
+          <tr><td>Responsibilities</td><td>Visual elements, design, layout, interactivity</td><td>Data storage, authentication, API dev, performance</td></tr>
+          <tr><td>Key skills</td><td>HTML, CSS, JS, React/Angular/Vue</td><td>Python/Java/Node.js, MySQL/PostgreSQL, server architecture</td></tr>
+          <tr><td>Examples</td><td>Buttons, forms, animations</td><td>Building APIs, managing accounts, processing payments</td></tr>
+        </table>
+
+        <h4>Client–Server Model</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          The <strong>Client</strong> is a device/application that initiates requests for services/resources. The <strong>Server</strong> is a computer/software that listens for client requests and responds accordingly.
+        </div>
+        <p><strong>How it works:</strong></p>
+        <ul>
+          <li><strong>1. Request</strong> — client sends a message asking for a resource/service.</li>
+          <li><strong>2. Response</strong> — server processes the request and sends data back.</li>
+          <li><strong>3. Example</strong> — a browser (client) requesting a webpage from a web server is the classic example.</li>
+        </ul>
+
+        <h4>Request–Response Cycle</h4>
+        <ul>
+          <li>The request carries a <strong>URL</strong> identifying the resource being asked for.</li>
+          <li><strong>Routing</strong> directs the request to the correct handler based on the URL.</li>
+          <li><strong>Middleware</strong> may execute functions that modify the request/response along the way.</li>
+          <li>After processing, the server sends back a <strong>response</strong> to the client.</li>
+        </ul>
+
+        <h4>Role of Databases and APIs</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          An <strong>API</strong> (Application Programming Interface) defines how different software components interact — acting as an intermediary between client, server, or microservices. APIs can be web APIs (online interaction) or database APIs (direct DB access).
+        </div>
+        <ul>
+          <li>APIs let developers <strong>reuse</strong> existing code/functionality, saving time.</li>
+          <li>APIs enable <strong>integration</strong> of different software systems.</li>
+          <li>APIs <strong>abstract away</strong> the complexity of database interactions.</li>
+          <li>APIs and databases can be <strong>scaled independently</strong> to handle varying load.</li>
+        </ul>
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          When you log in to a site, the frontend sends your credentials via an API call; the backend validates them against the database and returns a response (success/failure) that the frontend then displays.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.3 -->
+    <div class="topic" id="html5-structure">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">📄 HTML5: Document Structure & Basic Tags</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>Basic HTML5 Document Structure</h4>
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Page Title&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;A Heading&lt;/h1&gt;
+    &lt;p&gt;A paragraph.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <h1 style="margin:0;">A Heading</h1>
+            <p style="margin:6px 0 0;">A paragraph.</p>
+          </div>
+        </div>
+        <ul>
+          <li><code>&lt;!DOCTYPE html&gt;</code> — declares the document as HTML5.</li>
+          <li><code>&lt;html&gt;</code> — root element wrapping the whole page.</li>
+          <li><code>&lt;head&gt;</code> — metadata, title, linked CSS/JS (not shown on page).</li>
+          <li><code>&lt;body&gt;</code> — the visible page content.</li>
+        </ul>
+
+        <h4>Basic Tags: Headings, Paragraphs, Links, Images, Lists</h4>
+        <pre><code>&lt;h1&gt;Main Heading&lt;/h1&gt;   &lt;!-- h1 to h6, decreasing size --&gt;
+&lt;p&gt;A paragraph of text.&lt;/p&gt;
+
+&lt;a href="https://www.google.com/"&gt;Google&lt;/a&gt;   &lt;!-- hyperlink --&gt;
+
+&lt;img src="logo.png" width="200" height="100" /&gt;   &lt;!-- image --&gt;
+
+&lt;ul&gt;                     &lt;!-- unordered list --&gt;
+  &lt;li&gt;Item 1&lt;/li&gt;
+  &lt;li&gt;Item 2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;                     &lt;!-- ordered list --&gt;
+  &lt;li&gt;First&lt;/li&gt;
+  &lt;li&gt;Second&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <h1 style="font-size:1.3rem;margin:0;">Main Heading</h1>
+            <p style="margin:6px 0;">A paragraph of text.</p>
+            <a href="#" style="color:#7c9ec9;">Google</a>
+            <div style="margin:8px 0;color:var(--text-dim);font-size:0.8rem;">[ image: logo.png ]</div>
+            <ul style="margin:4px 0;"><li>Item 1</li><li>Item 2</li></ul>
+            <ol style="margin:4px 0;"><li>First</li><li>Second</li></ol>
+          </div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          The <code>href</code> attribute of <code>&lt;a&gt;</code> specifies the destination URL. Images are void elements (self-closing) using <code>src</code>, <code>width</code>, and <code>height</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.4 -->
+    <div class="topic" id="html5-semantic">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🏷️ HTML5 Semantic Elements <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          HTML5 introduces page-structure elements that meaningfully identify areas of a page — headers, footers, navigation, articles, sections — instead of generic <code>&lt;div&gt;</code>s.
+        </div>
+
+        <table class="data">
+          <tr><th>Element</th><th>Purpose</th></tr>
+          <tr><td><code>&lt;header&gt;</code></td><td>Header for the page/section: headings (h1–h6), logos, hyperlinks, images</td></tr>
+          <tr><td><code>&lt;nav&gt;</code></td><td>Groups navigation links (hyperlinks)</td></tr>
+          <tr><td><code>&lt;section&gt;</code></td><td>Breaks the document into sections, usually with its own heading; can be nested</td></tr>
+          <tr><td><code>&lt;article&gt;</code></td><td>An independent, self-contained piece of content (blog post, forum post, news story) — content is independent of the rest of the page</td></tr>
+          <tr><td><code>&lt;footer&gt;</code></td><td>Footer content — usually copyright/contact info at the bottom of the page</td></tr>
+        </table>
+
+        <h4>Full Example</h4>
+        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;RARKPK Movie&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;
+    &lt;img src="logo.png" width="200" height="100" /&gt;&lt;br/&gt;
+    &lt;time&gt;24/09/2023&lt;/time&gt;
+    &lt;h1&gt;Latest Bollywood Movies&lt;/h1&gt;
+  &lt;/header&gt;
+  &lt;hr/&gt;
+  &lt;section id="1"&gt;
+    &lt;nav&gt;
+      &lt;a href="https://www.amazon.in/"&gt;Amazon&lt;/a&gt;&lt;br/&gt;
+      &lt;a href="https://www.flipkart.com/"&gt;Flipkart&lt;/a&gt;
+    &lt;/nav&gt;
+  &lt;/section&gt;
+  &lt;section id="2"&gt;
+    &lt;h3&gt;Rocky Aur Rani Kii Prem Kahaani&lt;/h3&gt;
+    &lt;figure&gt;
+      &lt;img src="poster.jpg" width="200" height="200" /&gt;
+      &lt;figcaption&gt;First Look Poster&lt;/figcaption&gt;
+    &lt;/figure&gt;
+    &lt;details&gt;
+      &lt;summary&gt;Storyline&lt;/summary&gt;
+      Flamboyant Punjabi Rocky and intellectual Bengali journalist Rani fall in love.
+    &lt;/details&gt;
+  &lt;/section&gt;
+  &lt;footer&gt;
+    &lt;h6&gt;&amp;copy; Dharma Productions&lt;/h6&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <div style="border-bottom:1px solid #3a3742;padding-bottom:6px;margin-bottom:6px;">
+              <div style="font-size:0.75rem;color:var(--text-dim);">24/09/2023</div>
+              <h1 style="font-size:1.15rem;margin:4px 0;">Latest Bollywood Movies</h1>
+            </div>
+            <div style="margin-bottom:8px;"><a href="#" style="color:#7c9ec9;margin-right:10px;">Amazon</a><a href="#" style="color:#7c9ec9;">Flipkart</a></div>
+            <h3 style="font-size:0.95rem;margin:4px 0;">Rocky Aur Rani Kii Prem Kahaani</h3>
+            <div style="font-size:0.78rem;color:var(--text-dim);margin-bottom:4px;">[ poster.jpg ] — First Look Poster</div>
+            <div style="font-size:0.85rem;">▸ Storyline <span style="color:var(--text-dim);">(click to expand)</span></div>
+            <div style="border-top:1px solid #3a3742;margin-top:8px;padding-top:6px;font-size:0.75rem;color:var(--text-dim);">© Dharma Productions</div>
+          </div>
+        </div>
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          <code>&lt;figure&gt;</code>/<code>&lt;figcaption&gt;</code> caption an image; <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> create a native collapsible disclosure widget.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.5 -->
+    <div class="topic" id="html5-forms">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">📝 HTML5 Forms: Input Types, Labels, Buttons, Radio/Checkbox <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>Basic Form</h4>
+        <pre><code>&lt;form action="/login" method="post"&gt;
+  &lt;label for="uname"&gt;Username:&lt;/label&gt;
+  &lt;input type="text" id="uname" name="uname"/&gt;
+  &lt;input type="submit" value="Login" /&gt;
+  &lt;input type="reset" value="Clear" /&gt;
+&lt;/form&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span>Username:</span>
+            <span style="border:1px solid #3a3742;border-radius:4px;padding:4px 8px;background:#1e1c22;color:var(--text-dim);font-size:0.8rem;">[text field]</span>
+            <button type="button" style="background:#2b2930;border:1px solid var(--border);color:var(--text);padding:4px 12px;border-radius:5px;">Login</button>
+            <button type="button" style="background:#2b2930;border:1px solid var(--border);color:var(--text);padding:4px 12px;border-radius:5px;">Clear</button>
+          </div>
+        </div>
+        <ul>
+          <li>The <code>action</code> attribute specifies the URL the form data is sent to.</li>
+          <li><code>method="get"</code> appends form data to the URL; <code>method="post"</code> sends it in the request body (used for sensitive/large data).</li>
+        </ul>
+
+        <h4>New HTML5 Input Types</h4>
+        <table class="data">
+          <tr><th>Type</th><th>Purpose</th></tr>
+          <tr><td><code>date</code></td><td>Lets the user enter a date (native date-picker)</td></tr>
+          <tr><td><code>email</code></td><td>Lets the user enter an e-mail; many browsers self-validate the format</td></tr>
+          <tr><td><code>number</code></td><td>Lets the user enter a numeric value only</td></tr>
+          <tr><td><code>tel</code></td><td>For a telephone number; renders as a plain text field but signals intent to mobile keyboards</td></tr>
+          <tr><td><code>radio</code></td><td>Single choice from a group (same <code>name</code>)</td></tr>
+          <tr><td><code>checkbox</code></td><td>Multiple independent choices (on/off)</td></tr>
+        </table>
+
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          The <code>required</code> attribute can be added to any input type to force validation before submission. Many new HTML5 input types are <strong>self-validating</strong> in the browser (no JS needed).
+        </div>
+
+        <h4>Radio & Checkbox Example</h4>
+        <pre><code>&lt;!-- Radio: only one can be selected --&gt;
+&lt;input type="radio" name="gender" value="male" /&gt; Male
+&lt;input type="radio" name="gender" value="female" /&gt; Female
+
+&lt;!-- Checkbox: multiple can be selected --&gt;
+&lt;input type="checkbox" name="hobby" value="reading" /&gt; Reading
+&lt;input type="checkbox" name="hobby" value="sports" /&gt; Sports</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="font-size:0.85rem;">
+            <div>◉ Male &nbsp; ○ Female</div>
+            <div style="margin-top:6px;">☑ Reading &nbsp; ☐ Sports</div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Forgetting to give radio buttons in the same group the <strong>same <code>name</code></strong> attribute — without it, multiple "single choice" options can all be selected at once.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.6 -->
+    <div class="topic" id="html5-tables">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔲 HTML5 Tables: table, tr, td, th, colspan, rowspan</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>Basic Table</h4>
+        <pre><code>&lt;table border="1"&gt;
+  &lt;tr&gt; &lt;th&gt;Actor&lt;/th&gt; &lt;th&gt;Age&lt;/th&gt; &lt;/tr&gt;
+  &lt;tr&gt; &lt;td&gt;Anil Kapoor&lt;/td&gt; &lt;td&gt;66 years&lt;/td&gt; &lt;/tr&gt;
+  &lt;tr&gt; &lt;td&gt;Salman Khan&lt;/td&gt; &lt;td&gt;57 years&lt;/td&gt; &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <table><tr><th>Actor</th><th>Age</th></tr><tr><td>Anil Kapoor</td><td>66 years</td></tr><tr><td>Salman Khan</td><td>57 years</td></tr></table>
+          </div>
+        </div>
+        <ul>
+          <li><code>&lt;table&gt;</code> — defines the table.</li>
+          <li><code>&lt;tr&gt;</code> — table row.</li>
+          <li><code>&lt;th&gt;</code> — header cell (bold, centered by default).</li>
+          <li><code>&lt;td&gt;</code> — standard data cell.</li>
+        </ul>
+
+        <h4>Merging Cells: rowspan & colspan 🔥</h4>
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          <code>rowspan</code> merges a cell across multiple <strong>rows</strong>; <code>colspan</code> merges a cell across multiple <strong>columns</strong>.
+        </div>
+        <pre><code>&lt;table border="1" style="border-collapse:collapse;"&gt;
+  &lt;tr&gt; &lt;th&gt;Movie&lt;/th&gt; &lt;th&gt;Actors&lt;/th&gt; &lt;th&gt;Day 1 Collection&lt;/th&gt; &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td rowspan="2"&gt;Bigil&lt;/td&gt; &lt;td&gt;Vijay&lt;/td&gt; &lt;td rowspan="2"&gt;50 Cr&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt; &lt;td&gt;Nayanthara&lt;/td&gt; &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td colspan="2"&gt;Total&lt;/td&gt; &lt;td&gt;115 Crores&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <table>
+              <tr><th>Movie</th><th>Actors</th><th>Day 1 Collection</th></tr>
+              <tr><td rowspan="2">Bigil</td><td>Vijay</td><td rowspan="2">50 Cr</td></tr>
+              <tr><td>Nayanthara</td></tr>
+              <tr><td colspan="2">Total</td><td>115 Crores</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          Think of <code>rowspan="2"</code> as "this cell stretches down and covers the cell below it too" — so the row beneath needs one fewer <code>&lt;td&gt;</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.7 -->
+    <div class="topic" id="html5-multimedia">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🎬 HTML5 Multimedia Tags: video, audio, iframe</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <pre><code>&lt;video width="450" height="240" controls&gt;
+  &lt;source src="movie.mp4" type="video/mp4"&gt;
+  Your browser does not support the video tag.
+&lt;/video&gt;
+
+&lt;audio preload="auto" controls&gt;
+  &lt;source src="song.mp3" type="audio/mpeg"&gt;
+  Your browser does not support the audio tag.
+&lt;/audio&gt;
+
+&lt;iframe src="https://www.example.com" width="600" height="400"&gt;&lt;/iframe&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (mock browser controls)</div>
+          <div class="output-body" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="background:#000;color:#aaa;border-radius:6px;height:80px;display:flex;align-items:center;justify-content:center;font-size:0.78rem;position:relative;">
+              ▶ movie.mp4
+              <div style="position:absolute;bottom:6px;left:6px;right:6px;height:4px;background:#333;border-radius:2px;"><div style="width:35%;height:100%;background:#c4a35a;border-radius:2px;"></div></div>
+            </div>
+            <div style="background:#26232b;border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:10px;font-size:0.78rem;color:var(--text-dim);">
+              ▶ &nbsp;song.mp3 &nbsp; <span style="flex:1;height:3px;background:#3a3742;border-radius:2px;position:relative;"><span style="position:absolute;left:0;top:0;height:100%;width:50%;background:#8dbf8d;border-radius:2px;"></span></span> 0:45
+            </div>
+            <div style="border:1px solid #3a3742;border-radius:6px;height:60px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.75rem;">
+              [ iframe: embedded page — www.example.com ]
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li><code>controls</code> — shows play/pause/volume UI.</li>
+          <li>Text between the opening/closing <code>&lt;video&gt;</code>/<code>&lt;audio&gt;</code> tags is a fallback shown if the browser doesn't support the element.</li>
+          <li><code>&lt;iframe&gt;</code> embeds another HTML page (e.g. a YouTube video or a map) inside the current page.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.8 -->
+    <div class="topic" id="css3-types">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🎨 CSS3: Inline, Internal (Embedded), External Style Sheets</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          CSS3 (Cascading Style Sheets) lets you specify presentation (fonts, spacing, colors, positioning) separately from a document's structure/content. There are three levels, from lowest to highest priority: <strong>inline, internal (document-level), external</strong>.
+        </div>
+
+        <h4>1. Inline Styles</h4>
+        <pre><code>&lt;h1 style="text-decoration:underline;color:blue;"&gt;M S Dhoni&lt;/h1&gt;
+&lt;p style="color:red;font-size:32pt;"&gt;Indian cricketer.&lt;/p&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <h1 style="text-decoration:underline;color:#7c9ec9;font-size:1.2rem;margin:0;">M S Dhoni</h1>
+            <p style="color:#c98a7c;font-size:1.1rem;margin:6px 0 0;">Indian cricketer.</p>
+          </div>
+        </div>
+        <p>Syntax: <code>style="property1:value1;property2:value2;"</code>. Applies only to that single element.</p>
+
+        <h4>2. Internal / Embedded Style Sheets</h4>
+        <pre><code>&lt;head&gt;
+  &lt;style type="text/css"&gt;
+    h1 {text-decoration:underline; color:red;}
+    p  {color:green; font-weight:bold;}
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Sundar Pichai&lt;/h1&gt;
+  &lt;p&gt;Indian-born American business executive.&lt;/p&gt;
+&lt;/body&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <h1 style="text-decoration:underline;color:#c98a7c;font-size:1.2rem;margin:0;">Sundar Pichai</h1>
+            <p style="color:#8dbf8d;font-weight:bold;margin:6px 0 0;">Indian-born American business executive.</p>
+          </div>
+        </div>
+        <p>Embedded inside the <code>&lt;head&gt;</code>. Applies only to the elements of that single document. MIME type is <code>text/css</code>.</p>
+
+        <h4>3. External Style Sheets</h4>
+        <pre><code>&lt;!-- in the HTML head --&gt;
+&lt;link rel="stylesheet" type="text/css" href="ex.css"/&gt;
+
+/* ex.css */
+h1 {text-decoration:underline; color:yellow;}
+body {background-color:powderblue;}
+p {color:blue;}</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="background:#a9d4de;border-radius:6px;">
+            <h1 style="text-decoration:underline;color:#e8d24a;font-size:1.2rem;margin:0;padding:8px;">External Style sheet</h1>
+            <p style="color:#1a3fae;padding:0 8px 8px;margin:0;">Styled entirely from ex.css — page background is powderblue.</p>
+          </div>
+        </div>
+        <ul>
+          <li>A separate <code>.css</code> file reused across many pages/websites.</li>
+          <li>Gives an entire website a uniform look and feel.</li>
+          <li><strong>Recommended for large projects</strong> — best maintainability.</li>
+        </ul>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          The <code>link</code> element's <code>rel</code> attribute declares the linked document as a stylesheet; <code>href</code> gives its URL/path; <code>type</code> is <code>text/css</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.9 -->
+    <div class="topic" id="css3-selectors">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🎯 CSS Selectors and Syntax <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>CSS Rule Syntax</h4>
+        <pre><code>selector {property1:value1; property2:value2; ...;}</code></pre>
+
+        <table class="data">
+          <tr><th>Selector Type</th><th>Syntax</th><th>Applies To</th></tr>
+          <tr><td><strong>Universal</strong></td><td><code>* {color:violet;}</code></td><td>All elements on the page</td></tr>
+          <tr><td><strong>Simple (type/element)</strong></td><td><code>h1 {text-align:center;}</code></td><td>All occurrences of a named element</td></tr>
+          <tr><td><strong>Class</strong></td><td><code>p.actor {color:red;}</code></td><td>Elements of a type belonging to a given class</td></tr>
+          <tr><td><strong>Generic (class-only)</strong></td><td><code>.warning {color:red;}</code></td><td>Any element type sharing that class</td></tr>
+          <tr><td><strong>ID</strong></td><td><code>#actor1 {color:green;}</code></td><td>The single element with that ID</td></tr>
+        </table>
+
+        <h4>Class Selector Example</h4>
+        <pre><code>&lt;style&gt;
+  p.actor {color:red;}
+  p.politician {color:blue;}
+&lt;/style&gt;
+
+&lt;p class="actor"&gt;Salman Khan is an Indian actor.&lt;/p&gt;
+&lt;p class="politician"&gt;Oommen Chandy was the 10th CM of Kerala.&lt;/p&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <p style="color:#e0776a;margin:4px 0;">Salman Khan is an Indian actor.</p>
+            <p style="color:#7c9ec9;margin:4px 0;">Oommen Chandy was the 10th CM of Kerala.</p>
+          </div>
+        </div>
+
+        <h4>ID Selector Example</h4>
+        <pre><code>&lt;style&gt;
+  #actor1 {color:green;}
+  body {background-color:pink;}
+&lt;/style&gt;
+...
+&lt;h1 id="actor1"&gt;Salman Khan&lt;/h1&gt;
+&lt;p&gt;Salman Khan is an Indian actor.&lt;/p&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="background:#e8b8c8;border-radius:6px;padding:10px;">
+            <h1 style="color:#3a7a3a;font-size:1.2rem;margin:0;">Salman Khan</h1>
+            <p style="color:#3a2020;margin:6px 0 0;">Salman Khan is an Indian actor.</p>
+            <div style="font-size:0.72rem;color:#3a2020;margin-top:6px;">(pink page background from <code>body</code> selector, green heading from <code>#actor1</code>)</div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Confusing <code>.class</code> (dot, reusable on many elements) with <code>#id</code> (hash, must be unique per page). IDs should be used at most once per page.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.10 -->
+    <div class="topic" id="css3-boxmodel">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">📦 CSS Box Model: Margin, Border, Padding, Content <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          The <strong>CSS Box Model</strong> treats every HTML element as a rectangular box made of four layers (inside → outside): <strong>content → padding → border → margin</strong>.
+        </div>
+
+        <pre><code>.box{
+  width:200px;
+  height:100px;
+  padding:20px;
+  border:5px solid blue;
+  margin:30px;
+  background-color:lightyellow;
+}</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (live box)</div>
+          <div class="output-body" style="display:flex;justify-content:center;">
+            <div style="margin:30px;border:5px solid #4a7fd6;padding:20px;background:#f5f0c9;width:200px;height:100px;display:flex;align-items:center;justify-content:center;color:#333;font-size:0.85rem;box-sizing:content-box;">
+              Hello World
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="400" height="240" fill="none" stroke="#c98a7c" stroke-width="2" stroke-dasharray="4 3"/>
+            <text x="20" y="26" fill="#c98a7c" font-family="Inter,sans-serif" font-size="11" font-weight="700">MARGIN</text>
+
+            <rect x="45" y="45" width="330" height="170" fill="#26232b" stroke="#c4a35a" stroke-width="2"/>
+            <text x="55" y="61" fill="#c4a35a" font-family="Inter,sans-serif" font-size="11" font-weight="700">BORDER</text>
+
+            <rect x="75" y="75" width="270" height="110" fill="#1e1c22" stroke="#7c9ec9" stroke-width="2"/>
+            <text x="85" y="91" fill="#7c9ec9" font-family="Inter,sans-serif" font-size="11" font-weight="700">PADDING</text>
+
+            <rect x="110" y="105" width="200" height="50" fill="#151318" stroke="#8dbf8d" stroke-width="2"/>
+            <text x="210" y="135" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="12" font-weight="700">CONTENT</text>
+          </svg>
+          <div class="diagram-caption">Fig 1.4 — CSS Box Model layers, from inside out: content → padding → border → margin</div>
+        </div>
+
+        <table class="data">
+          <tr><th>Layer</th><th>What it is</th></tr>
+          <tr><td><strong>Content</strong></td><td>Holds the actual content (text, images); styled with width/height</td></tr>
+          <tr><td><strong>Padding</strong></td><td>Transparent space between content and border; takes the element's background color</td></tr>
+          <tr><td><strong>Border</strong></td><td>Outer boundary surrounding the padding; adds to total width/height</td></tr>
+          <tr><td><strong>Margin</strong></td><td>Space outside the border, between this element and neighbouring/parent elements</td></tr>
+        </table>
+
+        <h4>Box-Sizing Property 🔥</h4>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output — same CSS, different box-sizing</div>
+          <div class="output-body" style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="border:5px solid #4a7fd6;padding:20px;background:#2a2f3a;width:200px;box-sizing:content-box;color:var(--text-dim);font-size:0.75rem;">content-box</div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;">visible width = 250px</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="border:5px solid #8dbf8d;padding:20px;background:#2a3a2f;width:200px;box-sizing:border-box;color:var(--text-dim);font-size:0.75rem;">border-box</div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;">visible width = 200px</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="col pros">
+            <h5>content-box (default)</h5>
+            <ul>
+              <li>Width/height style <strong>only the content area</strong></li>
+              <li>Padding & border are <strong>added on top</strong>, expanding the box</li>
+              <li>Formula: Total Width = Width + Left/Right Padding + Left/Right Border</li>
+              <li><em>Example:</em> width:200px; padding:20px; border:5px → total = 250px</li>
+            </ul>
+          </div>
+          <div class="col cons">
+            <h5>border-box</h5>
+            <ul>
+              <li>Width/height represent the <strong>entire visible box</strong></li>
+              <li>Padding & border <strong>shrink the inner content</strong> instead of expanding the box</li>
+              <li>Formula: Total Width = Specified Width (content shrinks automatically)</li>
+              <li><em>Example:</em> width:200px; padding:20px; border:5px → total stays 200px, content shrinks to 150px</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Forgetting that the default box model is <code>content-box</code> — this is why layouts "grow" unexpectedly when padding/border is added, unless <code>box-sizing:border-box</code> is set.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.11 -->
+    <div class="topic" id="css3-flexbox">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">📐 CSS Flexbox <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          Flexbox (Flexible Box Layout) is a <strong>one-dimensional</strong> layout model used to align, distribute, and organize elements — laying items out as a row OR a column at a time.
+        </div>
+
+        <pre><code>.container {
+  display: flex;               /* makes this a flex container */
+  flex-direction: row;         /* row | row-reverse | column | column-reverse */
+  flex-wrap: wrap;             /* wrap items if they overflow */
+  justify-content: center;     /* aligns items on the main axis */
+  align-items: center;         /* aligns items on the cross axis */
+}
+.item {
+  flex-grow: 1;    /* how much an item expands into free space */
+  flex-shrink: 1;  /* how much an item shrinks to avoid overflow */
+  flex-basis: 100px; /* initial size before space distribution */
+  order: 2;        /* re-orders visually without changing HTML */
+}</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;background:#1e1c22;padding:12px;border-radius:6px;">
+            <div style="background:#dfe3ee;color:#222;padding:14px 20px;border-radius:6px;font-size:0.85rem;">Item 1</div>
+            <div style="background:#dfe3ee;color:#222;padding:14px 20px;border-radius:6px;font-size:0.85rem;">Item 2</div>
+            <div style="background:#dfe3ee;color:#222;padding:14px 20px;border-radius:6px;font-size:0.85rem;">Item 3</div>
+          </div>
+        </div>
+
+        <h4>Container vs Item Properties</h4>
+        <table class="data">
+          <tr><th>Flex Container properties</th><th>Flex Item properties</th></tr>
+          <tr><td><code>display: flex/inline-flex</code></td><td><code>flex-grow</code></td></tr>
+          <tr><td><code>flex-direction</code></td><td><code>flex-shrink</code></td></tr>
+          <tr><td><code>flex-wrap</code></td><td><code>flex-basis</code></td></tr>
+          <tr><td><code>justify-content</code> (main axis)</td><td><code>flex</code> (shorthand)</td></tr>
+          <tr><td><code>align-items</code> (cross axis)</td><td><code>order</code></td></tr>
+        </table>
+
+        <h4>justify-content Values 🔥</h4>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output — justify-content on the main axis</div>
+          <div class="output-body" style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>flex-start</code> (default)</div>
+              <div style="display:flex;justify-content:flex-start;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;">
+                <div style="background:#8dbf8d;color:#0c140c;padding:6px 14px;border-radius:4px;font-size:0.75rem;">1</div>
+                <div style="background:#8dbf8d;color:#0c140c;padding:6px 14px;border-radius:4px;font-size:0.75rem;">2</div>
+                <div style="background:#8dbf8d;color:#0c140c;padding:6px 14px;border-radius:4px;font-size:0.75rem;">3</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>center</code></div>
+              <div style="display:flex;justify-content:center;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;">
+                <div style="background:#7c9ec9;color:#0e1a26;padding:6px 14px;border-radius:4px;font-size:0.75rem;">1</div>
+                <div style="background:#7c9ec9;color:#0e1a26;padding:6px 14px;border-radius:4px;font-size:0.75rem;">2</div>
+                <div style="background:#7c9ec9;color:#0e1a26;padding:6px 14px;border-radius:4px;font-size:0.75rem;">3</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>space-between</code></div>
+              <div style="display:flex;justify-content:space-between;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;">
+                <div style="background:#c4a35a;color:#1a1508;padding:6px 14px;border-radius:4px;font-size:0.75rem;">1</div>
+                <div style="background:#c4a35a;color:#1a1508;padding:6px 14px;border-radius:4px;font-size:0.75rem;">2</div>
+                <div style="background:#c4a35a;color:#1a1508;padding:6px 14px;border-radius:4px;font-size:0.75rem;">3</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>space-around</code></div>
+              <div style="display:flex;justify-content:space-around;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;">
+                <div style="background:#c98a7c;color:#26120d;padding:6px 14px;border-radius:4px;font-size:0.75rem;">1</div>
+                <div style="background:#c98a7c;color:#26120d;padding:6px 14px;border-radius:4px;font-size:0.75rem;">2</div>
+                <div style="background:#c98a7c;color:#26120d;padding:6px 14px;border-radius:4px;font-size:0.75rem;">3</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 420 190" xmlns="http://www.w3.org/2000/svg">
+            <rect x="30" y="40" width="360" height="90" rx="8" fill="#1e1c22" stroke="#2e2c35" stroke-width="2"/>
+            <rect x="45" y="55" width="70" height="60" rx="6" fill="#26232b" stroke="#8dbf8d" stroke-width="2"/>
+            <rect x="130" y="55" width="70" height="60" rx="6" fill="#26232b" stroke="#8dbf8d" stroke-width="2"/>
+            <rect x="215" y="55" width="70" height="60" rx="6" fill="#26232b" stroke="#8dbf8d" stroke-width="2"/>
+            <rect x="300" y="55" width="70" height="60" rx="6" fill="#26232b" stroke="#8dbf8d" stroke-width="2"/>
+            <text x="80" y="90" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="11">1</text>
+            <text x="165" y="90" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="11">2</text>
+            <text x="250" y="90" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="11">3</text>
+            <text x="335" y="90" text-anchor="middle" fill="#8dbf8d" font-family="Inter,sans-serif" font-size="11">4</text>
+
+            <line x1="30" y1="150" x2="390" y2="150" stroke="#7c9ec9" stroke-width="2" marker-end="url(#arrowMain)"/>
+            <text x="210" y="168" text-anchor="middle" fill="#7c9ec9" font-family="monospace" font-size="11">main axis (flex-direction: row)</text>
+
+            <line x1="12" y1="140" x2="12" y2="35" stroke="#c4a35a" stroke-width="2" marker-end="url(#arrowCross)"/>
+            <text x="12" y="25" text-anchor="middle" fill="#c4a35a" font-family="monospace" font-size="10">cross axis</text>
+
+            <defs>
+              <marker id="arrowMain" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c9ec9"/></marker>
+              <marker id="arrowCross" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c4a35a"/></marker>
+            </defs>
+          </svg>
+          <div class="diagram-caption">Fig 1.5 — Flex container with items laid out along the main axis; cross axis runs perpendicular</div>
+        </div>
+
+        <h4>align-items Values (cross axis) 🔥</h4>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output — align-items on the cross axis</div>
+          <div class="output-body" style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>flex-start</code></div>
+              <div style="display:flex;align-items:flex-start;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;height:70px;">
+                <div style="background:#8dbf8d;color:#0c140c;padding:4px 10px;border-radius:4px;font-size:0.7rem;">A</div>
+                <div style="background:#8dbf8d;color:#0c140c;padding:10px 10px;border-radius:4px;font-size:0.7rem;">B</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>center</code></div>
+              <div style="display:flex;align-items:center;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;height:70px;">
+                <div style="background:#7c9ec9;color:#0e1a26;padding:4px 10px;border-radius:4px;font-size:0.7rem;">A</div>
+                <div style="background:#7c9ec9;color:#0e1a26;padding:10px 10px;border-radius:4px;font-size:0.7rem;">B</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>flex-end</code></div>
+              <div style="display:flex;align-items:flex-end;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;height:70px;">
+                <div style="background:#c4a35a;color:#1a1508;padding:4px 10px;border-radius:4px;font-size:0.7rem;">A</div>
+                <div style="background:#c4a35a;color:#1a1508;padding:10px 10px;border-radius:4px;font-size:0.7rem;">B</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:3px;"><code>stretch</code> (default)</div>
+              <div style="display:flex;align-items:stretch;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;height:70px;">
+                <div style="background:#c98a7c;color:#26120d;padding:4px 10px;border-radius:4px;font-size:0.7rem;display:flex;align-items:center;">A</div>
+                <div style="background:#c98a7c;color:#26120d;padding:4px 10px;border-radius:4px;font-size:0.7rem;display:flex;align-items:center;">B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h4>flex-grow Example</h4>
+        <pre><code>.item1 { flex-grow: 1; }
+.item2 { flex-grow: 2; }   /* takes twice the extra space of item1 */
+.item3 { flex-grow: 1; }</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body" style="display:flex;gap:6px;background:#1e1c22;padding:8px;border-radius:6px;">
+            <div style="flex-grow:1;background:#8dbf8d;color:#0c140c;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">grow:1</div>
+            <div style="flex-grow:2;background:#7c9ec9;color:#0e1a26;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">grow:2 (wider)</div>
+            <div style="flex-grow:1;background:#8dbf8d;color:#0c140c;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">grow:1</div>
+          </div>
+        </div>
+
+        <h4>Main Axis vs Cross Axis</h4>
+        <ul>
+          <li><strong>Main Axis</strong> — the primary direction set by <code>flex-direction</code> (row / row-reverse / column / column-reverse).</li>
+          <li><strong>Cross Axis</strong> — perpendicular (90°) to the main axis. If main axis is row, cross axis runs down the columns; if main axis is column, cross axis runs along the rows.</li>
+        </ul>
+
+        <pre><code>/* Row (default) */
+.row-container { display: flex; flex-direction: row; }
+
+/* Column */
+.col-container { display: flex; flex-direction: column; }</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output — flex-direction: row vs column</div>
+          <div class="output-body">
+            <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+              <div style="text-align:center;">
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:6px;">row → main axis is horizontal</div>
+                <div style="display:flex;flex-direction:row;gap:6px;background:#1e1c22;padding:10px;border-radius:6px;">
+                  <div style="background:#8dbf8d;color:#0c140c;padding:8px 12px;border-radius:4px;font-size:0.78rem;">1</div>
+                  <div style="background:#8dbf8d;color:#0c140c;padding:8px 12px;border-radius:4px;font-size:0.78rem;">2</div>
+                  <div style="background:#8dbf8d;color:#0c140c;padding:8px 12px;border-radius:4px;font-size:0.78rem;">3</div>
+                </div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:6px;">column → main axis is vertical</div>
+                <div style="display:flex;flex-direction:column;gap:6px;background:#1e1c22;padding:10px;border-radius:6px;">
+                  <div style="background:#c4a35a;color:#1a1508;padding:6px 20px;border-radius:4px;font-size:0.78rem;">1</div>
+                  <div style="background:#c4a35a;color:#1a1508;padding:6px 20px;border-radius:4px;font-size:0.78rem;">2</div>
+                  <div style="background:#c4a35a;color:#1a1508;padding:6px 20px;border-radius:4px;font-size:0.78rem;">3</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          <code>&lt;div class="container"&gt;&lt;div&gt;Item 1&lt;/div&gt;&lt;div&gt;Item 2&lt;/div&gt;&lt;div&gt;Item 3&lt;/div&gt;&lt;/div&gt;</code> with <code>.container{display:flex;}</code> lays the three items out in a row automatically — no floats needed.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.12 -->
+    <div class="topic" id="css3-grid">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔳 CSS Grid Layout</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          CSS Grid is a <strong>two-dimensional</strong> layout system — it controls rows AND columns at the same time, unlike Flexbox's single dimension.
+        </div>
+        <pre><code>.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;   /* 2 equal columns */
+  gap: 10px;
+}</code></pre>
+        <pre><code>&lt;div class="grid-container"&gt;
+  &lt;div class="grid-item"&gt;Item 1&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 2&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 3&lt;/div&gt;
+  &lt;div class="grid-item"&gt;Item 4&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <div style="display:grid;grid-template-columns:auto auto;gap:10px;">
+              <div style="background:#7c9ec9;color:#0e1a26;padding:16px;text-align:center;border-radius:4px;">Item 1</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:16px;text-align:center;border-radius:4px;">Item 2</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:16px;text-align:center;border-radius:4px;">Item 3</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:16px;text-align:center;border-radius:4px;">Item 4</div>
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>Like tables, Grid aligns elements into rows and columns — but far more layouts are possible than with HTML tables.</li>
+          <li>Elements can be positioned precisely using grid lines and named grid areas.</li>
+        </ul>
+
+        <h4>3-Column Grid with Column/Row Spanning 🔥</h4>
+        <pre><code>.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.wide  { grid-column: span 2; }   /* spans 2 columns */
+.tall  { grid-row: span 2; }      /* spans 2 rows */</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:44px;gap:8px;">
+              <div style="grid-column:span 2;background:#8dbf8d;color:#0c140c;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.75rem;">span 2 columns</div>
+              <div style="grid-row:span 2;background:#c4a35a;color:#1a1508;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.75rem;">span 2 rows</div>
+              <div style="background:#7c9ec9;color:#0e1a26;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.75rem;">3</div>
+              <div style="background:#7c9ec9;color:#0e1a26;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.75rem;">4</div>
+            </div>
+          </div>
+        </div>
+
+        <h4>Named Grid Areas — Page Layout Example</h4>
+        <pre><code>.page {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-areas:
+    "header  header"
+    "sidebar content"
+    "footer  footer";
+}
+header  { grid-area: header;  }
+nav     { grid-area: sidebar; }
+main    { grid-area: content; }
+footer  { grid-area: footer;  }</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">
+            <div style="display:grid;grid-template-columns:1fr 3fr;grid-template-rows:36px 70px 30px;gap:6px;">
+              <div style="grid-column:1/3;background:#c4a35a;color:#1a1508;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.72rem;">header</div>
+              <div style="background:#7c9ec9;color:#0e1a26;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.72rem;">sidebar</div>
+              <div style="background:#8dbf8d;color:#0c140c;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.72rem;">content</div>
+              <div style="grid-column:1/3;background:#c98a7c;color:#26120d;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:0.72rem;">footer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          <strong>Flexbox vs Grid:</strong> Flexbox = 1D (a single row or column); Grid = 2D (rows and columns together). Use Flexbox for aligning items in one direction (e.g. a navbar); use Grid for full page layouts.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 1.13 -->
+    <div class="topic" id="css3-media">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">📱 CSS Media Queries — Responsive Design <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          A <strong>media query</strong> applies a block of CSS only when device conditions (viewport width, orientation, resolution) are met — the core building block of responsive design.
+        </div>
+
+        <pre><code>@media (max-width: 768px) {
+  .container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}</code></pre>
+
+        <h4>Core Components</h4>
+        <ul>
+          <li><strong>Media Types:</strong> <code>screen</code> (computers/phones/tablets), <code>print</code> (print preview), <code>all</code> (default)</li>
+          <li><strong>Media Features:</strong> <code>width</code>, <code>height</code>, <code>orientation</code> (portrait/landscape), <code>resolution</code></li>
+          <li><strong>Logical Operators:</strong> <code>and</code> (combine conditions), <code>,</code> / <code>or</code> (logical OR), <code>not</code> (reverse logic)</li>
+        </ul>
+
+        <h4>Standard Breakpoints</h4>
+        <table class="data">
+          <tr><th>Device</th><th>Screen Width</th><th>Common Media Query</th></tr>
+          <tr><td>Extra Small (Mobile)</td><td>0 – 575px</td><td><code>@media (max-width:575px)</code></td></tr>
+          <tr><td>Small (Large Mobile)</td><td>576 – 767px</td><td><code>@media (min-width:576px)</code></td></tr>
+          <tr><td>Medium (Tablet)</td><td>768 – 991px</td><td><code>@media (min-width:768px)</code></td></tr>
+          <tr><td>Large (Laptop)</td><td>992 – 1199px</td><td><code>@media (min-width:992px)</code></td></tr>
+          <tr><td>Extra Large (Desktop)</td><td>1200 – 1399px</td><td><code>@media (min-width:1200px)</code></td></tr>
+          <tr><td>XXL (Large Desktop)</td><td>1400px+</td><td><code>@media (min-width:1400px)</code></td></tr>
+        </table>
+
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          <pre><code>/* Mobile */
+@media (max-width:480px){
+  .container{ grid-template-columns:1fr; }
+}</code></pre>
+          A 4-column grid becomes a single column on phones.
+        </div>
+
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output — Desktop (4 columns) vs Mobile (1 column)</div>
+          <div class="output-body">
+            <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:4px;">🖥️ Desktop width</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;">
+              <div style="background:#c4a35a;color:#1a1508;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">1</div>
+              <div style="background:#c4a35a;color:#1a1508;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">2</div>
+              <div style="background:#c4a35a;color:#1a1508;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">3</div>
+              <div style="background:#c4a35a;color:#1a1508;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">4</div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:4px;">📱 Mobile width (&lt;480px)</div>
+            <div style="display:grid;grid-template-columns:1fr;gap:6px;max-width:120px;">
+              <div style="background:#7c9ec9;color:#0e1a26;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">1</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">2</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">3</div>
+              <div style="background:#7c9ec9;color:#0e1a26;padding:10px;text-align:center;border-radius:4px;font-size:0.75rem;">4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<!-- MODULE 2 -->
+<!-- ======================================================= -->
+<section class="module" id="module2">
+  <div class="module-header" onclick="toggleModule(this)">
+    <h2>📦 Module 2: JavaScript and DOM Manipulation <span class="hours">8 Hours</span></h2>
+    <span class="module-toggle-icon">▾</span>
+  </div>
+  <div class="module-body">
+
+    <!-- TOPIC 2.1 -->
+    <div class="topic" id="js-basics">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">⚡ JavaScript Basics: Syntax, Variables (var/let/const) <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          JavaScript is a <strong>client-side scripting language</strong> used to enhance the functionality and appearance of web pages — improve design, validate forms, detect browsers, create cookies, etc. Java is <strong>strongly typed</strong>; JavaScript is <strong>dynamically typed</strong>.
+        </div>
+
+        <h4>Where can JS be placed?</h4>
+        <ul>
+          <li><strong>Inline JavaScript</strong> — directly on an element as an event attribute, e.g. <code>onclick</code>.</li>
+          <li><strong>Internal JavaScript</strong> — inside <code>&lt;script&gt;&lt;/script&gt;</code> tags in the HTML file (commonly in <code>&lt;head&gt;</code>).</li>
+          <li><strong>External JavaScript</strong> — a separate <code>.js</code> file linked in, reusable across multiple pages, easier to maintain.</li>
+        </ul>
+        <pre><code>&lt;script&gt;
+  document.write("Hello World!");
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">Hello World!</div>
+        </div>
+
+        <h4>Variables: var, let, const</h4>
+        <table class="data">
+          <tr><th>Keyword</th><th>Scope</th><th>Reassignable?</th></tr>
+          <tr><td><code>var</code></td><td>Function-scoped (older, avoid in modern code)</td><td>Yes</td></tr>
+          <tr><td><code>let</code></td><td><strong>Block-scoped</strong></td><td>Yes</td></tr>
+          <tr><td><code>const</code></td><td><strong>Block-scoped</strong></td><td><strong>No</strong> — value cannot change</td></tr>
+        </table>
+        <pre><code>var x = 10;
+// Here x is 10
+{
+  let x = 2;
+  // Here x is 2 (block-scoped, separate from outer x)
+  console.log(x);
+}
+console.log(x);
+// Here x is 10 again</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">2<br>10</div>
+        </div>
+        <ul>
+          <li>Variables must have a name and value; declared before use.</li>
+          <li>Variable names are <strong>case sensitive</strong> and must begin with a letter or underscore <code>_</code>.</li>
+          <li>An <strong>identifier</strong> is letters, digits, underscores, and <code>$</code> that doesn't start with a digit and isn't a reserved keyword.</li>
+        </ul>
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Using <code>var</code> inside loops/blocks expecting block scoping — <code>var</code> leaks outside the block, which can cause bugs. Prefer <code>let</code>/<code>const</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.2 -->
+    <div class="topic" id="js-datatypes">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔢 JavaScript Data Types <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <table class="data">
+          <tr><th>Category</th><th>Types</th></tr>
+          <tr><td><strong>Primitive</strong></td><td>Number, String, Boolean, Undefined, Null</td></tr>
+          <tr><td><strong>Non-Primitive</strong></td><td>Object (includes Arrays, Functions)</td></tr>
+        </table>
+
+        <h4>Primitive vs Non-Primitive 🔥</h4>
+        <div class="grid-2">
+          <div class="col pros">
+            <h5>Primitive — Immutable</h5>
+            <pre><code>var s = 'This is a string.';
+s = 'H';
+alert(s); // 'H' (s reassigned, original unchanged in memory)</code></pre>
+          </div>
+          <div class="col cons">
+            <h5>Non-Primitive — Mutable</h5>
+            <pre><code>var arr = ['one','two','three'];
+arr[1] = 'TWO';
+alert(arr); // ['one','TWO','three'] — modified in place</code></pre>
+          </div>
+        </div>
+
+        <h4>Details</h4>
+        <ul>
+          <li><strong>Number</strong> — all numeric values stored as double-precision floating point (e.g. <code>72, 7.2, .72, 7e2</code>).</li>
+          <li><strong>String</strong> — delimited by <code>'</code> or <code>"</code>; can include escape sequences like <code>\t</code>.</li>
+          <li><strong>Boolean</strong> — <code>true</code>/<code>false</code>, used in conditions.</li>
+          <li><strong>Null</strong> — means "no value"; used when a variable is explicitly set to have no value.</li>
+          <li><strong>Undefined</strong> — a variable has been declared but not assigned a value, e.g. <code>var carName;</code></li>
+        </ul>
+
+        <h4>Arrays & Objects</h4>
+        <pre><code>// Array — square brackets, comma-separated items
+const cars = ["Saab", "Volvo", "BMW"];
+
+// Object — curly braces, name:value pairs
+const person = {firstName:"John", lastName:"Doe", age:50, eyeColor:"blue"};
+console.log(cars);
+console.log(person.firstName, person.age);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">['Saab', 'Volvo', 'BMW']<br>John 50</div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          JavaScript arrays are <strong>dynamic</strong> and <strong>heterogeneous</strong> — they can change size after creation and hold mixed types.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.3 -->
+    <div class="topic" id="js-operators">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">➕ JavaScript Operators</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <table class="data">
+          <tr><th>Category</th><th>Examples</th></tr>
+          <tr><td>Assignment</td><td><code>=  +=  -=  *=  /=</code></td></tr>
+          <tr><td>Comparison</td><td><code>==  ===  !=  !==  &gt;  &lt;  &gt;=  &lt;=</code></td></tr>
+          <tr><td>Logical</td><td><code>&amp;&amp;  ||  !</code></td></tr>
+          <tr><td>String Concatenation</td><td><code>+</code></td></tr>
+        </table>
+
+        <h4>String Concatenation Operator</h4>
+        <pre><code>txt1 = "Ben";
+txt2 = "Alex";
+txt3 = txt1 + " " + txt2;   // "Ben Alex"
+
+txt1 = "What a very ";
+txt1 += "nice day";          // "What a very nice day"
+console.log(txt3);
+console.log(txt1);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">Ben Alex<br>What a very nice day</div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          <code>+</code> automatically converts other types to strings when concatenating: if <code>age = 21</code>, then <code>"my age is " + age</code> evaluates to <code>"my age is 21"</code>.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.4 -->
+    <div class="topic" id="js-conditionals">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔀 Conditional Statements: if / switch <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>if / else if / else</h4>
+        <pre><code>if (time < 10) {
+  greeting = "Good morning";
+} else if (time < 20) {
+  greeting = "Good day";
+} else {
+  greeting = "Good evening";
+}
+console.log(greeting);   // if time = 14 → "Good day"</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output (time = 14)</div>
+          <div class="output-body">Good day</div>
+        </div>
+
+        <h4>switch Statement</h4>
+        <pre><code>switch (new Date().getDay()) {
+  case 0:
+    day = "Sunday";
+    break;
+  case 1:
+    day = "Monday";
+    break;
+  default:
+    day = "Unknown";
+}
+console.log("Today is " + day);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output (if today is Monday)</div>
+          <div class="output-body">Today is Monday</div>
+        </div>
+        <ul>
+          <li><code>break</code> — stops execution inside the switch block once a case matches. Not required for the last case.</li>
+          <li><code>default</code> — runs if no case matches.</li>
+        </ul>
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Forgetting <code>break;</code> after a case — execution will "fall through" into the next case unintentionally.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.5 -->
+    <div class="topic" id="js-loops">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔁 Loops: for, while, do...while</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>for Loop</h4>
+        <pre><code>const cars = ["BMW", "Volvo", "Saab"];
+for (let i = 0; i < cars.length; i++) {
+  document.write(cars[i] + "&lt;br&gt;");
+}</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">BMW<br>Volvo<br>Saab</div>
+        </div>
+
+        <h4>while Loop</h4>
+        <pre><code>while (condition) {
+  // code block executed while condition is true
+}
+// Sum of first 10 numbers
+let sum = 0, j = 1;
+while (j <= 10) { sum += j; j++; }
+console.log("Sum =", sum);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">Sum = 55</div>
+        </div>
+
+        <h4>do...while Loop</h4>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          <code>do...while</code> executes the code block <strong>once first</strong>, then checks the condition — so the body always runs at least one time, unlike a regular <code>while</code>.
+        </div>
+        <pre><code>do {
+  // executes at least once
+} while (condition);</code></pre>
+
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          <pre><code>// Even numbers 1–50 using for loop
+let evenOutput = "";
+for (let i = 1; i <= 50; i++) {
+  if (i % 2 === 0) evenOutput += i + " ";
+}
+document.write(evenOutput);</code></pre>
+          <div class="output-box browser">
+            <div class="output-label">Rendered Output</div>
+            <div class="output-body" style="font-size:0.82rem;">2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38 40 42 44 46 48 50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.6 -->
+    <div class="topic" id="js-functions">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🧩 Functions: Declarations, Return Values, Parameters <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          A JavaScript function is a block of code designed to perform a specific task, executed when "something" invokes (calls) it.
+        </div>
+        <pre><code>function myFunction(p1, p2) {
+  return p1 * p2;
+}
+let x = myFunction(4, 3);   // x = 12
+console.log(x);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">12</div>
+        </div>
+        <ul>
+          <li>Defined with the <code>function</code> keyword, a name, and parentheses <code>()</code>.</li>
+          <li><strong>Parameters</strong> are listed in the function definition; <strong>arguments</strong> are the actual values passed when calling it.</li>
+          <li>Inside the function, arguments behave as <strong>local variables</strong>.</li>
+          <li><code>return</code> sends a value back to the caller and ends the function.</li>
+        </ul>
+        <pre><code>&lt;p id="demo"&gt;&lt;/p&gt;
+&lt;script&gt;
+let x = myFunction(4, 3);
+document.getElementById("demo").innerHTML = x;
+function myFunction(a, b) { return a * b; }
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body">12</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.7 -->
+    <div class="topic" id="js-events">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🖱️ Handling Events: onclick, onchange, onmouseover, onsubmit <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          An HTML <strong>event</strong> is something the browser does, or something a user does (page finishes loading, an input changes, a button is clicked). Event handler attributes let you attach JS code to react to these.
+        </div>
+
+        <table class="data">
+          <tr><th>Event</th><th>Fires when...</th><th>Example</th></tr>
+          <tr><td><code>onclick</code></td><td>An element is clicked</td><td><code>&lt;button onclick="alert('Clicked!')"&gt;Click Me&lt;/button&gt;</code></td></tr>
+          <tr><td><code>onchange</code></td><td>An input/select value changes</td><td><code>&lt;select onchange="alert('Selected: '+this.value)"&gt;...&lt;/select&gt;</code></td></tr>
+          <tr><td><code>onmouseover</code></td><td>Mouse pointer moves over an element</td><td><code>&lt;p onmouseover="this.style.color='red'"&gt;Hover&lt;/p&gt;</code></td></tr>
+          <tr><td><code>onsubmit</code></td><td>A form is submitted</td><td><code>&lt;form onsubmit="return validateForm()"&gt;</code></td></tr>
+        </table>
+
+        <h4>onsubmit Example</h4>
+        <pre><code>&lt;form onsubmit="return validateForm()"&gt;
+  &lt;input type="text" id="name" placeholder="Enter name" /&gt;
+  &lt;input type="submit" value="Submit" /&gt;
+&lt;/form&gt;
+&lt;script&gt;
+function validateForm() {
+  let name = document.getElementById("name").value;
+  if (name === "") {
+    alert("Name cannot be empty");
+    return false; // prevents form submission
+  }
+  return true; // allows submission
+}
+&lt;/script&gt;</code></pre>
+        <div class="output-box alertbox">
+          <div class="output-label">Alert Output (if name field is left empty)</div>
+          <div class="output-body">
+            <div class="fake-alert">
+              <div class="fake-alert-title">This page says</div>
+              Name cannot be empty
+              <div><button>OK</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.8 -->
+    <div class="topic" id="js-objects">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🧱 Objects: Creating Key-Value Pairs, Accessing Values</div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <pre><code>// Object literal
+const person = {firstName:"John", lastName:"Doe", age:50, eyeColor:"blue"};
+
+// Using the new keyword
+const car = new Object();
+car.type = "Fiat";
+car.model = "500";
+
+// Accessing values
+console.log(person.firstName);   // "John"
+console.log(car["type"]);        // "Fiat" (bracket notation)</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">John<br>Fiat</div>
+        </div>
+        <ul>
+          <li>Objects are written with curly braces <code>{}</code>; properties are <code>name:value</code> pairs separated by commas.</li>
+          <li>Values can be accessed with dot notation (<code>obj.prop</code>) or bracket notation (<code>obj["prop"]</code>).</li>
+          <li>New properties can be added any time: <code>person.age = 50;</code></li>
+        </ul>
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          <pre><code>const car = {type:"Fiat", model:"500", color:"white"};
+document.write(car.type, car.model, car.color);</code></pre>
+          <div class="output-box browser">
+            <div class="output-label">Rendered Output</div>
+            <div class="output-body">Fiat500white</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.9 -->
+    <div class="topic" id="dom-access">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🌳 DOM Manipulation: Accessing Elements <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          When a page loads, the browser builds a <strong>Document Object Model (DOM)</strong> — a tree of objects representing the page. The <code>document</code> object is the root node, and is a property of <code>window</code>: accessed with <code>window.document</code> or just <code>document</code>.
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="280" cy="25" r="20" fill="#1e1c22" stroke="#c4a35a" stroke-width="2"/>
+            <text x="280" y="30" text-anchor="middle" fill="#c4a35a" font-family="monospace" font-size="10">html</text>
+
+            <line x1="280" y1="45" x2="180" y2="85" stroke="#2e2c35" stroke-width="2"/>
+            <line x1="280" y1="45" x2="380" y2="85" stroke="#2e2c35" stroke-width="2"/>
+
+            <circle cx="180" cy="105" r="20" fill="#1e1c22" stroke="#7c9ec9" stroke-width="2"/>
+            <text x="180" y="110" text-anchor="middle" fill="#7c9ec9" font-family="monospace" font-size="10">head</text>
+
+            <circle cx="380" cy="105" r="20" fill="#1e1c22" stroke="#7c9ec9" stroke-width="2"/>
+            <text x="380" y="110" text-anchor="middle" fill="#7c9ec9" font-family="monospace" font-size="10">body</text>
+
+            <line x1="380" y1="125" x2="290" y2="170" stroke="#2e2c35" stroke-width="2"/>
+            <line x1="380" y1="125" x2="380" y2="170" stroke="#2e2c35" stroke-width="2"/>
+            <line x1="380" y1="125" x2="470" y2="170" stroke="#2e2c35" stroke-width="2"/>
+
+            <circle cx="290" cy="190" r="20" fill="#1e1c22" stroke="#8dbf8d" stroke-width="2"/>
+            <text x="290" y="195" text-anchor="middle" fill="#8dbf8d" font-family="monospace" font-size="9">h1</text>
+
+            <circle cx="380" cy="190" r="20" fill="#1e1c22" stroke="#8dbf8d" stroke-width="2"/>
+            <text x="380" y="195" text-anchor="middle" fill="#8dbf8d" font-family="monospace" font-size="9">p</text>
+
+            <circle cx="470" cy="190" r="22" fill="#1e1c22" stroke="#c98a7c" stroke-width="2"/>
+            <text x="470" y="188" text-anchor="middle" fill="#c98a7c" font-family="monospace" font-size="8">p#demo</text>
+            <text x="470" y="198" text-anchor="middle" fill="#c98a7c" font-family="monospace" font-size="7">(target)</text>
+          </svg>
+          <div class="diagram-caption">Fig 2.1 — DOM tree: <code>document</code> is the root; <code>getElementById("demo")</code> jumps straight to the matching node</div>
+        </div>
+
+        <h4>getElementById()</h4>
+        <pre><code>&lt;p id="demo"&gt;Hello!&lt;/p&gt;
+&lt;script&gt;
+const para = document.getElementById("demo");
+para.innerHTML = "Hello from JS!";
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (before → after)</div>
+          <div class="output-body"><s style="color:var(--text-dim);">Hello!</s> → Hello from JS!</div>
+        </div>
+
+        <h4>querySelector()</h4>
+        <pre><code>&lt;p class="text"&gt;Hello World&lt;/p&gt;
+&lt;script&gt;
+const p = document.querySelector(".text");   // first matching CSS selector
+p.innerHTML = "Changed using querySelector!";
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (before → after)</div>
+          <div class="output-body"><s style="color:var(--text-dim);">Hello World</s> → Changed using querySelector!</div>
+        </div>
+
+        <table class="data">
+          <tr><th>Method</th><th>Description</th></tr>
+          <tr><td><code>getElementById(id)</code></td><td>Returns the element with the given ID</td></tr>
+          <tr><td><code>querySelector(selector)</code></td><td>Returns the first element matching a CSS selector (id, class, tag, etc.)</td></tr>
+          <tr><td><code>addEventListener()</code></td><td>Attaches an event handler to an element</td></tr>
+          <tr><td><code>click()</code></td><td>Simulates a mouse click on an element</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.10 -->
+    <div class="topic" id="dom-modify">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">✏️ DOM Manipulation: Modifying Content — .innerHTML, .style, .value <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>.innerHTML — change HTML content</h4>
+        <pre><code>&lt;p id="content"&gt;Old content&lt;/p&gt;
+&lt;script&gt;
+document.getElementById("content").innerHTML = "New content!";
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (before → after)</div>
+          <div class="output-body"><s style="color:var(--text-dim);">Old content</s> → New content!</div>
+        </div>
+
+        <h4>.style — change CSS styling</h4>
+        <pre><code>&lt;h1 id="title"&gt;Heading&lt;/h1&gt;
+&lt;script&gt;
+document.getElementById("title").style.color = "blue";
+document.getElementById("title").style.fontSize = "30px";
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output</div>
+          <div class="output-body"><span style="color:#7c9ec9;font-size:1.6rem;font-weight:700;">Heading</span> <span style="color:var(--text-dim);font-size:0.75rem;">(now blue, 30px)</span></div>
+        </div>
+
+        <h4>.value — get/set form input values</h4>
+        <pre><code>&lt;input type="text" id="name" value="Shini"&gt;
+&lt;script&gt;
+const userName = document.getElementById("name").value;
+console.log("Input value is:", userName);
+&lt;/script&gt;</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">Input value is: Shini</div>
+        </div>
+
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          <code>.innerText</code> sets/returns just the visible text (no HTML parsing); <code>.innerHTML</code> parses and renders HTML tags inside the string.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.11 -->
+    <div class="topic" id="dom-events">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🎧 addEventListener() & Simple Form Validation <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <h4>addEventListener()</h4>
+        <pre><code>&lt;button id="btn"&gt;Click Me&lt;/button&gt;
+&lt;script&gt;
+document.getElementById("btn").addEventListener("click", function() {
+  alert("Button clicked!");
+});
+&lt;/script&gt;</code></pre>
+        <div class="output-box alertbox">
+          <div class="output-label">Alert Output (after clicking the button)</div>
+          <div class="output-body">
+            <div class="fake-alert">
+              <div class="fake-alert-title">This page says</div>
+              Button clicked!
+              <div><button>OK</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          <code>addEventListener()</code> is preferred over inline <code>onclick=""</code> attributes because it separates JS from HTML and allows attaching multiple listeners to the same element.
+        </div>
+
+        <h4>Simple Form Validation</h4>
+        <pre><code>&lt;form id="myForm"&gt;
+  Name: &lt;input type="text" id="name"&gt;&lt;br&gt;
+  Email: &lt;input type="email" id="email"&gt;&lt;br&gt;
+  &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+&lt;p id="error" style="color:red;"&gt;&lt;/p&gt;
+
+&lt;script&gt;
+document.getElementById("myForm").addEventListener("submit", function(e) {
+  e.preventDefault();   // stop actual submission
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const error = document.getElementById("error");
+  if (name === "" || email === "") {
+    error.innerHTML = "All fields are required!";
+  } else {
+    error.innerHTML = "";
+    alert("Form submitted successfully!");
+  }
+});
+&lt;/script&gt;</code></pre>
+        <div class="output-box browser">
+          <div class="output-label">Rendered Output (fields left empty, Submit clicked)</div>
+          <div class="output-body" style="color:#e07a6a;">All fields are required!</div>
+        </div>
+        <div class="callout warn">
+          <span class="callout-label">Common Mistake</span>
+          Forgetting <code>e.preventDefault()</code> — without it, the form submits and reloads the page before your validation logic can stop it.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.12 -->
+    <div class="topic" id="es6">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">✨ ES6 Features: let/const, Arrow Functions, Template Literals <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          <strong>ES6 (ECMAScript 2015)</strong> is the second major revision of JavaScript, introducing <code>let</code>/<code>const</code>, arrow functions, template literals, and more.
+        </div>
+
+        <h4>let (block scope)</h4>
+        <pre><code>var x = 10;
+{
+  let x = 2;   // only visible inside this block
+}
+// outer x is still 10</code></pre>
+
+        <h4>const (block-scoped constant)</h4>
+        <pre><code>const PI = 3.14;
+// PI = 4;  // ❌ Error — cannot reassign a const</code></pre>
+
+        <h4>Arrow Functions</h4>
+        <pre><code>// Traditional function
+function add(a, b) { return a + b; }
+
+// Arrow function (equivalent)
+const addArrow = (a, b) => a + b;
+
+// Single parameter — no parentheses needed
+const double = num => num * 2;
+
+// No parameters — parentheses required
+const sayHello = () => 'Hello!';
+
+// With array methods
+const doubled = [1,2,3].map(num => num * 2);   // [2,4,6]
+console.log(addArrow(3,4));
+console.log(double(5));
+console.log(sayHello());
+console.log(doubled);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">7<br>10<br>Hello!<br>[2, 4, 6]</div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          Arrow functions drop the <code>function</code> keyword, curly braces, and <code>return</code> for single-expression bodies — a shorter syntax for function expressions.
+        </div>
+
+        <h4>Template Literals</h4>
+        <pre><code>const name = 'Alice';
+console.log(`Hello, ${name}!`);     // string interpolation with backticks
+
+const price = 10, tax = 0.2;
+console.log(`Total: $${price * (1 + tax)}`);
+
+// Multi-line strings
+const message = `This is a
+multi-line string.`;
+console.log(message);</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">Hello, Alice!<br>Total: $12<br>This is a<br>multi-line string.</div>
+        </div>
+        <div class="callout example">
+          <span class="callout-label">Example</span>
+          Template literals use backticks <code>` `</code> and <code>${expression}</code> to embed variables/expressions directly inside a string — no more <code>+</code> concatenation chains.
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPIC 2.13 -->
+    <div class="topic" id="typescript">
+      <div class="topic-header" onclick="toggleTopic(this)">
+        <div class="topic-title">🔷 TypeScript: Types, Variables, Interfaces <span class="fire">🔥 High-Yield</span></div>
+        <span class="topic-toggle-icon">▾</span>
+      </div>
+      <div class="topic-content">
+        <div class="callout def">
+          <span class="callout-label">Definition</span>
+          <strong>TypeScript</strong> is a syntactic superset of JavaScript that adds <strong>static typing</strong>. JavaScript is loosely typed (hard to know what data types are passed around); TypeScript lets you declare types and reports errors when types don't match.
+        </div>
+
+        <h4>Simple / Primitive Types</h4>
+        <table class="data">
+          <tr><th>Type</th><th>Example</th></tr>
+          <tr><td><code>number</code></td><td><code>let age: number = 25;</code></td></tr>
+          <tr><td><code>string</code></td><td><code>let name: string = "Shini";</code></td></tr>
+          <tr><td><code>boolean</code></td><td><code>let isActive: boolean = true;</code></td></tr>
+          <tr><td><code>any</code></td><td>Disables type checking — <code>let x: any = 10; x = "hi";</code></td></tr>
+          <tr><td><code>unknown</code></td><td>Safer alternative to <code>any</code></td></tr>
+          <tr><td><code>null</code> / <code>undefined</code></td><td>Used for optional/absent values</td></tr>
+        </table>
+
+        <h4>Explicit vs Implicit Typing</h4>
+        <pre><code>// Explicit — you write the type out
+let firstName: string = "Dylan";
+
+// Implicit — TypeScript infers the type from the value
+let firstName = "Dylan";   // inferred as string</code></pre>
+
+        <h4>Array, Tuple, Union & Literal Types</h4>
+        <pre><code>let numbers: number[] = [1, 2, 3];
+let names: string[] = ["Alice", "Bob"];
+
+// Tuple — fixed-length array with specific types per slot
+let person: [string, number] = ["Alice", 30];
+
+// Union — allows more than one type
+let id: number | string = 101;
+id = "A123";
+
+// Literal type — only specific values allowed
+let direction: "up" | "down";
+direction = "up";</code></pre>
+
+        <h4>Interfaces for Structured Data 🔥</h4>
+        <pre><code>interface User {
+  name: string;
+  age: number;
+  isMember: boolean;
+}
+const user1: User = { name:"Shini", age:22, isMember:true };
+
+// Optional property
+interface Product { id:number; name:string; description?:string; }
+
+// Readonly property
+interface Point { readonly x:number; readonly y:number; }
+
+// Interface with a method
+interface Person {
+  name: string;
+  greet(): string;
+}
+const person: Person = {
+  name: "Shini",
+  greet() { return `Hello, ${this.name}`; }
+};</code></pre>
+
+        <h4>Worked Example: Student Report</h4>
+        <pre><code>interface Student {
+  name: string;
+  rollNo: number;
+  marks: number[];
+  isPassed: boolean;
+}
+
+const student1: Student = {
+  name: "Shini", rollNo: 101, marks: [85, 90, 78], isPassed: true
+};
+
+function displayStudentInfo(student: Student): string {
+  const average = student.marks.reduce((sum, m) => sum + m, 0) / student.marks.length;
+  return `Name: ${student.name}, Average: ${average.toFixed(2)},
+  Status: ${student.isPassed ? "Passed" : "Failed"}`;
+}
+console.log(displayStudentInfo(student1));</code></pre>
+        <div class="output-box console">
+          <div class="output-label">Console Output</div>
+          <div class="output-body">Name: Shini, Average: 84.33,<br>Status: Passed</div>
+        </div>
+        <div class="callout note">
+          <span class="callout-label">Note</span>
+          TypeScript must be <strong>compiled</strong> to JavaScript before running in a browser: <code>npx tsc student.ts</code> generates <code>student.js</code>, which is then linked in HTML with <code>&lt;script src="student.js"&gt;&lt;/script&gt;</code>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  Study notes generated from your course syllabus &amp; slides — Web Programming, Module 1 &amp; 2. Good luck with your exam! 🎓
+</footer>
+
+<script>
+  function toggleModule(header){
+    header.parentElement.classList.toggle('collapsed');
+  }
+  function toggleTopic(header){
+    header.parentElement.classList.toggle('collapsed');
+  }
+  document.getElementById('expandAllBtn').addEventListener('click', function(){
+    document.querySelectorAll('.module, .topic').forEach(el => el.classList.remove('collapsed'));
+  });
+  document.getElementById('collapseAllBtn').addEventListener('click', function(){
+    document.querySelectorAll('.topic').forEach(el => el.classList.add('collapsed'));
+  });
+
+  // Collapsible nav menu
+  var topnav = document.getElementById('topnav');
+  document.getElementById('navToggleBtn').addEventListener('click', function(){
+    topnav.classList.toggle('nav-open');
+  });
+  // Auto-close nav panel after clicking a module link (mobile-friendly)
+  document.querySelectorAll('.navlink').forEach(function(link){
+    link.addEventListener('click', function(){
+      topnav.classList.remove('nav-open');
+    });
+  });
+</script>
+
+</body>
+</html>
