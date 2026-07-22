@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Study Notes — Module 1 & 2</title>
+<style>
+:root{
+  --bg:#0f0e11;
+  --card:#1e1c22;
+  --border:#2e2c35;
+  --gold:#c4a35a;
+  --blue:#7c9ec9;
+  --green:#8dbf8d;
+  --red:#c98a7c;
+  --text:#e9e6ef;
+  --text-dim:#a8a4b3;
+  --text-faint:#726d7d;
+  --mono:'JetBrains Mono','Fira Code',Consolas,'Courier New',monospace;
+  --sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -5%, rgba(196,163,90,.07), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(124,158,201,.06), transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== NAV ===== */
+.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,14,17,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 20px;
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;font-size:15px;letter-spacing:.02em;
+  color:var(--text);white-space:nowrap;
+}
+.brand .dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 10px rgba(196,163,90,.7);
+}
+/* menu toggle button — always visible, on every screen size */
+.hamburger{
+  display:flex;background:transparent;border:1px solid var(--border);
+  border-radius:7px;width:38px;height:38px;cursor:pointer;
+  color:var(--text);flex-shrink:0;align-items:center;justify-content:center;
+  transition:all .15s ease;
+}
+.hamburger:hover{border-color:var(--gold);color:var(--gold);}
+.hamburger svg{width:18px;height:18px;}
+.hamburger .icon-close{display:none;}
+.hamburger.open .icon-menu{display:none;}
+.hamburger.open .icon-close{display:block;}
+
+/* dropdown panel — collapsed by default, opens as an overlay so it never
+   pushes page content around; same behaviour on mobile and desktop */
+.nav-panel{
+  position:absolute;top:100%;left:0;right:0;
+  max-height:0;overflow:hidden;
+  background:#131117;border-bottom:1px solid var(--border);
+  transition:max-height .25s ease;
+  box-shadow:0 14px 30px rgba(0,0,0,.45);
+}
+.nav-panel.open{max-height:80vh;overflow-y:auto;}
+.nav-panel-inner{max-width:1180px;margin:0 auto;padding:10px 20px 18px;}
+.nav-links{display:flex;flex-direction:column;gap:2px;padding:6px 0;}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;
+  font-size:14px;padding:11px 12px;border-radius:8px;
+  border-bottom:1px solid var(--border);
+  transition:all .15s ease;
+}
+.nav-links a:hover{color:var(--gold);background:rgba(196,163,90,.08);}
+.nav-actions{display:flex;gap:8px;align-items:center;padding-top:10px;}
+.nav-actions .nav-btn{flex:1;}
+.nav-btn{
+  font-family:var(--sans);
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border);border-radius:7px;
+  padding:9px 12px;font-size:13px;cursor:pointer;
+  white-space:nowrap;transition:all .15s ease;
+}
+.nav-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* progress bar under nav */
+.progress-track{height:2px;background:var(--border);width:100%;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--blue));transition:width .1s linear;}
+
+/* ===== LAYOUT ===== */
+.wrap{max-width:900px;margin:0 auto;padding:36px 20px 100px;position:relative;z-index:1;}
+.hero{
+  text-align:center;padding:26px 10px 38px;border-bottom:1px dashed var(--border);margin-bottom:34px;
+}
+.hero h1{
+  font-size:clamp(26px,4.5vw,38px);margin:0 0 10px;
+  background:linear-gradient(120deg,var(--gold),#e8d5a8 45%,var(--blue));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:-.01em;
+}
+.hero p{color:var(--text-dim);font-size:14.5px;margin:0 auto;max-width:560px;}
+.hero .tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+.tag{
+  font-size:11.5px;padding:5px 11px;border-radius:20px;
+  border:1px solid var(--border);color:var(--text-dim);font-family:var(--mono);
+}
+
+/* module heading */
+.module-head{
+  margin:52px 0 22px;padding-bottom:14px;border-bottom:2px solid var(--border);
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+}
+.module-head h2{
+  margin:0;font-size:24px;color:var(--gold);letter-spacing:-.01em;
+}
+.module-head .sub{color:var(--text-faint);font-size:13px;}
+
+/* ===== CARD (topic) ===== */
+.topic{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:16px;
+  overflow:hidden;
+  scroll-margin-top:70px;
+}
+.topic-head{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 18px;cursor:pointer;user-select:none;
+  transition:background .15s ease;
+}
+.topic-head:hover{background:rgba(255,255,255,.02);}
+.topic-num{
+  font-family:var(--mono);font-size:12px;color:var(--text-faint);
+  flex-shrink:0;width:34px;
+}
+.topic-title{
+  flex:1;font-size:16px;font-weight:600;color:var(--text);
+}
+.fire{
+  font-size:12px;background:rgba(201,138,124,.13);
+  border:1px solid rgba(201,138,124,.4);color:#e0a693;
+  padding:2px 8px;border-radius:20px;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:3px;
+}
+.chevron{
+  color:var(--text-faint);flex-shrink:0;
+  transition:transform .25s ease;width:16px;height:16px;
+}
+.topic.collapsed .chevron{transform:rotate(-90deg);}
+.topic-body{
+  padding:0 18px 20px;
+  border-top:1px solid var(--border);
+  padding-top:16px;
+}
+.topic.collapsed .topic-body{display:none;}
+.topic-body p{margin:0 0 12px;color:#d8d5e0;font-size:14.5px;}
+.topic-body ul,.topic-body ol{margin:0 0 14px;padding-left:22px;color:#d8d5e0;font-size:14.5px;}
+.topic-body li{margin-bottom:6px;}
+.topic-body h4{
+  font-size:13px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-faint);margin:20px 0 10px;font-weight:700;
+}
+.topic-body h4:first-child{margin-top:0;}
+
+/* ===== CALLOUTS ===== */
+.callout{
+  border-radius:9px;padding:13px 15px;margin:14px 0;
+  border:1px solid;font-size:14px;
+}
+.callout .c-label{
+  font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.callout p,.callout ul{margin:0;color:#e5e2ec;}
+.callout ul{padding-left:18px;margin-top:6px;}
+.callout.def{background:rgba(196,163,90,.08);border-color:rgba(196,163,90,.35);}
+.callout.def .c-label{color:var(--gold);}
+.callout.warn{background:rgba(201,138,124,.08);border-color:rgba(201,138,124,.35);}
+.callout.warn .c-label{color:var(--red);}
+.callout.note{background:rgba(124,158,201,.08);border-color:rgba(124,158,201,.35);}
+.callout.note .c-label{color:var(--blue);}
+.callout.example{background:rgba(141,191,141,.08);border-color:rgba(141,191,141,.35);}
+.callout.example .c-label{color:var(--green);}
+
+/* ===== CODE / FORMULA ===== */
+pre{
+  background:#151318;border:1px solid var(--border);border-radius:9px;
+  padding:14px 16px;overflow-x:auto;margin:14px 0;
+}
+code,pre code{
+  font-family:var(--mono);font-size:13.3px;color:#dcd6c8;line-height:1.7;
+}
+p code, li code, td code{
+  font-family:var(--mono);background:#181620;border:1px solid var(--border);
+  padding:1px 6px;border-radius:5px;font-size:13px;color:#e8d5a8;
+}
+
+/* ===== TABLES ===== */
+.table-wrap{overflow-x:auto;margin:14px 0;border-radius:9px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#17151b;}
+th{
+  background:#221f28;color:var(--gold);text-align:left;
+  padding:10px 13px;font-weight:600;border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+td{padding:10px 13px;border-bottom:1px solid var(--border);color:#d8d5e0;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.015);}
+
+/* ===== 2-COL GRID (pros/cons, comparisons) ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+.grid-box{border-radius:9px;padding:13px 15px;border:1px solid var(--border);background:#17151b;}
+.grid-box h5{margin:0 0 8px;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;}
+.grid-box.pos h5{color:var(--green);}
+.grid-box.neg h5{color:var(--red);}
+.grid-box ul{margin:0;padding-left:18px;font-size:13.5px;color:#d8d5e0;}
+.grid-box li{margin-bottom:5px;}
+
+/* ===== SVG DIAGRAM WRAPPER ===== */
+.diagram{
+  background:#131117;border:1px solid var(--border);border-radius:10px;
+  padding:16px;margin:16px 0;overflow-x:auto;text-align:center;
+}
+.diagram svg{max-width:100%;height:auto;}
+.diagram .cap{margin-top:8px;font-size:12px;color:var(--text-faint);font-style:italic;}
+
+/* ===== BACK TO TOP ===== */
+.totop{
+  position:fixed;bottom:22px;right:22px;z-index:90;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;
+  box-shadow:0 6px 20px rgba(0,0,0,.4);
+}
+.totop.show{opacity:1;pointer-events:auto;}
+.totop:hover{transform:translateY(-3px);border-color:var(--gold);}
+
+footer{
+  text-align:center;color:var(--text-faint);font-size:12.5px;
+  padding:30px 20px 10px;border-top:1px solid var(--border);margin-top:50px;
+}
+
+@media (max-width:860px){
+  .grid2{grid-template-columns:1fr;}
+  .brand span:not(.dot){font-size:14px;}
+}
+@media (max-width:600px){
+  .hero h1{font-size:24px;}
+  .topic-title{font-size:14.5px;}
+  .module-head h2{font-size:20px;}
+  .nav-panel.open{max-height:calc(100vh - 58px);}
+}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="nav-inner">
+    <div class="brand"><span class="dot"></span><span>DBMS Notes</span></div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <div class="nav-panel" id="navPanel">
+    <div class="nav-panel-inner">
+      <nav class="nav-links" id="navLinks">
+        <a href="#top" onclick="closeMenu()">Top</a>
+        <a href="#m1" onclick="closeMenu()">Module 1: Intro &amp; ER Model</a>
+        <a href="#m1-er" onclick="closeMenu()">↳ ER Model</a>
+        <a href="#m2" onclick="closeMenu()">Module 2: Relational Database</a>
+        <a href="#t2-7b" onclick="closeMenu()">↳ ER→Relational Worked Example</a>
+        <a href="#m2-ra" onclick="closeMenu()">↳ Relational Algebra</a>
+        <a href="#quickref" onclick="closeMenu()">Quick Reference</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="nav-btn" onclick="expandAll();closeMenu()">Expand All</button>
+        <button class="nav-btn" onclick="collapseAll();closeMenu()">Collapse All</button>
+      </div>
+    </div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="wrap" id="top">
+
+<div class="hero">
+  <h1>Database Management Systems</h1>
+  <p>Complete exam-ready notes for <strong>Module 1</strong> (Introduction &amp; ER Model) and <strong>Module 2</strong> (Relational Database) — definitions, diagrams, formulas, comparisons and solved examples in one place.</p>
+  <div class="tags">
+    <span class="tag">🔥 = high exam-probability</span>
+    <span class="tag">Tap any card to collapse</span>
+    <span class="tag">16 hours syllabus</span>
+  </div>
+</div>
+
+<!-- ================= MODULE 1 ================= -->
+<div class="module-head" id="m1">
+  <h2>Module 1 — Introduction &amp; Entity Relationship (ER) Model</h2>
+  <span class="sub">8 hours · DBMS fundamentals + ER modeling</span>
+</div>
+
+<!-- 1.1 -->
+<div class="topic" id="t1-1">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.1</span>
+    <span class="topic-title">What is Data, Database and DBMS?</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Before you can define a DBMS, you need three building-block terms nailed down — examiners love asking "define" questions on exactly these.</p>
+    <div class="callout def">
+      <div class="c-label">📌 Key Definitions</div>
+      <ul>
+        <li><strong>Data:</strong> known facts that can be recorded and have an implicit meaning; raw, un-processed values.</li>
+        <li><strong>Database:</strong> a highly organized, interrelated, and structured set of data about a particular enterprise, controlled by a DBMS.</li>
+        <li><strong>DBMS:</strong> a software application/system that facilitates the creation, organization and management of databases — a collection of interrelated data and a set of programs to access that data.</li>
+      </ul>
+    </div>
+    <h4>What a DBMS actually does</h4>
+    <ul>
+      <li>Serves as an <strong>intermediary between users and the database</strong>, ensuring efficient storage, retrieval and manipulation of data.</li>
+      <li>Examples: Oracle, MySQL, SQL Server, PostgreSQL.</li>
+    </ul>
+    <h4>When do you need a database system?</h4>
+    <p>Database systems are used to manage collections of data that are:</p>
+    <ul>
+      <li><strong>Highly valuable</strong> — e.g. business data</li>
+      <li><strong>Relatively large</strong> — e.g. a university's records</li>
+      <li><strong>Accessed by multiple users</strong>, often simultaneously — e.g. online platforms</li>
+      <li>Ones where <strong>relationships and queries matter</strong> — e.g. hospital records</li>
+      <li>Ones that <strong>need security and backup</strong> — e.g. banking data</li>
+    </ul>
+    <div class="callout example">
+      <div class="c-label">💡 Example — Database Applications</div>
+      <ul>
+        <li><strong>Enterprise:</strong> Sales (customers, products), Accounting (payments, assets), HR (employees, salaries)</li>
+        <li><strong>Banking &amp; Finance:</strong> accounts, loans, credit-card transactions, real-time market data</li>
+        <li><strong>Universities:</strong> registration, grades</li>
+        <li><strong>Recent applications:</strong> Multimedia DBs (social media, search engines), GIS, genome databases, data warehouses, mobile DBs (SQLite), real-time/active databases (stock markets)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 1.2 -->
+<div class="topic" id="t1-2">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.2</span>
+    <span class="topic-title">Characteristics of a Database System</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>A very common 5-mark question: "List and explain the characteristics of a database system."</p>
+    <ol>
+      <li><strong>Data Abstraction</strong> — a data model hides storage details and presents users with a conceptual view of the database.</li>
+      <li><strong>Multiple Views of Data</strong> — each user may see a different view describing only the data of interest to them.</li>
+      <li><strong>Sharing of data &amp; multi-user transaction processing</strong> — allows concurrent users to retrieve and update the database at the same time.</li>
+      <li><strong>Insulation between programs and data</strong> — data and application programs are independent of each other (data independence).</li>
+      <li><strong>Self-describing nature</strong> — a DBMS contains not just the data but also <strong>metadata</strong> describing the structure of the database.</li>
+    </ol>
+    <div class="table-wrap"><table>
+      <tr><th>Characteristic</th><th>What it means</th><th>Example</th></tr>
+      <tr><td>Data Abstraction</td><td>Hides storage/implementation details from the user</td><td>A user queries "students in CSE" without knowing how rows are stored on disk</td></tr>
+      <tr><td>Multiple Views</td><td>Different users see different, tailored views of the same DB</td><td>A registrar sees fee details; a professor sees only grades</td></tr>
+      <tr><td>Sharing &amp; Multi-user</td><td>Many users/transactions run concurrently on the same data</td><td>Two clerks booking the last seat on a flight at the same time</td></tr>
+      <tr><td>Insulation (Data Independence)</td><td>Programs and data structures can change independently</td><td>Adding a column to EMPLOYEE doesn't break existing reports</td></tr>
+      <tr><td>Self-describing Nature</td><td>DBMS stores metadata (schema) along with actual data</td><td>The data dictionary/catalog describing table structures</td></tr>
+    </table></div>
+    <div class="callout example">
+      <div class="c-label">💡 Example — Why this matters</div>
+      <p>In a file-processing system (no DBMS), each application defines and manages its own data files — leading to <strong>data redundancy</strong> and <strong>inconsistency</strong>. A DBMS centralizes this so all the above characteristics hold true for every application sharing the database.</p>
+    </div>
+    <div class="callout note">
+      <div class="c-label">📝 Note</div>
+      <p>Remember this list with the mnemonic <strong>"A-V-S-I-S"</strong>: Abstraction, Views, Sharing, Insulation, Self-describing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.3 -->
+<div class="topic" id="t1-3">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.3</span>
+    <span class="topic-title">Database Users (Actors on the Scene &amp; Behind the Scene)</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>DBMS users are split into people who directly design/use the database ("on the scene") and people who build the DBMS software itself ("behind the scene").</p>
+    <h4>Actors on the Scene</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Role</th><th>Responsibility</th></tr>
+      <tr><td><strong>Database Administrator (DBA)</strong></td><td>Authorizes access, coordinates &amp; monitors use, acquires hardware/software resources, monitors efficiency</td></tr>
+      <tr><td><strong>Database Designers</strong></td><td>Define content, structure, constraints and transactions; communicate with end-users to gather requirements</td></tr>
+      <tr><td><strong>System Analysts</strong></td><td>Understand user requirements and design applications (canned transactions)</td></tr>
+      <tr><td><strong>Application Programmers</strong></td><td>Implement the specifications from analysts; test and debug them</td></tr>
+    </table></div>
+    <h4>Actors Behind the Scene</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Role</th><th>Responsibility</th></tr>
+      <tr><td><strong>System Designers</strong></td><td>Design &amp; implement the DBMS software modules/interfaces</td></tr>
+      <tr><td><strong>Tool Developers</strong></td><td>Build tools for modeling, performance monitoring, prototyping, testing, UI creation</td></tr>
+      <tr><td><strong>Operating &amp; Maintenance Team</strong></td><td>Manage the running &amp; maintenance of hardware/software environment</td></tr>
+    </table></div>
+    <h4>End Users</h4>
+    <ul>
+      <li><strong>Naïve users:</strong> unsophisticated users who just run pre-written application programs (e.g. bank tellers).</li>
+      <li><strong>Sophisticated users:</strong> engineers, scientists, analysts who use DBMS facilities directly to build their own complex queries/applications.</li>
+      <li><strong>Standalone users:</strong> maintain personal databases via ready-made menu/GUI-based packages (e.g. a personal finance app).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 1.4 -->
+<div class="topic" id="t1-4">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.4</span>
+    <span class="topic-title">Structured, Semi-Structured &amp; Unstructured Data</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Type</th><th>Definition</th><th>Example</th></tr>
+      <tr><td><strong>Structured Data</strong></td><td>Represented in a strict, predefined format; a DBMS checks it against the schema</td><td>Relational tables (e.g. an Employee table)</td></tr>
+      <tr><td><strong>Semi-Structured Data</strong></td><td>Has some structure, but not every record has identical structure; schema info is mixed in with the data itself ("self-describing")</td><td>JSON, XML documents</td></tr>
+      <tr><td><strong>Unstructured Data</strong></td><td>Very limited or no indication of type/structure</td><td>A plain text document, images, videos</td></tr>
+    </table></div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Students often confuse semi-structured with unstructured. Semi-structured data <em>does</em> have some organization (tags/keys in XML/JSON) — it's just not uniform across records, unlike unstructured data which has almost no discernible structure.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.5 -->
+<div class="topic" id="t1-5">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.5</span>
+    <span class="topic-title">Data Models — High-level, Low-level &amp; Representational</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>A <strong>data model</strong> is a collection of concepts used to describe the structure of a database — its data types, relationships, and constraints — plus a set of basic operations for retrievals and updates.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Category</th><th>Description</th><th>Used By</th></tr>
+      <tr><td><strong>High-level / Conceptual</strong></td><td>Close to how users perceive data; uses entities, attributes, relationships</td><td>Designers (e.g. ER Model)</td></tr>
+      <tr><td><strong>Low-level / Physical</strong></td><td>Describes how data is stored on storage media — file organization, indexing</td><td>DBAs / specialized users</td></tr>
+      <tr><td><strong>Representational</strong></td><td>Easily understood by end users; hides storage details; often record-based</td><td>End users &amp; developers</td></tr>
+    </table></div>
+    <h4>Representational models are further classified into:</h4>
+    <div class="grid2">
+      <div class="grid-box pos"><h5>Hierarchical Model</h5>
+        <ul><li>Oldest data model — a tree structure ("database tree")</li><li>Collection of records connected by links</li><li>A collection of rooted trees is a forest</li><li>Rectangular box = record type, line = link between record types</li></ul>
+      </div>
+      <div class="grid-box pos"><h5>Network Model</h5>
+        <ul><li>An evolved version of hierarchical — an item can have <strong>multiple parents</strong></li><li>Disadvantage: needs lots of storage, inflexible / hard to modify</li></ul>
+      </div>
+    </div>
+    <div class="grid-box pos" style="margin-top:-4px"><h5>Relational Model</h5>
+      <ul><li>Consists of a collection of <strong>tables</strong> (relations)</li><li>Information stored in tabular form</li><li>Most popular model today — simple, flexible, backed by strong mathematical theory (relational algebra)</li></ul>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg">
+        <text x="60" y="20" fill="#c4a35a" font-size="12" font-family="Inter,sans-serif" font-weight="700">Hierarchical</text>
+        <rect x="20" y="30" width="80" height="26" rx="5" fill="#221f28" stroke="#7c9ec9"/><text x="60" y="47" text-anchor="middle" fill="#e9e6ef" font-size="11">Dept</text>
+        <line x1="40" y1="56" x2="40" y2="80" stroke="#726d7d"/><line x1="80" y1="56" x2="80" y2="80" stroke="#726d7d"/>
+        <rect x="4" y="80" width="72" height="26" rx="5" fill="#221f28" stroke="#7c9ec9"/><text x="40" y="97" text-anchor="middle" fill="#e9e6ef" font-size="11">Emp A</text>
+        <rect x="84" y="80" width="72" height="26" rx="5" fill="#221f28" stroke="#7c9ec9"/><text x="120" y="97" text-anchor="middle" fill="#e9e6ef" font-size="11">Emp B</text>
+
+        <text x="270" y="20" fill="#c4a35a" font-size="12" font-family="Inter,sans-serif" font-weight="700">Network</text>
+        <rect x="255" y="30" width="70" height="26" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="290" y="47" text-anchor="middle" fill="#e9e6ef" font-size="11">Proj 1</text>
+        <rect x="335" y="30" width="70" height="26" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="370" y="47" text-anchor="middle" fill="#e9e6ef" font-size="11">Proj 2</text>
+        <rect x="295" y="90" width="70" height="26" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="330" y="107" text-anchor="middle" fill="#e9e6ef" font-size="11">Emp X</text>
+        <line x1="290" y1="56" x2="330" y2="90" stroke="#726d7d"/><line x1="370" y1="56" x2="330" y2="90" stroke="#726d7d"/>
+
+        <text x="480" y="20" fill="#c4a35a" font-size="12" font-family="Inter,sans-serif" font-weight="700">Relational</text>
+        <rect x="460" y="30" width="150" height="70" rx="5" fill="#221f28" stroke="#c98a7c"/>
+        <line x1="460" y1="50" x2="610" y2="50" stroke="#3a3742"/>
+        <line x1="525" y1="30" x2="525" y2="100" stroke="#3a3742"/>
+        <text x="490" y="44" text-anchor="middle" fill="#e9e6ef" font-size="10">ID</text><text x="565" y="44" text-anchor="middle" fill="#e9e6ef" font-size="10">Name</text>
+        <text x="490" y="67" text-anchor="middle" fill="#a8a4b3" font-size="10">1</text><text x="565" y="67" text-anchor="middle" fill="#a8a4b3" font-size="10">Asha</text>
+        <text x="490" y="88" text-anchor="middle" fill="#a8a4b3" font-size="10">2</text><text x="565" y="88" text-anchor="middle" fill="#a8a4b3" font-size="10">Ravi</text>
+      </svg>
+      <div class="cap">Hierarchical (tree/parent-child) vs Network (multiple parents) vs Relational (tables)</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1.6 -->
+<div class="topic" id="t1-6">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.6</span>
+    <span class="topic-title">Schema vs Instance</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Key Definitions</div>
+      <ul>
+        <li><strong>Schema:</strong> the overall design/description of the database — specified during design, and not expected to change frequently. Displayed as a <strong>schema diagram</strong>.</li>
+        <li><strong>Instance:</strong> the actual content/data stored in the database at one particular moment in time.</li>
+      </ul>
+    </div>
+    <p>Schema is analogous to a <strong>type</strong> in a programming language; an instance is analogous to the <strong>value</strong> of a variable — the schema rarely changes, but the instance changes every time data is inserted/updated/deleted.</p>
+    <h4>Logical vs Physical Schema</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Type</th><th>Describes</th></tr>
+      <tr><td><strong>Logical Schema</strong></td><td>Structure in terms of tables, fields, data types, relationships, constraints — independent of physical storage</td></tr>
+      <tr><td><strong>Physical Schema</strong></td><td>How data is stored on physical devices — file organization, compression, indexing</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- 1.7 -->
+<div class="topic" id="t1-7">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.7</span>
+    <span class="topic-title">Levels of Data Abstraction</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>A major purpose of a database system is to give users an <strong>abstract view</strong> of data — hiding how it's actually stored. There are three levels:</p>
+    <div class="diagram">
+      <svg viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+        <rect x="130" y="10" width="200" height="55" rx="8" fill="#221f28" stroke="#c4a35a" stroke-width="1.4"/>
+        <text x="230" y="33" text-anchor="middle" fill="#c4a35a" font-size="13" font-weight="700">View Level</text>
+        <text x="230" y="50" text-anchor="middle" fill="#a8a4b3" font-size="10">Individual user views</text>
+        <line x1="230" y1="65" x2="230" y2="90" stroke="#726d7d" marker-end="url(#arr1)"/>
+        <rect x="105" y="90" width="250" height="55" rx="8" fill="#221f28" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="230" y="113" text-anchor="middle" fill="#7c9ec9" font-size="13" font-weight="700">Logical Level</text>
+        <text x="230" y="130" text-anchor="middle" fill="#a8a4b3" font-size="10">What data is stored + relationships</text>
+        <line x1="230" y1="145" x2="230" y2="170" stroke="#726d7d" marker-end="url(#arr1)"/>
+        <rect x="80" y="170" width="300" height="55" rx="8" fill="#221f28" stroke="#8dbf8d" stroke-width="1.4"/>
+        <text x="230" y="193" text-anchor="middle" fill="#8dbf8d" font-size="13" font-weight="700">Physical Level</text>
+        <text x="230" y="210" text-anchor="middle" fill="#a8a4b3" font-size="10">How data is actually stored on disk</text>
+        <defs><marker id="arr1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#726d7d"/></marker></defs>
+      </svg>
+      <div class="cap">Closer to the user (top) → closer to hardware (bottom)</div>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Level</th><th>Focus</th></tr>
+      <tr><td><strong>Physical</strong></td><td>How a record is stored — data structures, file formats, indexing methods, access mechanisms</td></tr>
+      <tr><td><strong>Logical</strong></td><td>What data is stored and the relationships among data (e.g. <code>type instructor = record ID:string; name:string; end;</code>) — ER diagrams &amp; normalization live here</td></tr>
+      <tr><td><strong>View</strong></td><td>Highest level, closest to end users; application programs hide data-type details; can hide sensitive info (e.g. salary) for security</td></tr>
+    </table></div>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p>Clerks in a university registrar's office see only the part of the database dealing with students (their <em>view</em>) — they cannot access instructor salary information, even though at the physical level all this data sits in the same storage system.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.8 -->
+<div class="topic" id="t1-8">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.8</span>
+    <span class="topic-title">Three-Schema Architecture</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Goal</div>
+      <p>The goal of the three-schema architecture is to <strong>separate the user applications from the physical database</strong>, by defining DBMS schemas at three levels.</p>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="10" width="130" height="46" rx="7" fill="#221f28" stroke="#c4a35a"/>
+        <text x="125" y="30" text-anchor="middle" fill="#e9e6ef" font-size="11">External View 1</text>
+        <rect x="290" y="10" width="130" height="46" rx="7" fill="#221f28" stroke="#c4a35a"/>
+        <text x="355" y="30" text-anchor="middle" fill="#e9e6ef" font-size="11">External View 2</text>
+        <text x="10" y="38" fill="#c4a35a" font-size="11" font-weight="700">External</text>
+        <line x1="125" y1="56" x2="220" y2="100" stroke="#726d7d"/>
+        <line x1="355" y1="56" x2="260" y2="100" stroke="#726d7d"/>
+        <rect x="130" y="100" width="220" height="46" rx="7" fill="#221f28" stroke="#7c9ec9"/>
+        <text x="240" y="127" text-anchor="middle" fill="#e9e6ef" font-size="12">Conceptual Schema</text>
+        <text x="10" y="128" fill="#7c9ec9" font-size="11" font-weight="700">Conceptual</text>
+        <line x1="240" y1="146" x2="240" y2="190" stroke="#726d7d"/>
+        <rect x="130" y="190" width="220" height="46" rx="7" fill="#221f28" stroke="#8dbf8d"/>
+        <text x="240" y="217" text-anchor="middle" fill="#e9e6ef" font-size="12">Internal Schema</text>
+        <text x="10" y="218" fill="#8dbf8d" font-size="11" font-weight="700">Internal</text>
+        <line x1="240" y1="236" x2="240" y2="260" stroke="#726d7d"/>
+        <rect x="160" y="260" width="160" height="30" rx="7" fill="#151318" stroke="#3a3742"/>
+        <text x="240" y="280" text-anchor="middle" fill="#a8a4b3" font-size="11">Stored Database</text>
+      </svg>
+      <div class="cap">External (user views) → Conceptual (whole DB structure) → Internal (physical storage)</div>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Schema Level</th><th>Describes</th></tr>
+      <tr><td><strong>Internal Schema</strong></td><td>Physical storage structures &amp; access paths — typically a physical data model</td></tr>
+      <tr><td><strong>Conceptual Schema</strong></td><td>Structure and constraints for the <em>whole</em> database for a community of users — a conceptual/implementation data model</td></tr>
+      <tr><td><strong>External Schemas</strong></td><td>Various user views — usually same data model as conceptual schema</td></tr>
+    </table></div>
+    <p><strong>Mappings</strong> between levels transform requests and data: programs refer to an external schema and are mapped by the DBMS to the internal schema for execution; data from the internal level is reformatted to match a user's external view.</p>
+  </div>
+</div>
+
+<!-- 1.9 -->
+<div class="topic" id="t1-9">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.9</span>
+    <span class="topic-title">Data Independence</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>Data independence is <strong>the capacity to change the schema at one level of a database system without having to change the schema at the next higher level.</strong></p>
+    </div>
+    <div class="grid2">
+      <div class="grid-box pos">
+        <h5>Logical Data Independence</h5>
+        <ul><li>Change the <strong>conceptual schema</strong> without changing external schemas or application programs</li></ul>
+      </div>
+      <div class="grid-box pos">
+        <h5>Physical Data Independence</h5>
+        <ul><li>Change the <strong>internal schema</strong> without changing the conceptual schema</li><li>E.g. reorganizing files or adding new indexes to improve performance</li></ul>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Don't mix up the direction: <strong>logical</strong> independence shields applications from conceptual-schema changes; <strong>physical</strong> independence shields the conceptual schema from storage-level changes. Physical independence is generally easier to achieve than logical.</p>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p><strong>Physical:</strong> the DBA switches EMPLOYEE's storage from a heap file to a B+-tree index for faster lookups — no application code or conceptual schema changes. <strong>Logical:</strong> a new attribute <code>Email</code> is added to the conceptual EMPLOYEE schema — existing external views/programs that don't reference Email keep working unchanged.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.10 -->
+<div class="topic" id="t1-10">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.10</span>
+    <span class="topic-title">Database Languages: DDL, DML, DQL, DCL, TCL</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Language</th><th>Full Form</th><th>Purpose</th><th>Sample Commands</th></tr>
+      <tr><td><strong>DDL</strong></td><td>Data Definition Language</td><td>Defines/modifies the structure or schema of the database</td><td><code>CREATE, ALTER, DROP</code></td></tr>
+      <tr><td><strong>DML</strong></td><td>Data Manipulation Language</td><td>Manages &amp; manipulates data — retrievals and updates</td><td><code>INSERT, UPDATE, DELETE</code></td></tr>
+      <tr><td><strong>DQL</strong></td><td>Data Query Language</td><td>Retrieves data from the database</td><td><code>SELECT</code></td></tr>
+      <tr><td><strong>DCL</strong></td><td>Data Control Language</td><td>Controls access rights &amp; permissions</td><td><code>GRANT, REVOKE</code></td></tr>
+      <tr><td><strong>TCL</strong></td><td>Transaction Control Language</td><td>Manages transactions in the database</td><td><code>COMMIT, ROLLBACK, SAVEPOINT</code></td></tr>
+    </table></div>
+    <p>DDL is used by database designers to specify the <strong>conceptual schema</strong> — and in many DBMSs also the internal/external schemas. Some systems use a separate <strong>Storage Definition Language (SDL)</strong> and <strong>View Definition Language (VDL)</strong> for that.</p>
+    <p>DML commands can be <strong>embedded</strong> in a general-purpose language (COBOL, C, C++, Java) via a library of functions (e.g. JDBC's <code>getConnection()</code>, <code>createStatement()</code>, <code>executeQuery()</code>), or used <strong>stand-alone</strong> as a query language.</p>
+    <h4>DBMS Programming Language Approaches</h4>
+    <ul>
+      <li><strong>Embedded Approach:</strong> e.g. embedded SQL (for C, C++), SQLJ (for Java)</li>
+      <li><strong>Procedure Call Approach:</strong> e.g. JDBC (Java), ODBC (Open Database Connectivity) as APIs</li>
+      <li><strong>Database Programming Language Approach:</strong> e.g. Oracle's PL/SQL — incorporates SQL and its data types as integral components</li>
+      <li><strong>Scripting Languages:</strong> PHP (client-side), Python (server-side) used to write database programs</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 1.11 -->
+<div class="topic" id="t1-11">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.11</span>
+    <span class="topic-title">Classification of DBMS</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <h4>Based on data model used</h4>
+    <ul>
+      <li><strong>Legacy:</strong> Network, Hierarchical</li>
+      <li><strong>Currently used:</strong> Relational, Object-oriented, Object-relational</li>
+      <li><strong>Recent technologies:</strong> Key-value stores, NoSQL (document-based, column-based, graph-based, key-value-based), Native XML DBMS</li>
+    </ul>
+    <h4>Other classifications</h4>
+    <ul>
+      <li><strong>Single-user</strong> (typically for personal computers) vs. <strong>Multi-user</strong> (most DBMSs)</li>
+      <li><strong>Centralized</strong> (single computer, one database) vs. <strong>Distributed</strong> (multiple computers, multiple DBs)</li>
+    </ul>
+    <div class="table-wrap"><table>
+      <tr><th>Classification Basis</th><th>Types</th><th>Example</th></tr>
+      <tr><td>Data Model</td><td>Relational, Hierarchical, Network, Object-oriented, NoSQL</td><td>MySQL (relational), MongoDB (NoSQL document store)</td></tr>
+      <tr><td>Number of Users</td><td>Single-user, Multi-user</td><td>MS Access (single-user friendly) vs Oracle (multi-user)</td></tr>
+      <tr><td>Site Distribution</td><td>Centralized, Distributed</td><td>A single-campus DB vs a bank's multi-branch DB</td></tr>
+      <tr><td>Cost</td><td>Open-source, Commercial</td><td>PostgreSQL (open-source) vs Oracle DB (commercial)</td></tr>
+    </table></div>
+  </div>
+</div>
+
+
+<!-- ================= ER MODEL SUBSECTION ================= -->
+<div class="module-head" id="m1-er">
+  <h2 style="font-size:20px;">Entity–Relationship (ER) Model</h2>
+  <span class="sub">The conceptual design tool used to plan a database before building tables</span>
+</div>
+
+<!-- 1.12 -->
+<div class="topic" id="t1-12">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.12</span>
+    <span class="topic-title">ER Model &amp; ER Diagram — Basic Concepts</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definitions</div>
+      <ul>
+        <li><strong>ER Model:</strong> used mainly for communication between database designers and end users during the analysis phase of database development. Composed of entity types and the relationships that can exist between entity instances. It is <strong>independent</strong> of the DBMS/data model used to actually implement the database.</li>
+        <li><strong>ER Diagram:</strong> a conceptual model giving the <strong>graphical representation</strong> of the logical structure of a database — showing all constraints and relationships among components.</li>
+      </ul>
+    </div>
+    <h4>Basic building-block terms</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Term</th><th>Meaning</th><th>Example</th></tr>
+      <tr><td><strong>Enterprise</strong></td><td>Any kind of organization</td><td>Colleges, banks, companies</td></tr>
+      <tr><td><strong>Entity</strong></td><td>An "object" or "thing" in the real world, distinguishable from others</td><td>A student, a loan, an employee, a car</td></tr>
+      <tr><td><strong>Attribute</strong></td><td>A characteristic/property that describes an entity</td><td>Student → name, age, address; Car → color, model</td></tr>
+      <tr><td><strong>Value</strong></td><td>The actual data/information stored in an attribute</td><td>"Alice", 21, "Blue"</td></tr>
+      <tr><td><strong>Entity Set</strong></td><td>A collection of entities of the same type</td><td>All students = the Student entity set</td></tr>
+      <tr><td><strong>Domain</strong></td><td>The set of all possible values for an attribute</td><td>Domain of Age = positive integers &lt; 120</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- 1.13 -->
+<div class="topic" id="t1-13">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.13</span>
+    <span class="topic-title">Types of Attributes</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Six important classifications you must be able to identify from an ER diagram or a word problem:</p>
+    <div class="table-wrap"><table>
+      <tr><th>Type</th><th>Definition</th><th>Example</th></tr>
+      <tr><td><strong>Simple</strong></td><td>Cannot be divided further</td><td>Age, Gender</td></tr>
+      <tr><td><strong>Composite</strong></td><td>Can be divided into smaller sub-parts</td><td>Name → First_Name + Last_Name; Address → Street + City + Pincode</td></tr>
+      <tr><td><strong>Single-valued</strong></td><td>Has only ONE value for a given entity</td><td>Aadhar Number</td></tr>
+      <tr><td><strong>Multi-valued</strong></td><td>Can have MULTIPLE values for one entity (shown with a double ellipse)</td><td>Phone_Number(s), Email_ID(s)</td></tr>
+      <tr><td><strong>Derived</strong></td><td>Can be computed/derived from other attributes (shown with a dashed ellipse)</td><td>Age = System_Date − Date_of_Birth</td></tr>
+      <tr><td><strong>Stored</strong></td><td>Cannot be derived from other attributes; stored directly</td><td>Date of Birth</td></tr>
+    </table></div>
+    <div class="callout note">
+      <div class="c-label">📝 Note — NULL Value</div>
+      <p>NULL means "nothing" — an attribute has a null value when the value is either <strong>unknown</strong> or <strong>not applicable</strong> to that entity.</p>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="80" cy="40" rx="55" ry="24" fill="#221f28" stroke="#c4a35a"/><text x="80" y="45" text-anchor="middle" fill="#e9e6ef" font-size="11">Simple</text>
+        <ellipse cx="220" cy="40" rx="60" ry="24" fill="#221f28" stroke="#7c9ec9" stroke-width="2"/><ellipse cx="220" cy="40" rx="53" ry="18" fill="none" stroke="#7c9ec9" stroke-width="1"/><text x="220" y="45" text-anchor="middle" fill="#e9e6ef" font-size="10">Multi-valued</text>
+        <ellipse cx="360" cy="40" rx="60" ry="24" fill="#221f28" stroke="#8dbf8d" stroke-dasharray="4 3"/><text x="360" y="45" text-anchor="middle" fill="#e9e6ef" font-size="10">Derived</text>
+        <ellipse cx="480" cy="40" rx="55" ry="24" fill="#221f28" stroke="#c98a7c"/><text x="480" y="35" text-anchor="middle" fill="#e9e6ef" font-size="10">Composite</text>
+        <line x1="450" y1="55" x2="430" y2="90" stroke="#726d7d"/><line x1="480" y1="64" x2="480" y2="90" stroke="#726d7d"/><line x1="510" y1="55" x2="525" y2="90" stroke="#726d7d"/>
+        <ellipse cx="430" cy="105" rx="38" ry="18" fill="#17151b" stroke="#726d7d"/><text x="430" y="110" text-anchor="middle" fill="#a8a4b3" font-size="9">First</text>
+        <ellipse cx="480" cy="115" rx="38" ry="18" fill="#17151b" stroke="#726d7d"/><text x="480" y="120" text-anchor="middle" fill="#a8a4b3" font-size="9">Middle</text>
+        <ellipse cx="530" cy="105" rx="38" ry="18" fill="#17151b" stroke="#726d7d"/><text x="530" y="110" text-anchor="middle" fill="#a8a4b3" font-size="9">Last</text>
+      </svg>
+      <div class="cap">Ellipse notations: single (plain) · multi-valued (double) · derived (dashed) · composite (has sub-attributes)</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1.14 -->
+<div class="topic" id="t1-14">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.14</span>
+    <span class="topic-title">Relationships, Relationship Sets &amp; Degree of Relationship</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definitions</div>
+      <ul>
+        <li><strong>Relationship:</strong> the association among several entities — connects different entities through a meaningful relation.</li>
+        <li><strong>Relationship Set:</strong> a set of relationships of the same type.</li>
+      </ul>
+    </div>
+    <h4>Degree of Relationship</h4>
+    <p><strong>Degree</strong> = the total number of entity sets participating in a relationship set.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Type</th><th>Entities Involved</th><th>Example</th></tr>
+      <tr><td><strong>Unary (Recursive)</strong></td><td>1 (entity related to itself)</td><td>Employee <em>supervises</em> Employee</td></tr>
+      <tr><td><strong>Binary</strong></td><td>2</td><td>Student <em>enrolled in</em> Course</td></tr>
+      <tr><td><strong>Ternary</strong></td><td>3 (degree 3)</td><td>Supplier <em>supplies</em> Part to Project</td></tr>
+      <tr><td><strong>N-ary</strong></td><td>More than 3</td><td>Exam scheduled based on Student, Course, Invigilator, Room</td></tr>
+    </table></div>
+    <div class="diagram">
+      <svg viewBox="0 0 560 140" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="50" width="80" height="34" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="50" y="71" text-anchor="middle" fill="#e9e6ef" font-size="10">Student</text>
+        <polygon points="150,45 190,67 150,89 110,67" fill="#221f28" stroke="#7c9ec9"/><text x="150" y="71" text-anchor="middle" fill="#e9e6ef" font-size="9">Enrolls</text>
+        <line x1="90" y1="67" x2="110" y2="67" stroke="#726d7d"/>
+        <rect x="210" y="50" width="80" height="34" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="250" y="71" text-anchor="middle" fill="#e9e6ef" font-size="10">Course</text>
+        <line x1="190" y1="67" x2="210" y2="67" stroke="#726d7d"/>
+        <text x="150" y="20" text-anchor="middle" fill="#726d7d" font-size="10">Binary (degree 2)</text>
+
+        <rect x="400" y="10" width="70" height="30" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="435" y="29" text-anchor="middle" fill="#e9e6ef" font-size="9">Supplier</text>
+        <polygon points="435,80 465,100 435,120 405,100" fill="#221f28" stroke="#7c9ec9"/><text x="435" y="104" text-anchor="middle" fill="#e9e6ef" font-size="8">Supplies</text>
+        <line x1="435" y1="40" x2="435" y2="80" stroke="#726d7d"/>
+        <rect x="330" y="120" width="70" height="15" rx="0" fill="none"/>
+        <rect x="330" y="112" width="65" height="26" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="362" y="129" text-anchor="middle" fill="#e9e6ef" font-size="8">Part</text>
+        <line x1="405" y1="100" x2="362" y2="112" stroke="#726d7d"/>
+        <rect x="470" y="112" width="70" height="26" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="505" y="129" text-anchor="middle" fill="#e9e6ef" font-size="8">Project</text>
+        <line x1="465" y1="100" x2="505" y2="112" stroke="#726d7d"/>
+        <text x="435" y="8" text-anchor="middle" fill="#726d7d" font-size="10">Ternary (degree 3)</text>
+      </svg>
+      <div class="cap">Rectangle = entity, Diamond = relationship, Line = connector</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1.15 -->
+<div class="topic" id="t1-15">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.15</span>
+    <span class="topic-title">Mapping Cardinalities (Cardinality Ratio)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>Mapping cardinality specifies the <strong>number of entities of one entity set that can be associated with entities of another entity set</strong> via a relationship set. It's most helpful for describing <em>binary</em> relationship sets.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Cardinality</th><th>Meaning</th><th>Example</th></tr>
+      <tr><td><strong>One to One (1:1)</strong></td><td>An entity in X is associated with at most one entity in Y, and vice versa</td><td>A country has only one president; a person is president of at most one country</td></tr>
+      <tr><td><strong>One to Many (1:N)</strong></td><td>An entity in X can relate to many entities in Y, but an entity in Y relates to at most one in X</td><td>A manager has many employees, but each employee has only one manager</td></tr>
+      <tr><td><strong>Many to One (N:1)</strong></td><td>Many entities in X relate to at most one entity in Y</td><td>Many employees can be assigned to a single project</td></tr>
+      <tr><td><strong>Many to Many (M:N)</strong></td><td>Entities on both sides can relate to any number of entities on the other side</td><td>A student can take many subjects; a subject can have many students</td></tr>
+    </table></div>
+    <div class="diagram">
+      <svg viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+        <!-- 1:1 -->
+        <rect x="10" y="10" width="70" height="30" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="45" y="29" text-anchor="middle" fill="#e9e6ef" font-size="9">Country</text>
+        <line x1="80" y1="25" x2="140" y2="25" stroke="#726d7d"/><text x="95" y="20" fill="#726d7d" font-size="9">1</text><text x="125" y="20" fill="#726d7d" font-size="9">1</text>
+        <rect x="140" y="10" width="70" height="30" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="175" y="29" text-anchor="middle" fill="#e9e6ef" font-size="9">President</text>
+        <text x="110" y="55" text-anchor="middle" fill="#726d7d" font-size="10">1 : 1</text>
+        <!-- 1:N -->
+        <rect x="320" y="10" width="70" height="30" rx="5" fill="#221f28" stroke="#7c9ec9"/><text x="355" y="29" text-anchor="middle" fill="#e9e6ef" font-size="9">Manager</text>
+        <line x1="390" y1="25" x2="450" y2="25" stroke="#726d7d"/><text x="400" y="20" fill="#726d7d" font-size="9">1</text><text x="437" y="20" fill="#726d7d" font-size="9">N</text>
+        <rect x="450" y="10" width="70" height="30" rx="5" fill="#221f28" stroke="#7c9ec9"/><text x="485" y="29" text-anchor="middle" fill="#e9e6ef" font-size="9">Employee</text>
+        <text x="420" y="55" text-anchor="middle" fill="#726d7d" font-size="10">1 : N</text>
+        <!-- N:1 -->
+        <rect x="10" y="100" width="70" height="30" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="45" y="119" text-anchor="middle" fill="#e9e6ef" font-size="9">Employee</text>
+        <line x1="80" y1="115" x2="140" y2="115" stroke="#726d7d"/><text x="95" y="110" fill="#726d7d" font-size="9">N</text><text x="128" y="110" fill="#726d7d" font-size="9">1</text>
+        <rect x="140" y="100" width="70" height="30" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="175" y="119" text-anchor="middle" fill="#e9e6ef" font-size="9">Project</text>
+        <text x="110" y="147" text-anchor="middle" fill="#726d7d" font-size="10">N : 1</text>
+        <!-- M:N -->
+        <rect x="320" y="100" width="70" height="30" rx="5" fill="#221f28" stroke="#c98a7c"/><text x="355" y="119" text-anchor="middle" fill="#e9e6ef" font-size="9">Student</text>
+        <line x1="390" y1="115" x2="450" y2="115" stroke="#726d7d"/><text x="400" y="110" fill="#726d7d" font-size="9">M</text><text x="435" y="110" fill="#726d7d" font-size="9">N</text>
+        <rect x="450" y="100" width="70" height="30" rx="5" fill="#221f28" stroke="#c98a7c"/><text x="485" y="119" text-anchor="middle" fill="#e9e6ef" font-size="9">Subject</text>
+        <text x="420" y="147" text-anchor="middle" fill="#726d7d" font-size="10">M : N</text>
+      </svg>
+      <div class="cap">The four cardinality ratios — always identify these correctly for any relation, they're a guaranteed exam question</div>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Cardinality is written from the perspective of "how many of entity B for one A" — read carefully which side the "1" or "N" sits on; swapping the direction is one of the most common exam errors.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.16 -->
+<div class="topic" id="t1-16">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.16</span>
+    <span class="topic-title">Participation Constraints (Total vs Partial)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>Participation constraint describes whether <strong>the existence of an entity depends on it being related to another entity</strong> via a relationship.</p>
+    </div>
+    <div class="grid2">
+      <div class="grid-box pos">
+        <h5>Total Participation</h5>
+        <ul><li>Every entity in the set is involved in the relationship</li><li>Represented by a <strong>double line</strong></li><li>Eg: every Loan is concerned with at least one Customer → Loan entity set is totally participating</li></ul>
+      </div>
+      <div class="grid-box neg">
+        <h5>Partial Participation</h5>
+        <ul><li>Not all entities are involved in the relationship</li><li>Represented by a <strong>single line</strong></li><li>Eg: a Customer may or may not take a Loan → Customer entity set is partially participating</li></ul>
+      </div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="35" width="80" height="32" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="50" y="55" text-anchor="middle" fill="#e9e6ef" font-size="10">Customer</text>
+        <line x1="90" y1="51" x2="150" y2="51" stroke="#726d7d"/>
+        <polygon points="190,30 230,51 190,72 150,51" fill="#221f28" stroke="#7c9ec9"/><text x="190" y="55" text-anchor="middle" fill="#e9e6ef" font-size="9">Borrows</text>
+        <line x1="230" y1="49" x2="290" y2="49" stroke="#726d7d"/><line x1="230" y1="53" x2="290" y2="53" stroke="#726d7d"/>
+        <rect x="290" y="35" width="80" height="32" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="330" y="55" text-anchor="middle" fill="#e9e6ef" font-size="10">Loan</text>
+      </svg>
+      <div class="cap">Single line (Customer↔Borrows) = partial participation · Double line (Borrows↔Loan) = total participation</div>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p>All students are enrolled in a Core Course (total participation), but only some students take an Elective Course (partial participation).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.17 -->
+<div class="topic" id="t1-17">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.17</span>
+    <span class="topic-title">Can Relationships Have Attributes?</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>You assign an attribute to a <em>relationship</em> (not an entity) when the relationship itself carries information that isn't naturally an attribute of either participating entity.</p>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p>Entities: <code>Student(StudentID, Name)</code>, <code>Course(CourseID, Title)</code>. Relationship: <code>Enrolled</code>. The relationship attributes are <strong>EnrollmentDate</strong> and <strong>Grade</strong> — they only make sense in the context of a specific student being enrolled in a specific course, not as a property of Student or Course alone.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.18 -->
+<div class="topic" id="t1-18">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.18</span>
+    <span class="topic-title">Keys — Super, Candidate, Primary, Alternate, Secondary, Composite, Foreign</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>A <strong>key</strong> is an attribute or a set of attributes used to uniquely identify data (tuples) in an entity set. Attributes used as keys are <strong>key attributes</strong>; the rest are <strong>non-key attributes</strong>.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Key Type</th><th>Definition</th></tr>
+      <tr><td><strong>Super Key</strong></td><td>Any set of one or more attributes that, taken together, can uniquely identify a tuple. Not necessarily minimal — can contain extra attributes.</td></tr>
+      <tr><td><strong>Candidate Key</strong></td><td>A <em>minimal</em> super key — no proper subset of it is also a super key. Every candidate key is a super key, but not vice versa.</td></tr>
+      <tr><td><strong>Primary Key</strong></td><td>The candidate key chosen by the designer to uniquely identify tuples. Cannot be NULL, has no duplicate values, and is usually underlined.</td></tr>
+      <tr><td><strong>Alternate Key</strong></td><td>All candidate keys other than the chosen primary key.</td></tr>
+      <tr><td><strong>Secondary Key</strong></td><td>An attribute (or set) that doesn't uniquely identify data but identifies a <em>group</em> of data (used in searching, e.g. Department No.)</td></tr>
+      <tr><td><strong>Composite Key</strong></td><td>A key made up of two or more attributes together (no single attribute is sufficient alone).</td></tr>
+      <tr><td><strong>Foreign Key</strong></td><td>An attribute in one relation that is the primary key of <em>another</em> relation — used to link the two tables.</td></tr>
+    </table></div>
+    <div class="callout example">
+      <div class="c-label">💡 Worked Example</div>
+      <p>Relation: <code>Students(Student_ID, Roll_No, Email, Name, Department)</code></p>
+      <ul>
+        <li><strong>Super Keys:</strong> {Student_ID}, {Roll_No}, {Email}, {Student_ID, Name}, {Roll_No, Department} — any combination that stays unique</li>
+        <li><strong>Candidate Keys:</strong> {Student_ID}, {Roll_No}, {Email} — each is minimal &amp; unique on its own</li>
+        <li><strong>Primary Key:</strong> {Student_ID} — chosen by the designer</li>
+      </ul>
+    </div>
+    <div class="callout note">
+      <div class="c-label">📝 Exercise — Students(SSN, Name, Home_Address, Birthdate, GPA)</div>
+      <p><strong>(a)</strong> Candidate keys: {SSN}, {Name, Home_Address, Birthdate}<br>
+      <strong>(b)</strong> A super key that is NOT a candidate key: {SSN, Name} (has a redundant attribute)</p>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>"Any key is a super key, but not every super key is a (candidate) key." Students often write these as synonyms — remember: <strong>super key ⊇ candidate key ⊇ primary key</strong> (primary key is exactly one chosen candidate key).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 1.19 -->
+<div class="topic" id="t1-19">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.19</span>
+    <span class="topic-title">Weak Entity Sets vs Strong Entity Sets</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Type</th><th>Definition</th></tr>
+      <tr><td><strong>Strong Entity Set</strong></td><td>Has sufficient attributes to form its own primary key — can exist independently</td></tr>
+      <tr><td><strong>Weak Entity Set</strong></td><td>Does NOT have sufficient attributes to form a primary key on its own — its existence depends on an "identifying" (owner) strong entity</td></tr>
+    </table></div>
+    <ul>
+      <li>Instead of a primary key, a weak entity uses the identifying entity's key + its own <strong>discriminator</strong> (partial key) to uniquely identify itself.</li>
+      <li>In ER diagrams: weak entity = <strong>double-outlined rectangle</strong>; identifying relationship = <strong>double-outlined diamond</strong>; discriminator = <strong>dashed underline</strong>.</li>
+    </ul>
+    <div class="diagram">
+      <svg viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="40" width="90" height="34" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="55" y="61" text-anchor="middle" fill="#e9e6ef" font-size="10">Customer</text>
+        <line x1="100" y1="57" x2="150" y2="57" stroke="#726d7d"/>
+        <polygon points="150,35 190,57 150,79 110,57" fill="#221f28" stroke="#7c9ec9"/><text x="150" y="61" text-anchor="middle" fill="#e9e6ef" font-size="9">has</text>
+        <line x1="190" y1="55" x2="230" y2="55" stroke="#726d7d"/><line x1="190" y1="59" x2="230" y2="59" stroke="#726d7d"/>
+        <rect x="230" y="38" width="8" height="38" fill="none" stroke="#c98a7c"/>
+        <rect x="235" y="40" width="100" height="34" rx="0" fill="#221f28" stroke="#c98a7c" stroke-width="1.5"/>
+        <rect x="240" y="45" width="90" height="24" rx="0" fill="none" stroke="#c98a7c" stroke-width="1"/>
+        <text x="285" y="61" text-anchor="middle" fill="#e9e6ef" font-size="10">Payment</text>
+      </svg>
+      <div class="cap">Payment is a weak entity — it can't exist without a Customer (double rectangle + double diamond)</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1.20 -->
+<div class="topic" id="t1-20">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.20</span>
+    <span class="topic-title">Specialization, Generalization &amp; Attribute Inheritance</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Concept</th><th>Definition</th><th>Example</th></tr>
+      <tr><td><strong>Specialization</strong></td><td>A "top-down" process — dividing an existing entity set into smaller, more specific entity sets based on distinguishing characteristics</td><td>Person → Employee + Customer</td></tr>
+      <tr><td><strong>Generalization</strong></td><td>A "bottom-up" process — combining two or more entity sets that share common features into a single higher-level entity set</td><td>Investor + Borrower → Customer</td></tr>
+      <tr><td><strong>Attribute Inheritance</strong></td><td>Lower-level entity sets inherit the attributes of their higher-level (parent) entity set</td><td>Employee inherits Person's Name, Address</td></tr>
+    </table></div>
+    <div class="diagram">
+      <svg viewBox="0 0 380 150" xmlns="http://www.w3.org/2000/svg">
+        <rect x="150" y="10" width="80" height="32" rx="5" fill="#221f28" stroke="#c4a35a"/><text x="190" y="30" text-anchor="middle" fill="#e9e6ef" font-size="10">Person</text>
+        <line x1="190" y1="42" x2="190" y2="65" stroke="#726d7d"/>
+        <polygon points="190,65 210,80 190,95 170,80" fill="#221f28" stroke="#7c9ec9"/><text x="190" y="83" text-anchor="middle" fill="#e9e6ef" font-size="7">ISA</text>
+        <line x1="170" y1="80" x2="90" y2="110" stroke="#726d7d"/><line x1="210" y1="80" x2="290" y2="110" stroke="#726d7d"/>
+        <rect x="45" y="110" width="90" height="32" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="90" y="130" text-anchor="middle" fill="#e9e6ef" font-size="10">Employee</text>
+        <rect x="245" y="110" width="90" height="32" rx="5" fill="#221f28" stroke="#8dbf8d"/><text x="290" y="130" text-anchor="middle" fill="#e9e6ef" font-size="10">Customer</text>
+      </svg>
+      <div class="cap">Generalization: reading bottom→up (Employee & Customer combine into Person). Specialization: reading top→down.</div>
+    </div>
+    <h4>Specialization/Generalization Participation Constraints</h4>
+    <ul>
+      <li><strong>Partial participation:</strong> only some entities of E participate in the relationship</li>
+      <li><strong>Total participation:</strong> every entity of E participates in at least one relationship in R</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 1.21 -->
+<div class="topic" id="t1-21">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.21</span>
+    <span class="topic-title">ER Diagram Notation — Symbol Legend</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Memorize this legend — nearly every ER-diagram exam question hinges on correctly reading/drawing these symbols.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="10" width="90" height="32" rx="4" fill="#221f28" stroke="#c4a35a"/><text x="65" y="30" text-anchor="middle" fill="#e9e6ef" font-size="10">Entity</text>
+        <text x="130" y="30" fill="#a8a4b3" font-size="11">Rectangle — a strong entity</text>
+
+        <rect x="20" y="52" width="8" height="32" fill="none" stroke="#c98a7c"/>
+        <rect x="24" y="52" width="86" height="32" rx="0" fill="#221f28" stroke="#c98a7c"/>
+        <rect x="29" y="57" width="76" height="22" rx="0" fill="none" stroke="#c98a7c"/>
+        <text x="130" y="72" fill="#a8a4b3" font-size="11">Double rectangle — a weak entity</text>
+
+        <polygon points="65,96 110,116 65,136 20,116" fill="#221f28" stroke="#7c9ec9"/>
+        <text x="130" y="120" fill="#a8a4b3" font-size="11">Diamond — a relationship</text>
+
+        <polygon points="65,150 110,170 65,190 20,170" fill="#221f28" stroke="#7c9ec9" stroke-width="1"/>
+        <polygon points="65,155 103,170 65,185 27,170" fill="none" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="130" y="174" fill="#a8a4b3" font-size="11">Double diamond — identifying relationship</text>
+
+        <ellipse cx="65" cy="212" rx="45" ry="18" fill="#221f28" stroke="#c4a35a"/><text x="65" y="217" text-anchor="middle" fill="#e9e6ef" font-size="9">attribute</text>
+        <text x="130" y="217" fill="#a8a4b3" font-size="11">Ellipse — an attribute (underline = primary key)</text>
+
+        <ellipse cx="65" cy="248" rx="45" ry="18" fill="#221f28" stroke="#7c9ec9" stroke-width="2"/><ellipse cx="65" cy="248" rx="38" ry="13" fill="none" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="130" y="253" fill="#a8a4b3" font-size="11">Double ellipse — multi-valued attribute</text>
+
+        <ellipse cx="65" cy="284" rx="45" ry="18" fill="#221f28" stroke="#8dbf8d" stroke-dasharray="4 3"/>
+        <text x="130" y="289" fill="#a8a4b3" font-size="11">Dashed ellipse — derived attribute</text>
+
+        <line x1="360" y1="20" x2="440" y2="20" stroke="#726d7d"/>
+        <text x="450" y="24" fill="#a8a4b3" font-size="11">Single line — partial participation</text>
+        <line x1="360" y1="45" x2="440" y2="45" stroke="#726d7d"/><line x1="360" y1="49" x2="440" y2="49" stroke="#726d7d"/>
+        <text x="450" y="52" fill="#a8a4b3" font-size="11">Double line — total participation</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- 1.22 -->
+<div class="topic" id="t1-22">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.22</span>
+    <span class="topic-title">Steps to Draw an ER Diagram</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>A common design-question format in the exam: "Design an ER diagram for [scenario]." Follow these 7 steps every time.</p>
+    <ol>
+      <li><strong>Understand the problem statement</strong> — read the scenario carefully, identify what needs to be stored and how things relate.</li>
+      <li><strong>Identify Entities</strong> (usually nouns) — e.g. Student, Course, Book. Represent using rectangles.</li>
+      <li><strong>Identify Relationships</strong> (usually verbs/actions) — e.g. Enrolls, Teaches, Borrows. Represent using diamonds.</li>
+      <li><strong>Identify Attributes</strong> — ask "what details do I want to store?" Represent using ellipses; underline the primary key; use double ellipses for multi-valued and dashed ellipses for derived attributes.</li>
+      <li><strong>Identify Keys</strong> — decide the primary key for each entity; check for candidate/alternate/composite keys.</li>
+      <li><strong>Determine Cardinality &amp; Participation</strong> — define 1:1, 1:N or M:N and mark total/partial participation with solid/double lines.</li>
+      <li><strong>Draw the diagram</strong> — connect entities via relationships, attach attributes, keep it organized and use correct symbols.</li>
+    </ol>
+    <div class="callout example">
+      <div class="c-label">💡 Worked Example — Bank Loan Scenario</div>
+      <p>"A bank offers loans; customers borrow money and repay in installments."</p>
+      <ul>
+        <li><strong>Customer</strong> — Customer_id (PK), Name, Address</li>
+        <li><strong>Loan</strong> — Loan_no (PK), Type, Amount</li>
+        <li><strong>Payment</strong> — Payment_no (PK, weak entity), Amount, Date</li>
+        <li><strong>Relationships:</strong> Customer <em>borrows</em> Loan (M:N or 1:N depending on scenario); Loan <em>has</em> Payment (Payment is a weak entity dependent on Loan)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 1.23 -->
+<div class="topic" id="t1-23">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">1.23</span>
+    <span class="topic-title">Complete Worked ER Diagram — Student Enrolls in Course</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Putting every notation symbol together into one full diagram is exactly what a "Draw the ER diagram for..." exam question expects. Scenario: <em>"A student enrolls in courses. Each student has a roll number, a name split into first/last, multiple phone numbers, and an age derived from date of birth. Each course has a course code and title. A student may enroll in many courses and a course may have many students; we also record the enrollment date and grade for each enrollment."</em></p>
+    <div class="diagram">
+      <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg">
+        <!-- STUDENT entity -->
+        <rect x="30" y="130" width="110" height="42" rx="5" fill="#221f28" stroke="#c4a35a" stroke-width="1.6"/>
+        <text x="85" y="155" text-anchor="middle" fill="#e9e6ef" font-size="12" font-weight="600">STUDENT</text>
+
+        <!-- Roll_No (key attribute) -->
+        <ellipse cx="85" cy="55" rx="48" ry="20" fill="#221f28" stroke="#c4a35a"/>
+        <text x="85" y="59" text-anchor="middle" fill="#e9e6ef" font-size="10" text-decoration="underline">Roll_No</text>
+        <line x1="85" y1="75" x2="85" y2="130" stroke="#726d7d"/>
+
+        <!-- Name (composite) -->
+        <ellipse cx="200" cy="55" rx="42" ry="20" fill="#221f28" stroke="#c98a7c"/>
+        <text x="200" y="59" text-anchor="middle" fill="#e9e6ef" font-size="10">Name</text>
+        <line x1="170" y1="72" x2="140" y2="130" stroke="#726d7d"/>
+        <ellipse cx="160" cy="95" rx="34" ry="16" fill="#17151b" stroke="#726d7d"/><text x="160" y="99" text-anchor="middle" fill="#a8a4b3" font-size="8">First</text>
+        <ellipse cx="228" cy="95" rx="34" ry="16" fill="#17151b" stroke="#726d7d"/><text x="228" y="99" text-anchor="middle" fill="#a8a4b3" font-size="8">Last</text>
+        <line x1="200" y1="75" x2="160" y2="79" stroke="#726d7d"/><line x1="200" y1="75" x2="228" y2="79" stroke="#726d7d"/>
+
+        <!-- Phone (multivalued) -->
+        <ellipse cx="290" cy="130" rx="45" ry="20" fill="#221f28" stroke="#7c9ec9" stroke-width="2"/>
+        <ellipse cx="290" cy="130" rx="38" ry="14" fill="none" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="290" y="134" text-anchor="middle" fill="#e9e6ef" font-size="9">Phone</text>
+        <line x1="250" y1="140" x2="140" y2="150" stroke="#726d7d"/>
+
+        <!-- Age (derived) -->
+        <ellipse cx="85" cy="230" rx="45" ry="20" fill="#221f28" stroke="#8dbf8d" stroke-dasharray="4 3"/>
+        <text x="85" y="234" text-anchor="middle" fill="#e9e6ef" font-size="10">Age</text>
+        <line x1="85" y1="210" x2="85" y2="172" stroke="#726d7d"/>
+
+        <!-- Relationship ENROLLS -->
+        <polygon points="330,151 385,181 330,211 275,181" fill="#221f28" stroke="#7c9ec9" stroke-width="1.6"/>
+        <text x="330" y="185" text-anchor="middle" fill="#e9e6ef" font-size="10">Enrolls</text>
+        <line x1="140" y1="151" x2="285" y2="171" stroke="#726d7d"/>
+        <text x="200" y="155" fill="#726d7d" font-size="10">M</text>
+
+        <!-- Enrollment_Date, Grade (relationship attributes) -->
+        <ellipse cx="330" cy="240" rx="50" ry="20" fill="#221f28" stroke="#c4a35a"/>
+        <text x="330" y="244" text-anchor="middle" fill="#e9e6ef" font-size="9">Enroll_Date</text>
+        <line x1="330" y1="211" x2="330" y2="220" stroke="#726d7d"/>
+        <ellipse cx="430" cy="240" rx="42" ry="20" fill="#221f28" stroke="#c4a35a"/>
+        <text x="430" y="244" text-anchor="middle" fill="#e9e6ef" font-size="9">Grade</text>
+        <line x1="385" y1="190" x2="430" y2="220" stroke="#726d7d"/>
+
+        <!-- COURSE entity -->
+        <rect x="470" y="160" width="110" height="42" rx="5" fill="#221f28" stroke="#c4a35a" stroke-width="1.6"/>
+        <text x="525" y="185" text-anchor="middle" fill="#e9e6ef" font-size="12" font-weight="600">COURSE</text>
+        <line x1="385" y1="181" x2="470" y2="181" stroke="#726d7d"/>
+        <text x="420" y="177" fill="#726d7d" font-size="10">N</text>
+
+        <!-- Course_Code (key), Title -->
+        <ellipse cx="480" cy="80" rx="50" ry="20" fill="#221f28" stroke="#c4a35a"/>
+        <text x="480" y="84" text-anchor="middle" fill="#e9e6ef" font-size="9" text-decoration="underline">Course_Code</text>
+        <line x1="480" y1="100" x2="505" y2="160" stroke="#726d7d"/>
+        <ellipse cx="600" cy="90" rx="42" ry="20" fill="#221f28" stroke="#c4a35a"/>
+        <text x="600" y="94" text-anchor="middle" fill="#e9e6ef" font-size="10">Title</text>
+        <line x1="590" y1="108" x2="550" y2="160" stroke="#726d7d"/>
+
+        <!-- Participation lines -->
+        <text x="330" y="300" text-anchor="middle" fill="#726d7d" font-size="10">Single lines both sides = partial participation (a student needn't enroll; a course may have zero students)</text>
+      </svg>
+      <div class="cap">Full ER diagram: STUDENT (composite Name, multivalued Phone, derived Age) —M:N— Enrolls —N:M— COURSE, with relationship attributes Enroll_Date &amp; Grade</div>
+    </div>
+    <div class="callout note">
+      <div class="c-label">📝 How to read this diagram</div>
+      <ul>
+        <li><strong>Roll_No</strong> is underlined → it's the primary key of STUDENT.</li>
+        <li><strong>Name</strong> is composite → splits into First and Last.</li>
+        <li><strong>Phone</strong> has a double ellipse → multi-valued (a student can have several numbers).</li>
+        <li><strong>Age</strong> has a dashed ellipse → derived (computed from Date_of_Birth, not stored directly).</li>
+        <li><strong>Enrolls</strong> is M:N → any student can take many courses and any course can have many students, so it needs its <em>own</em> attributes (Enroll_Date, Grade) since these only make sense per student-course pair.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================= MODULE 2 ================= -->
+<div class="module-head" id="m2">
+  <h2>Module 2 — Relational Database</h2>
+  <span class="sub">8 hours · Relational model, integrity constraints, ER→Relational mapping, relational algebra</span>
+</div>
+
+<!-- 2.1 -->
+<div class="topic" id="t2-1">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.1</span>
+    <span class="topic-title">Structure of Relational Databases — Core Concepts</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>The relational model represents how data is stored in relational databases — as <strong>relations (tables)</strong>.</p>
+    <div class="table-wrap"><table>
+      <tr><th>Term</th><th>Meaning</th></tr>
+      <tr><td><strong>Relation</strong></td><td>A table; a set of rows (tuples)</td></tr>
+      <tr><td><strong>Tuple</strong></td><td>A row — an ordered set of values enclosed in angle brackets, e.g. <code>&lt;632895, "John Smith", "101 Main St", "(404) 894-2000"&gt;</code></td></tr>
+      <tr><td><strong>Attribute</strong></td><td>A column header — indicates the meaning of the data items in that column</td></tr>
+      <tr><td><strong>Domain</strong></td><td>The set of valid/permissible values for an attribute, plus its data type/format</td></tr>
+    </table></div>
+    <h4>Formal Schema Notation</h4>
+    <pre><code>R(A1, A2, ..., An)</code></pre>
+    <p>R = relation name; A1...An = attributes of the relation.</p>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p><code>CUSTOMER(Cust-id, Cust-name, Address, Phone#)</code> — CUSTOMER is the relation name defined over 4 attributes. Domain of Cust-id, for example, could be "6-digit numbers".</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2.2 -->
+<div class="topic" id="t2-2">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.2</span>
+    <span class="topic-title">Relational Integrity Constraints</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>Constraints are conditions that must hold on all valid relation states. There are three main types, plus a schema-based domain constraint.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Constraint</th><th>Rule</th></tr>
+      <tr><td><strong>Domain Constraint</strong></td><td>Every value in a tuple must come from the domain of its attribute (or be NULL, if allowed)</td></tr>
+      <tr><td><strong>Key Constraint</strong></td><td>No two tuples in a relation state can have the same value for the (candidate/primary) key</td></tr>
+      <tr><td><strong>Entity Integrity</strong></td><td>Primary key attributes of a relation <strong>cannot be NULL</strong> in any tuple — used to uniquely identify each row</td></tr>
+      <tr><td><strong>Referential Integrity</strong></td><td>A foreign key value must either match an existing primary key value in the referenced relation, or be NULL</td></tr>
+    </table></div>
+    <h4>Referential Integrity — the detail</h4>
+    <ul>
+      <li>Involves <strong>two relations</strong>: a <em>referencing</em> relation R1 and a <em>referenced</em> relation R2.</li>
+      <li>R1 has a foreign key (FK) that references the primary key (PK) of R2.</li>
+      <li>Tuple t1 in R1 <strong>references</strong> tuple t2 in R2 if <code>t1[FK] = t2[PK]</code>.</li>
+      <li>The FK value must be either (1) an existing PK value in R2, or (2) NULL — and if NULL, the FK must not be part of R1's own primary key.</li>
+    </ul>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Entity integrity applies to the <strong>primary key of the same relation</strong> (it can never be null). Referential integrity is about a <strong>foreign key pointing to another relation's primary key</strong>. Don't mix these two up in definition questions.</p>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Worked Example — Spot the Violation</div>
+      <p>Schema: <code>EMPLOYEE(SSN, Name, DNO)</code>, <code>DEPARTMENT(DNUMBER, DNAME)</code> where EMPLOYEE.DNO is a foreign key referencing DEPARTMENT.DNUMBER.</p>
+      <div class="table-wrap"><table>
+        <tr><th>Attempted Row</th><th>Constraint Violated?</th><th>Why</th></tr>
+        <tr><td><code>EMPLOYEE(NULL, "Ravi", 5)</code></td><td>✅ Entity Integrity</td><td>SSN is the primary key — cannot be NULL</td></tr>
+        <tr><td><code>EMPLOYEE(101, "Asha", 9)</code></td><td>✅ Referential Integrity</td><td>DNO = 9 doesn't exist in DEPARTMENT</td></tr>
+        <tr><td><code>EMPLOYEE(101, "Asha", NULL)</code></td><td>❌ No violation</td><td>FK can be NULL if it's not part of EMPLOYEE's own primary key (means "not yet assigned a dept")</td></tr>
+        <tr><td>Two rows both with SSN = 101</td><td>✅ Key Constraint</td><td>Primary key values must be unique</td></tr>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2.3 -->
+<div class="topic" id="t2-3">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.3</span>
+    <span class="topic-title">Key Constraints — Super Key &amp; Candidate Key (Relational View)</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout example">
+      <div class="c-label">💡 Worked Example — CAR relation</div>
+      <p><code>CAR(State, Reg#, SerialNo, Make, Model, Year)</code></p>
+      <ul>
+        <li>CAR has <strong>two keys</strong>: Key1 = {State, Reg#}, Key2 = {SerialNo} — both are also super keys</li>
+        <li>{SerialNo, Make} is a super key, but <strong>not</strong> a key (it's not minimal)</li>
+        <li>The designer chooses <strong>SerialNo</strong> as the Primary Key; its value is used to uniquely identify each tuple</li>
+      </ul>
+    </div>
+    <div class="callout note">
+      <div class="c-label">📝 Rules Recap</div>
+      <ul>
+        <li>Any key is a super key (but not vice versa)</li>
+        <li>Any set of attributes that includes a key is a super key</li>
+        <li>A minimal super key is a candidate key</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 2.4 -->
+<div class="topic" id="t2-4">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.4</span>
+    <span class="topic-title">Relevance of Synthesizing ER Diagram → Relational Schema</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Why bother converting a conceptual ER diagram into tables? A frequent "explain the importance" theory question.</p>
+    <ul>
+      <li><strong>Bridges the gap</strong> — ER is conceptual (high-level); relational schema is logical (implementable in SQL)</li>
+      <li><strong>Ensures data integrity</strong> — identifying keys/foreign keys/constraints during conversion enforces entity &amp; referential integrity (e.g. weak entities can't exist without their strong entity)</li>
+      <li><strong>Removes ambiguity</strong> — ER diagrams look clear visually but lack formal storage rules; the relational schema gives explicit tables, attributes, constraints</li>
+      <li><strong>Supports query processing</strong> — once converted, data can be queried with Relational Algebra or SQL</li>
+      <li><strong>Enables normalization &amp; optimization</strong> — the relational schema lets you check redundancy and apply normal forms</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2.5 -->
+<div class="topic" id="t2-5">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.5</span>
+    <span class="topic-title">Synthesizing ER Diagrams into Tables — Basic Reductions</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <h4>1. Strong Entity Sets</h4>
+    <p>For a strong entity set E with attributes a1...an, create a table with the same name as E, having n columns (one per attribute).</p>
+    <h4>2. Composite Attributes</h4>
+    <p>Create a separate column for each component/part of the composite attribute (e.g. Name → First_Name, Last_Name).</p>
+    <h4>3. Multi-valued Attributes</h4>
+    <ul>
+      <li>Cannot be stored as a single column — create a <strong>separate table</strong>.</li>
+      <li>New table has: (a) the primary key of the owning entity/relationship as a foreign key, and (b) the multi-valued attribute itself.</li>
+      <li>Rows = total number of values of that attribute across all entities.</li>
+    </ul>
+    <h4>4. Weak Entity Sets</h4>
+    <ul>
+      <li>Becomes a table that includes a column for the PK of the identifying (owner) strong entity.</li>
+      <li>The weak entity's own primary key = {owner's PK + weak entity's discriminator}.</li>
+    </ul>
+    <h4>5. Generalization</h4>
+    <p>For each lower-level entity set, create a table with a column for each of its own attributes, plus a column for the PK of the higher-level entity set.</p>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <p>Full_Time_Employee(Employee_ID, Qualification) and Part_Time_Employee(Employee_ID, Hours_Worked) — both share Employee_ID from the higher-level Employee entity.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2.6 -->
+<div class="topic" id="t2-6">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.6</span>
+    <span class="topic-title">Reduction of Relationships &amp; Choosing the Primary Key</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Let R be a relationship set involving entity sets E1...EN. Create a table named R, with columns = the primary keys of all participating entity sets + any descriptive attributes of R.</p>
+    <pre><code>Relation schema for R = {a1, a2, ..., am} ∪ {b1, b2, ..., bn}
+where a1..am = union of PKs of participating entities
+      b1..bn = descriptive (own) attributes of R</code></pre>
+    <h4>Choosing the primary key of the relationship's table — depends on cardinality</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Cardinality</th><th>Primary Key Rule</th><th>Example</th></tr>
+      <tr><td><strong>Many-to-Many</strong></td><td>Union of PKs of both participating entity sets</td><td><code>TAKE(sid, cid, year, grade)</code> — PK = (sid, cid, year)</td></tr>
+      <tr><td><strong>One-to-Many</strong></td><td>PK of the entity on the "many" side</td><td><code>TEACH(pid, cid, year)</code> — PK = (cid, year)</td></tr>
+      <tr><td><strong>Many-to-One</strong></td><td>PK of the entity on the "many" side</td><td>Same rule as above, mirrored</td></tr>
+      <tr><td><strong>One-to-One</strong></td><td>PK of <em>either</em> entity set can be chosen</td><td><code>MARRY(mid, wid, year)</code> — mid or wid can be PK</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- 2.7 -->
+<div class="topic" id="t2-7">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.7</span>
+    <span class="topic-title">ER-to-Relational Mapping Algorithm (7 Steps)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked — guaranteed long-answer question</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>This is the full formal algorithm (Elmasri &amp; Navathe) for converting an entire ER schema into relations. Learn the 7 steps in order — this is a classic 10-mark question using the <strong>COMPANY database</strong> example (Employee, Department, Project, Dependent, Works_On, Works_For, Manages, Controls, Supervision).</p>
+
+    <h4>Step 1 — Mapping of Regular (Strong) Entity Types</h4>
+    <ul>
+      <li>For each strong entity type E, create a relation R with all the simple attributes of E.</li>
+      <li>Choose one key attribute of E as the primary key of R (if composite, all its component attributes together form the PK).</li>
+      <li>Example: create <code>EMPLOYEE</code>, <code>DEPARTMENT</code>, <code>PROJECT</code> relations from the COMPANY ER diagram.</li>
+    </ul>
+
+    <h4>Step 2 — Mapping of Weak Entity Types</h4>
+    <ul>
+      <li>For each weak entity type W with owner E, create relation R with W's simple attributes.</li>
+      <li>Include the owner's primary key as a <strong>foreign key</strong> in R.</li>
+      <li>PK of R = {owner's PK} ∪ {W's partial key/discriminator}.</li>
+      <li>Example: <code>DEPENDENT(ESSN, DEPENDENT_NAME, ...)</code> where ESSN is a FK referencing EMPLOYEE.SSN, and PK = {ESSN, DEPENDENT_NAME}.</li>
+    </ul>
+
+    <h4>Step 3 — Mapping of Binary 1:1 Relationship Types</h4>
+    <p>Three possible approaches for a 1:1 relationship R between entities S and T:</p>
+    <ol>
+      <li><strong>Foreign Key approach:</strong> add the PK of T as a FK in S — preferably choose S to be the entity with <em>total</em> participation. E.g. <code>MANAGES</code> mapped by adding a FK in DEPARTMENT (since its participation is total).</li>
+      <li><strong>Merged relation option:</strong> merge both entity types + the relationship into one single relation (good when both sides have total participation).</li>
+      <li><strong>Cross-reference/relationship relation:</strong> create a third relation purely to cross-reference the PKs of S and T.</li>
+    </ol>
+
+    <h4>Step 4 — Mapping of Binary 1:N Relationship Types</h4>
+    <ul>
+      <li>Identify relation S on the "N" (many) side.</li>
+      <li>Include the PK of the "1" side's relation T as a FK in S, plus any relationship attributes.</li>
+      <li>Example: for <code>WORKS_FOR</code>, include DEPARTMENT's PK (DNUMBER) as FK <code>DNO</code> in the EMPLOYEE relation.</li>
+    </ul>
+
+    <h4>Step 5 — Mapping of Binary M:N Relationship Types</h4>
+    <ul>
+      <li>Create a <strong>new</strong> relation S to represent the relationship R.</li>
+      <li>Include the PKs of both participating entities as FKs in S — their combination becomes S's PK.</li>
+      <li>Include any descriptive attributes of R as attributes of S.</li>
+      <li>Example: <code>WORKS_ON(ESSN, PNO, HOURS)</code> — PK = {ESSN, PNO}, both being FKs to EMPLOYEE and PROJECT respectively.</li>
+    </ul>
+
+    <h4>Step 6 — Mapping of Multivalued Attributes</h4>
+    <ul>
+      <li>For each multivalued attribute A, create a new relation R.</li>
+      <li>R includes an attribute for A, plus the owning entity's PK as a FK.</li>
+      <li>PK of R = {A, owner's PK}.</li>
+      <li>Example: <code>DEPT_LOCATIONS(DNUMBER, DLOCATION)</code> — PK = {DNUMBER, DLOCATION}.</li>
+    </ul>
+
+    <h4>Step 7 — Mapping of N-ary Relationship Types (n &gt; 2)</h4>
+    <ul>
+      <li>Create a new relation S for the n-ary relationship type.</li>
+      <li>Include the PKs of all n participating entities as FKs in S, plus any of R's own attributes.</li>
+      <li>Example: <code>SUPPLY</code> relationship mapped to relation <code>SUPPLY</code>, PK = {SNAME, PARTNO, PROJNAME}.</li>
+    </ul>
+
+    <div class="callout note">
+      <div class="c-label">📝 Summary Table — ER Model ↔ Relational Model</div>
+      <div class="table-wrap"><table>
+        <tr><th>ER Model</th><th>Relational Model</th></tr>
+        <tr><td>Entity type</td><td>"Entity" relation</td></tr>
+        <tr><td>1:1 or 1:N relationship type</td><td>Foreign key (or "relationship" relation)</td></tr>
+        <tr><td>M:N relationship type</td><td>"Relationship" relation with two foreign keys</td></tr>
+        <tr><td>n-ary relationship type</td><td>"Relationship" relation with n foreign keys</td></tr>
+        <tr><td>Simple attribute</td><td>Attribute</td></tr>
+        <tr><td>Composite attribute</td><td>Set of simple component attributes</td></tr>
+        <tr><td>Multivalued attribute</td><td>Relation + foreign key</td></tr>
+        <tr><td>Value set</td><td>Domain</td></tr>
+        <tr><td>Key attribute</td><td>Primary (or secondary) key</td></tr>
+      </table></div>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Students often forget that for <strong>1:1</strong> relationships there are <em>three</em> valid mapping strategies (not just one) — examiners specifically test whether you know all three approaches.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2.7b -->
+<div class="topic" id="t2-7b">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.7b</span>
+    <span class="topic-title">Worked Example — Mapping the COMPANY ER Diagram (Full Walkthrough)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked — this exact example appears in the material</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>This is the standard textbook example (Elmasri &amp; Navathe) used to demonstrate the full 7-step algorithm end-to-end. Follow the same three-part format as the material: <strong>(1) the ER diagram</strong>, <strong>(2) apply each step</strong>, <strong>(3) the resulting relational schema</strong>.</p>
+
+    <h4>Step 0 — The ER Diagram (Figure 7.1 style)</h4>
+    <div class="diagram">
+      <svg viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg">
+        <!-- EMPLOYEE entity -->
+        <rect x="270" y="230" width="120" height="42" rx="5" fill="#221f28" stroke="#c4a35a" stroke-width="1.6"/>
+        <text x="330" y="255" text-anchor="middle" fill="#e9e6ef" font-size="12" font-weight="600">EMPLOYEE</text>
+        <!-- key attrs for EMPLOYEE -->
+        <ellipse cx="200" cy="150" rx="42" ry="18" fill="#221f28" stroke="#c4a35a"/><text x="200" y="154" text-anchor="middle" fill="#e9e6ef" font-size="9" text-decoration="underline">SSN</text>
+        <line x1="215" y1="166" x2="290" y2="230" stroke="#726d7d"/>
+        <ellipse cx="290" cy="140" rx="42" ry="18" fill="#221f28" stroke="#c98a7c"/><text x="290" y="144" text-anchor="middle" fill="#e9e6ef" font-size="9">Name</text>
+        <line x1="300" y1="158" x2="315" y2="230" stroke="#726d7d"/>
+        <ellipse cx="380" cy="140" rx="42" ry="18" fill="#221f28" stroke="#7c9ec9"/><text x="380" y="144" text-anchor="middle" fill="#e9e6ef" font-size="8">Address</text>
+        <line x1="375" y1="158" x2="345" y2="230" stroke="#726d7d"/>
+        <ellipse cx="460" cy="150" rx="42" ry="18" fill="#221f28" stroke="#7c9ec9"/><text x="460" y="154" text-anchor="middle" fill="#e9e6ef" font-size="8">Salary</text>
+        <line x1="445" y1="166" x2="380" y2="230" stroke="#726d7d"/>
+        <ellipse cx="330" cy="185" rx="38" ry="16" fill="#221f28" stroke="#8dbf8d" stroke-dasharray="4 3"/><text x="330" y="189" text-anchor="middle" fill="#e9e6ef" font-size="8">Bdate</text>
+        <line x1="330" y1="201" x2="330" y2="230" stroke="#726d7d"/>
+
+        <!-- DEPARTMENT entity -->
+        <rect x="570" y="120" width="130" height="42" rx="5" fill="#221f28" stroke="#c4a35a" stroke-width="1.6"/>
+        <text x="635" y="145" text-anchor="middle" fill="#e9e6ef" font-size="12" font-weight="600">DEPARTMENT</text>
+        <ellipse cx="600" cy="55" rx="46" ry="18" fill="#221f28" stroke="#c4a35a"/><text x="600" y="59" text-anchor="middle" fill="#e9e6ef" font-size="9" text-decoration="underline">Dnumber</text>
+        <line x1="605" y1="73" x2="620" y2="120" stroke="#726d7d"/>
+        <ellipse cx="700" cy="60" rx="42" ry="18" fill="#221f28" stroke="#7c9ec9" stroke-width="2"/><ellipse cx="700" cy="60" rx="35" ry="12" fill="none" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="700" y="64" text-anchor="middle" fill="#e9e6ef" font-size="8">Locations</text>
+        <line x1="690" y1="78" x2="670" y2="120" stroke="#726d7d"/>
+
+        <!-- PROJECT entity -->
+        <rect x="570" y="330" width="120" height="42" rx="5" fill="#221f28" stroke="#c4a35a" stroke-width="1.6"/>
+        <text x="630" y="355" text-anchor="middle" fill="#e9e6ef" font-size="12" font-weight="600">PROJECT</text>
+        <ellipse cx="700" cy="400" rx="46" ry="18" fill="#221f28" stroke="#c4a35a"/><text x="700" y="404" text-anchor="middle" fill="#e9e6ef" font-size="9" text-decoration="underline">Pnumber</text>
+        <line x1="690" y1="384" x2="660" y2="372" stroke="#726d7d"/>
+        <ellipse cx="600" cy="410" rx="42" ry="18" fill="#221f28" stroke="#7c9ec9"/><text x="600" y="414" text-anchor="middle" fill="#e9e6ef" font-size="8">Plocation</text>
+        <line x1="605" y1="392" x2="615" y2="372" stroke="#726d7d"/>
+
+        <!-- DEPENDENT weak entity -->
+        <rect x="30" y="380" width="8" height="42" fill="none" stroke="#c98a7c"/>
+        <rect x="34" y="380" width="130" height="42" fill="#221f28" stroke="#c98a7c" stroke-width="1.5"/>
+        <rect x="40" y="386" width="118" height="30" fill="none" stroke="#c98a7c" stroke-width="1"/>
+        <text x="99" y="405" text-anchor="middle" fill="#e9e6ef" font-size="11" font-weight="600">DEPENDENT</text>
+        <ellipse cx="99" cy="470" rx="46" ry="18" fill="#221f28" stroke="#c4a35a"/><text x="99" y="474" text-anchor="middle" fill="#e9e6ef" font-size="8" text-decoration="underline">Name (disc.)</text>
+        <line x1="99" y1="452" x2="99" y2="422" stroke="#726d7d"/>
+
+        <!-- WORKS_FOR: EMPLOYEE N -- 1 DEPARTMENT -->
+        <polygon points="470,220 520,246 470,272 420,246" fill="#221f28" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="470" y="250" text-anchor="middle" fill="#e9e6ef" font-size="9">Works_For</text>
+        <line x1="390" y1="238" x2="420" y2="240" stroke="#726d7d"/><text x="400" y="232" fill="#726d7d" font-size="9">N</text>
+        <line x1="520" y1="240" x2="600" y2="180" stroke="#726d7d"/><text x="555" y="205" fill="#726d7d" font-size="9">1</text>
+
+        <!-- MANAGES: EMPLOYEE 1 -- 1 DEPARTMENT -->
+        <polygon points="470,120 520,146 470,172 420,146" fill="#221f28" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="470" y="150" text-anchor="middle" fill="#e9e6ef" font-size="9">Manages</text>
+        <line x1="390" y1="235" x2="420" y2="150" stroke="#726d7d"/><text x="400" y="190" fill="#726d7d" font-size="9">1</text>
+        <line x1="520" y1="146" x2="580" y2="145" stroke="#726d7d"/><text x="555" y="140" fill="#726d7d" font-size="9">1</text>
+        <ellipse cx="470" cy="95" rx="46" ry="16" fill="#221f28" stroke="#c4a35a"/><text x="470" y="99" text-anchor="middle" fill="#e9e6ef" font-size="8">StartDate</text>
+        <line x1="470" y1="111" x2="470" y2="120" stroke="#726d7d"/>
+
+        <!-- CONTROLS: DEPARTMENT 1 -- N PROJECT -->
+        <polygon points="635,240 685,266 635,292 585,266" fill="#221f28" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="635" y="270" text-anchor="middle" fill="#e9e6ef" font-size="9">Controls</text>
+        <line x1="635" y1="162" x2="635" y2="240" stroke="#726d7d"/><text x="625" y="200" fill="#726d7d" font-size="9">1</text>
+        <line x1="635" y1="292" x2="630" y2="330" stroke="#726d7d"/><text x="640" y="315" fill="#726d7d" font-size="9">N</text>
+
+        <!-- WORKS_ON: EMPLOYEE M -- N PROJECT -->
+        <polygon points="420,330 470,356 420,382 370,356" fill="#221f28" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="420" y="360" text-anchor="middle" fill="#e9e6ef" font-size="9">Works_On</text>
+        <line x1="345" y1="272" x2="400" y2="335" stroke="#726d7d"/><text x="360" y="310" fill="#726d7d" font-size="9">M</text>
+        <line x1="470" y1="356" x2="570" y2="352" stroke="#726d7d"/><text x="520" y="345" fill="#726d7d" font-size="9">N</text>
+        <ellipse cx="420" cy="410" rx="38" ry="16" fill="#221f28" stroke="#c4a35a"/><text x="420" y="414" text-anchor="middle" fill="#e9e6ef" font-size="8">Hours</text>
+        <line x1="420" y1="394" x2="420" y2="382" stroke="#726d7d"/>
+
+        <!-- DEPENDENTS_OF (identifying rel): EMPLOYEE 1 -- N DEPENDENT -->
+        <polygon points="200,330 250,356 200,382 150,356" fill="#221f28" stroke="#7c9ec9" stroke-width="1"/>
+        <polygon points="200,336 244,356 200,376 156,356" fill="none" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="200" y="360" text-anchor="middle" fill="#e9e6ef" font-size="8">Dependents_Of</text>
+        <line x1="290" y1="270" x2="230" y2="340" stroke="#726d7d"/><text x="250" y="310" fill="#726d7d" font-size="9">1</text>
+        <line x1="150" y1="356" x2="99" y2="380" stroke="#726d7d"/><line x1="150" y1="360" x2="99" y2="384" stroke="#726d7d"/><text x="130" y="380" fill="#726d7d" font-size="9">N</text>
+
+        <!-- SUPERVISION: recursive EMPLOYEE 1 -- N EMPLOYEE -->
+        <polygon points="330,60 380,86 330,112 280,86" fill="#221f28" stroke="#7c9ec9" stroke-width="1"/>
+        <text x="330" y="90" text-anchor="middle" fill="#e9e6ef" font-size="8">Supervision</text>
+        <path d="M 300 230 C 250 180 250 120 300 90" stroke="#726d7d" fill="none"/>
+        <path d="M 360 230 C 400 180 400 130 360 95" stroke="#726d7d" fill="none"/>
+        <text x="255" y="160" fill="#726d7d" font-size="9">1</text><text x="400" y="160" fill="#726d7d" font-size="9">N</text>
+      </svg>
+      <div class="cap">Simplified ER conceptual schema for the COMPANY database (based on Elmasri &amp; Navathe Figure 7.1) — EMPLOYEE, DEPARTMENT, PROJECT (strong entities), DEPENDENT (weak entity), with WORKS_FOR, MANAGES, CONTROLS, WORKS_ON, DEPENDENTS_OF and the recursive SUPERVISION relationship</div>
+    </div>
+
+    <div class="callout note">
+      <div class="c-label">📝 Full attribute list per entity (some omitted from diagram for clarity)</div>
+      <div class="table-wrap"><table>
+        <tr><th>Entity</th><th>Attributes</th></tr>
+        <tr><td>EMPLOYEE</td><td>SSN (key), Name (composite: Fname, Minit, Lname), Address, Sex, Salary, Bdate, Age (derived)</td></tr>
+        <tr><td>DEPARTMENT</td><td>Dnumber (key), Dname, Locations (multivalued)</td></tr>
+        <tr><td>PROJECT</td><td>Pnumber (key), Pname, Plocation</td></tr>
+        <tr><td>DEPENDENT (weak)</td><td>Name (discriminator/partial key), Sex, Bdate, Relationship</td></tr>
+      </table></div>
+    </div>
+
+    <h4>Step-by-Step Application of the 7-Step Algorithm</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Step</th><th>Applied to this diagram</th><th>Result</th></tr>
+      <tr><td><strong>1 — Strong entities</strong></td><td>EMPLOYEE, DEPARTMENT, PROJECT each become a relation with all simple attributes; composite Name splits into Fname/Minit/Lname</td><td><code>EMPLOYEE(SSN, Fname, Minit, Lname, Address, Sex, Salary, Bdate)</code>, <code>DEPARTMENT(Dnumber, Dname)</code>, <code>PROJECT(Pnumber, Pname, Plocation)</code></td></tr>
+      <tr><td><strong>2 — Weak entity</strong></td><td>DEPENDENT's owner is EMPLOYEE (via Dependents_Of) → include EMPLOYEE's SSN as FK, combine with discriminator Name for PK</td><td><code>DEPENDENT(ESSN, Dependent_Name, Sex, Bdate, Relationship)</code> — PK = {ESSN, Dependent_Name}</td></tr>
+      <tr><td><strong>3 — Binary 1:1</strong></td><td>MANAGES (EMPLOYEE manages DEPARTMENT) → DEPARTMENT has total participation, so add FK there, plus relationship attribute StartDate</td><td>Add <code>Mgr_SSN, Mgr_StartDate</code> to <code>DEPARTMENT</code></td></tr>
+      <tr><td><strong>4 — Binary 1:N</strong></td><td>WORKS_FOR (EMPLOYEE:N — DEPARTMENT:1), SUPERVISION (EMPLOYEE:N — EMPLOYEE:1, recursive) → FK goes on the "N" side</td><td>Add <code>Dno</code> (FK→DEPARTMENT) and <code>Super_SSN</code> (FK→EMPLOYEE itself) to <code>EMPLOYEE</code></td></tr>
+      <tr><td><strong>4 (cont.)</strong></td><td>CONTROLS (DEPARTMENT:1 — PROJECT:N) → FK goes on PROJECT (the "N" side)</td><td>Add <code>Dnum</code> (FK→DEPARTMENT) to <code>PROJECT</code></td></tr>
+      <tr><td><strong>5 — Binary M:N</strong></td><td>WORKS_ON (EMPLOYEE:M — PROJECT:N) → new relation with both FKs + Hours attribute</td><td><code>WORKS_ON(Essn, Pno, Hours)</code> — PK = {Essn, Pno}</td></tr>
+      <tr><td><strong>6 — Multivalued attribute</strong></td><td>DEPARTMENT's Locations → new relation with DEPARTMENT's key as FK</td><td><code>DEPT_LOCATIONS(Dnumber, Dlocation)</code> — PK = {Dnumber, Dlocation}</td></tr>
+      <tr><td><strong>7 — N-ary</strong></td><td>Not present in this diagram (no relationship of degree &gt; 2) — step skipped here</td><td>—</td></tr>
+    </table></div>
+
+    <h4>Final Relational Schema (Figure 7.2 style — the answer you'd write in the exam)</h4>
+    <pre><code>EMPLOYEE(SSN, Fname, Minit, Lname, Address, Sex, Salary, Bdate, Dno, Super_SSN)
+DEPARTMENT(Dnumber, Dname, Mgr_SSN, Mgr_StartDate)
+DEPT_LOCATIONS(Dnumber, Dlocation)
+PROJECT(Pnumber, Pname, Plocation, Dnum)
+WORKS_ON(Essn, Pno, Hours)
+DEPENDENT(ESSN, Dependent_Name, Sex, Bdate, Relationship)</code></pre>
+    <div class="callout def">
+      <div class="c-label">📌 How to read the final schema</div>
+      <ul>
+        <li>Underlined-style keys (shown first in each list): <code>SSN</code>, <code>Dnumber</code>, <code>Pnumber</code>, {<code>Essn, Pno</code>}, {<code>ESSN, Dependent_Name</code>} are the primary keys.</li>
+        <li><code>Dno</code>, <code>Super_SSN</code>, <code>Mgr_SSN</code>, <code>Dnum</code>, <code>Essn</code>, <code>Pno</code>, <code>ESSN</code> are all foreign keys created purely because of relationships — this is exactly why Step 1 (draw entities) is never enough on its own; Steps 3–7 are what actually connect the tables together.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================= RELATIONAL ALGEBRA SUBSECTION ================= -->
+<div class="module-head" id="m2-ra">
+  <h2 style="font-size:20px;">Relational Algebra</h2>
+  <span class="sub">The formal query language behind SQL — expect a full solved-example question in the exam</span>
+</div>
+
+<!-- 2.8 -->
+<div class="topic" id="t2-8">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.8</span>
+    <span class="topic-title">What is Relational Algebra? Why Learn It?</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p><strong>Relational Algebra (RA)</strong> is a formal, mathematical query language used to manipulate and retrieve data stored in a relational database. It consists of operations (select, project, join, etc.) that take relations as input and produce a <strong>new relation</strong> as output.</p>
+    </div>
+    <ul>
+      <li>The result of an operation is always a relation → this makes the algebra <strong>"closed"</strong> (every object in RA is itself a relation).</li>
+      <li>A sequence of RA operations forms a <strong>relational algebra expression</strong>, whose result represents the answer to a query.</li>
+    </ul>
+    <h4>Why Relational Algebra matters</h4>
+    <ul>
+      <li><strong>Foundation of SQL:</strong> SQL is based on relational algebra (and relational calculus) — understanding RA explains how SQL is evaluated internally.</li>
+      <li><strong>Mathematical precision:</strong> gives a precise, unambiguous way to express a query, unlike vague English descriptions.</li>
+      <li><strong>Query optimization:</strong> DBMSs transform queries into more efficient RA forms (e.g. rearranging joins/projections).</li>
+      <li><strong>Theoretical foundation:</strong> forms the basis of relational database theory proposed by <strong>E.F. Codd (1970)</strong>.</li>
+    </ul>
+    <h4>Groups of RA Operations</h4>
+    <div class="table-wrap"><table>
+      <tr><th>Group</th><th>Operations</th></tr>
+      <tr><td><strong>Unary</strong></td><td>SELECT (σ), PROJECT (π), RENAME (ρ)</td></tr>
+      <tr><td><strong>Set Theory</strong></td><td>UNION (∪), INTERSECTION (∩), DIFFERENCE (−), CARTESIAN PRODUCT (×)</td></tr>
+      <tr><td><strong>Binary</strong></td><td>JOIN (⋈), DIVISION (÷)</td></tr>
+      <tr><td><strong>Additional</strong></td><td>OUTER JOINS, OUTER UNION, Aggregate Functions (SUM, COUNT, AVG, MIN, MAX)</td></tr>
+    </table></div>
+    <h4>Operators used inside conditions</h4>
+    <ul>
+      <li><strong>Comparison:</strong> =, ≠, &lt;, ≤, &gt;, ≥</li>
+      <li><strong>Connectives:</strong> AND (∧), OR (∨), NOT (¬)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2.9 -->
+<div class="topic" id="t2-9">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.9</span>
+    <span class="topic-title">SELECT Operation (σ)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>SELECT (σ, sigma) is a <strong>unary</strong> operation that picks a subset of <strong>rows (tuples)</strong> from a relation, based on a selection condition acting as a filter.</p>
+    </div>
+    <pre><code>σ &lt;selection_condition&gt; (R)</code></pre>
+    <div class="callout example">
+      <div class="c-label">💡 Examples</div>
+      <pre><code>σ DNO = 4 (EMPLOYEE)
+σ SALARY > 30000 (EMPLOYEE)
+σ Dept='CS' AND Salary>50000 AND Age<30 (EMPLOYEE)</code></pre>
+    </div>
+    <h4>SELECT Operation Properties</h4>
+    <ul>
+      <li>Produces a relation with the <strong>same schema</strong> (same attributes) as R.</li>
+      <li><strong>Commutative:</strong> <code>σ&lt;c1&gt;(σ&lt;c2&gt;(R)) = σ&lt;c2&gt;(σ&lt;c1&gt;(R))</code></li>
+      <li>A cascade of SELECTs can be applied in any order, or replaced by ONE selection with a conjunction of all conditions:
+        <pre><code>σc1(σc2(σc3(R))) = σ c1 AND c2 AND c3 (R)</code></pre>
+      </li>
+      <li>Result tuple count ≤ tuple count of input relation R.</li>
+    </ul>
+    <div class="callout note">
+      <div class="c-label">📝 Note</div>
+      <p>π and σ operating on a table both keep the <strong>same number of columns/rows relationship</strong> intuition: σ filters rows (height↓), π filters columns (width↓).</p>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Worked Table Example — σ DNO=4 (EMPLOYEE)</div>
+      <p>Input relation <code>EMPLOYEE</code>:</p>
+      <div class="table-wrap"><table>
+        <tr><th>SSN</th><th>FNAME</th><th>LNAME</th><th>SALARY</th><th>DNO</th></tr>
+        <tr><td>101</td><td>Ravi</td><td>Kumar</td><td>35000</td><td>4</td></tr>
+        <tr><td>102</td><td>Asha</td><td>Menon</td><td>42000</td><td>5</td></tr>
+        <tr><td>103</td><td>John</td><td>Smith</td><td>28000</td><td>4</td></tr>
+      </table></div>
+      <p>Result of <code>σ DNO=4(EMPLOYEE)</code> — only rows where DNO = 4 survive, all 5 columns kept:</p>
+      <div class="table-wrap"><table>
+        <tr><th>SSN</th><th>FNAME</th><th>LNAME</th><th>SALARY</th><th>DNO</th></tr>
+        <tr><td>101</td><td>Ravi</td><td>Kumar</td><td>35000</td><td>4</td></tr>
+        <tr><td>103</td><td>John</td><td>Smith</td><td>28000</td><td>4</td></tr>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2.10 -->
+<div class="topic" id="t2-10">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.10</span>
+    <span class="topic-title">PROJECT Operation (π)</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>PROJECT (π, pi) is a <strong>unary</strong> operation that keeps only certain <strong>columns (attributes)</strong> from a relation and discards the rest — a "vertical partitioning".</p>
+    </div>
+    <pre><code>π &lt;attribute_list&gt; (R)</code></pre>
+    <div class="callout example">
+      <div class="c-label">💡 Example</div>
+      <pre><code>π LNAME, FNAME, SALARY (EMPLOYEE)</code></pre>
+    </div>
+    <h4>PROJECT Operation Properties</h4>
+    <ul>
+      <li>The project operation <strong>removes duplicate tuples</strong> — the result must be a mathematical set, and sets don't allow duplicates.</li>
+      <li>Number of tuples in result ≤ number of tuples in R (equal <em>only</em> if the attribute list includes a key of R).</li>
+      <li><strong>PROJECT is NOT commutative:</strong> <code>π&lt;L1&gt;(π&lt;L2&gt;(R)) ≠ π&lt;L2&gt;(π&lt;L1&gt;(R))</code> in general — however <code>π&lt;L1&gt;(π&lt;L2&gt;(R)) = π&lt;L1&gt;(R)</code> as long as L2 contains all attributes in L1.</li>
+    </ul>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>This is one of the most common trap questions: <strong>"Is SELECT commutative? Is PROJECT commutative?"</strong> — SELECT is commutative, PROJECT is NOT. Memorize this pair distinctly.</p>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Worked Table Example — π DNO, DNAME(EMPLOYEE) shows duplicate removal</div>
+      <p>Input relation <code>EMPLOYEE</code>:</p>
+      <div class="table-wrap"><table>
+        <tr><th>SSN</th><th>FNAME</th><th>DNO</th><th>DNAME</th></tr>
+        <tr><td>101</td><td>Ravi</td><td>4</td><td>Research</td></tr>
+        <tr><td>102</td><td>Asha</td><td>5</td><td>Admin</td></tr>
+        <tr><td>103</td><td>John</td><td>4</td><td>Research</td></tr>
+      </table></div>
+      <p>Result of <code>π DNO, DNAME(EMPLOYEE)</code> — 3 input rows become only <strong>2</strong> output rows, because (4, Research) appeared twice and duplicates are removed:</p>
+      <div class="table-wrap"><table>
+        <tr><th>DNO</th><th>DNAME</th></tr>
+        <tr><td>4</td><td>Research</td></tr>
+        <tr><td>5</td><td>Admin</td></tr>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2.11 -->
+<div class="topic" id="t2-11">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.11</span>
+    <span class="topic-title">RENAME Operation (ρ) &amp; Combining Operations</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>RENAME (ρ, rho) renames the relation, its attributes, or both — useful when a query needs multiple chained operations (and necessary for self-joins).</p>
+    <div class="table-wrap"><table>
+      <tr><th>Form</th><th>Effect</th></tr>
+      <tr><td><code>ρ S(B1,...,Bn)(R)</code></td><td>Changes relation name to S <em>and</em> attribute names to B1...Bn</td></tr>
+      <tr><td><code>ρ S(R)</code></td><td>Changes only the relation name to S</td></tr>
+      <tr><td><code>ρ (B1,...,Bn)(R)</code></td><td>Changes only the attribute names</td></tr>
+    </table></div>
+    <h4>Two ways to write multi-step queries</h4>
+    <p><strong>Goal:</strong> Get first name, last name, salary of employees in department 5.</p>
+    <div class="grid2">
+      <div class="grid-box pos">
+        <h5>Single Nested Expression</h5>
+        <pre style="margin:0"><code>πFNAME,LNAME,SALARY
+  (σDNO=5(EMPLOYEE))</code></pre>
+      </div>
+      <div class="grid-box pos">
+        <h5>Sequence with Intermediate Names</h5>
+        <pre style="margin:0"><code>DEP5_EMPS ← σDNO=5(EMPLOYEE)
+RESULT ← πFNAME,LNAME,SALARY
+           (DEP5_EMPS)</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2.12 -->
+<div class="topic" id="t2-12">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.12</span>
+    <span class="topic-title">Set Theory Operations: UNION, INTERSECTION, DIFFERENCE</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout warn">
+      <div class="c-label">⚠️ Required — Type / Union Compatibility</div>
+      <p>UNION, INTERSECTION and DIFFERENCE all need R1 and R2 to be <strong>"type compatible" (union compatible)</strong>: (1) same number of attributes, and (2) domains of corresponding attributes must be compatible. The result keeps the attribute names of the <strong>first</strong> operand relation, by convention.</p>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Operation</th><th>Symbol</th><th>Result</th></tr>
+      <tr><td><strong>UNION</strong></td><td>R ∪ S</td><td>All tuples in R, or S, or both — duplicates eliminated</td></tr>
+      <tr><td><strong>INTERSECTION</strong></td><td>R ∩ S</td><td>Only tuples that appear in BOTH R and S</td></tr>
+      <tr><td><strong>SET DIFFERENCE</strong> (MINUS/EXCEPT)</td><td>R − S</td><td>Tuples in R but NOT in S</td></tr>
+    </table></div>
+    <div class="callout example">
+      <div class="c-label">💡 Example — UNION</div>
+      <p>Retrieve SSNs of employees who work in dept 5 OR supervise someone in dept 5:</p>
+      <pre><code>DEP5_EMPS   ← σDNO=5(EMPLOYEE)
+RESULT1     ← πSSN(DEP5_EMPS)
+RESULT2(SSN)← πSUPERSSN(DEP5_EMPS)
+RESULT      ← RESULT1 ∪ RESULT2</code></pre>
+    </div>
+    <h4>Properties</h4>
+    <ul>
+      <li>UNION and INTERSECTION are <strong>commutative</strong>: R∪S = S∪R, R∩S = S∩R</li>
+      <li>Both are <strong>associative</strong>: R∪(S∪T) = (R∪S)∪T</li>
+      <li>DIFFERENCE is <strong>NOT commutative</strong>: R − S ≠ S − R (in general)</li>
+      <li><code>R ∩ S = R − (R − S)</code> — intersection can be expressed using difference</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2.13 -->
+<div class="topic" id="t2-13">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.13</span>
+    <span class="topic-title">CARTESIAN PRODUCT (×)</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>CARTESIAN (CROSS) PRODUCT combines tuples from two relations combinatorially — <strong>every</strong> tuple of R with <strong>every</strong> tuple of S.</p>
+    </div>
+    <pre><code>R(A1,...,An) × S(B1,...,Bm) = Q(A1,...,An,B1,...,Bm)</code></pre>
+    <ul>
+      <li>Result has degree <strong>n + m</strong> attributes.</li>
+      <li>If |R| = nR tuples and |S| = nS tuples, then |R × S| = <strong>nR × nS</strong> tuples.</li>
+      <li>Operands do <strong>NOT</strong> need to be type-compatible.</li>
+    </ul>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Cartesian product alone is <strong>generally meaningless</strong> — it pairs up rows regardless of any real relationship between them. It only becomes useful once followed by a SELECT that filters to the truly related pairs (this is exactly how a JOIN is defined — see below).</p>
+    </div>
+    <div class="callout example">
+      <div class="c-label">💡 Example — CROSS PRODUCT + SELECT = meaningful query</div>
+      <pre><code>FEMALE_EMPS   ← σSEX='F'(EMPLOYEE)
+EMPNAMES      ← πFNAME,LNAME,SSN(FEMALE_EMPS)
+EMP_DEPENDENTS← EMPNAMES × DEPENDENT
+ACTUAL_DEPS   ← σSSN=ESSN(EMP_DEPENDENTS)
+RESULT        ← πFNAME,LNAME,DEPENDENT_NAME(ACTUAL_DEPS)</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 2.14 -->
+<div class="topic" id="t2-14">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.14</span>
+    <span class="topic-title">JOIN Operations — Theta, Equijoin, Natural Join, Outer Joins</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout def">
+      <div class="c-label">📌 Definition</div>
+      <p>JOIN is a <strong>derivative of Cartesian Product</strong> — equivalent to performing a Cartesian product, then a SELECT using the join condition as the filter. It's one of the most difficult operations to implement efficiently in an RDBMS.</p>
+    </div>
+    <pre><code>R ⋈&lt;condition&gt; S   ≡   σ&lt;condition&gt;(R × S)</code></pre>
+    <div class="table-wrap"><table>
+      <tr><th>Join Type</th><th>Definition</th></tr>
+      <tr><td><strong>Theta Join</strong></td><td>General join with any comparison operator (=, &lt;, &gt;, ≤, ≥, ≠) in the condition</td></tr>
+      <tr><td><strong>Equijoin</strong></td><td>A theta join where the condition uses ONLY equality (=). Duplicate join-column appears in the result.</td></tr>
+      <tr><td><strong>Natural Join (⋈)</strong></td><td>An equijoin over ALL common attribute(s) of the two relations, with the duplicate column removed automatically from the result</td></tr>
+      <tr><td><strong>Left Outer Join</strong></td><td>Keeps all tuples of the LEFT relation, padding unmatched right-side attributes with NULL</td></tr>
+      <tr><td><strong>Right Outer Join</strong></td><td>Keeps all tuples of the RIGHT relation, padding unmatched left-side attributes with NULL</td></tr>
+      <tr><td><strong>Full Outer Join</strong></td><td>Keeps all tuples from BOTH relations, padding with NULL wherever there is no match</td></tr>
+      <tr><td><strong>Semijoin</strong></td><td>Returns tuples of R that have at least one matching tuple in S (only R's attributes are kept)</td></tr>
+    </table></div>
+    <div class="callout example">
+      <div class="c-label">💡 Example — Equijoin vs Natural Join</div>
+      <pre><code>-- Equijoin (duplicate clientNo column remains)
+(πclientNo,fName,lName(Client)) ⋈ Client.clientNo=Viewing.clientNo
+  (πclientNo,propertyNo,comment(Viewing))
+
+-- Natural Join (duplicate column auto-removed)
+(πclientNo,fName,lName(Client)) ⋈ (πclientNo,propertyNo,comment(Viewing))</code></pre>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="150" cy="60" r="50" fill="#7c9ec9" fill-opacity=".18" stroke="#7c9ec9"/>
+        <circle cx="210" cy="60" r="50" fill="#c98a7c" fill-opacity=".18" stroke="#c98a7c"/>
+        <text x="110" y="63" text-anchor="middle" fill="#e9e6ef" font-size="10">R only</text>
+        <text x="250" y="63" text-anchor="middle" fill="#e9e6ef" font-size="10">S only</text>
+        <text x="180" y="63" text-anchor="middle" fill="#e9e6ef" font-size="10">R⋈S</text>
+        <text x="180" y="128" text-anchor="middle" fill="#c4a35a" font-size="11">Inner / Natural / Equijoin</text>
+
+        <circle cx="400" cy="60" r="50" fill="#8dbf8d" fill-opacity=".35" stroke="#8dbf8d"/>
+        <circle cx="460" cy="60" r="50" fill="#c98a7c" fill-opacity=".1" stroke="#c98a7c"/>
+        <text x="400" y="128" text-anchor="middle" fill="#c4a35a" font-size="11">Left Outer Join</text>
+
+        <circle cx="150" cy="180" r="0"/>
+        <text x="280" y="180" text-anchor="middle" fill="#726d7d" font-size="10">Full Outer = all of R + all of S (both circles fully shaded)</text>
+      </svg>
+      <div class="cap">Venn-diagram intuition for join types (shaded = kept in result)</div>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Equijoin keeps <strong>both</strong> copies of the join attribute (e.g. two clientNo columns); Natural Join automatically <strong>drops the duplicate</strong>. This is the single most-tested distinction between the two.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2.15 -->
+<div class="topic" id="t2-15">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">2.15</span>
+    <span class="topic-title">Solved Relational Algebra Query Examples</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <p>Schema: <code>passenger(pid, pname, pgender, pcity)</code> · <code>agency(aid, aname, acity)</code> · <code>flight(fid, fdate, time, src, dest)</code> · <code>booking(pid, aid, fid, fdate)</code></p>
+    <div class="table-wrap"><table>
+      <tr><th>#</th><th>Query</th><th>Relational Algebra</th></tr>
+      <tr><td>1</td><td>All flights to New Delhi</td><td><code>σ dest="New Delhi"(flight)</code></td></tr>
+      <tr><td>2</td><td>All flights Chennai → New Delhi</td><td><code>σ src="Chennai" ∧ dest="New Delhi"(flight)</code></td></tr>
+      <tr><td>3</td><td>Flight numbers for pid 123, flights to Chennai before 06/11/2020</td><td><code>π fid (σ pid=123(booking) ⋈ σ dest="Chennai" ∧ fdate&lt;06/11/2020(flight))</code></td></tr>
+      <tr><td>4</td><td>Names of passengers with at least one booking</td><td><code>π pname (passenger ⋈ booking)</code></td></tr>
+      <tr><td>5</td><td>Names of passengers with NO bookings</td><td><code>π pname ((π pid(passenger) − π pid(booking)) ⋈ passenger)</code></td></tr>
+      <tr><td>6</td><td>Agencies in same city as passenger 123</td><td><code>π aname (agency ⋈ acity=pcity (σ pid=123(passenger)))</code></td></tr>
+      <tr><td>7</td><td>Flights scheduled on BOTH 01/12 and 02/12 at 16:00</td><td>(σ fdate=01/12∧time=16:00(flight)) <strong>∩</strong> (σ fdate=02/12∧time=16:00(flight))</td></tr>
+      <tr><td>8</td><td>Flights scheduled on EITHER date at 16:00</td><td>(σ fdate=01/12∧time=16:00(flight)) <strong>∪</strong> (σ fdate=02/12∧time=16:00(flight))</td></tr>
+      <tr><td>9</td><td>Agencies with NO bookings for passenger 123</td><td><code>π aname (agency ⋈ (π aid(agency) − π aid(σ pid=123(booking))))</code></td></tr>
+      <tr><td>10</td><td>Male passengers associated with agency 'Jet'</td><td><code>σ pgender='male' ∧ aname='Jet' (passenger ⋈ booking ⋈ agency)</code></td></tr>
+    </table></div>
+    <div class="callout note">
+      <div class="c-label">📝 Movie DB Extra Practice — Movie(title, year, length, incolor, studioName, producer)</div>
+      <pre><code>1. π title (σ incolor='black-and-white' ∧ year>1970 (Movie))
+2. π title (σ (studioName='MGM' ∧ year>1970) ∨ length<1.5 (Movie))
+3. π producer (σ title='Star Wars' (Movie))
+4. σ studioName='Disney' ∧ year=1990 (Movie)
+5. π title,length (σ studioName='Disney' ∧ year=1990 (Movie))</code></pre>
+    </div>
+    <div class="callout note">
+      <div class="c-label">📝 Note — Set difference trick for "NOT" / "NO" queries</div>
+      <p>Whenever a question says <strong>"who has NOT done X"</strong> or <strong>"with no bookings"</strong>, think set-difference: (all entities) − (entities that DID do X), then join back to get their details.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================= QUICK REFERENCE ================= -->
+<div class="module-head" id="quickref">
+  <h2>📋 Quick Reference — Exam Cheat Sheet</h2>
+  <span class="sub">Everything on one screen — last-minute revision before the exam</span>
+</div>
+
+<!-- QR.1 -->
+<div class="topic" id="tqr-1">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.1</span>
+    <span class="topic-title">Database Languages &amp; Command Categories</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Category</th><th>Full Form</th><th>Purpose</th><th>Example Commands</th></tr>
+      <tr><td><strong>DDL</strong></td><td>Data Definition Language</td><td>Defines / modifies schema structure</td><td><code>CREATE, ALTER, DROP, TRUNCATE</code></td></tr>
+      <tr><td><strong>DML</strong></td><td>Data Manipulation Language</td><td>Insert / update / delete actual data</td><td><code>INSERT, UPDATE, DELETE</code></td></tr>
+      <tr><td><strong>DQL</strong></td><td>Data Query Language</td><td>Retrieve data</td><td><code>SELECT</code></td></tr>
+      <tr><td><strong>DCL</strong></td><td>Data Control Language</td><td>Grant / revoke access rights</td><td><code>GRANT, REVOKE</code></td></tr>
+      <tr><td><strong>TCL</strong></td><td>Transaction Control Language</td><td>Manage transactions</td><td><code>COMMIT, ROLLBACK, SAVEPOINT</code></td></tr>
+    </table></div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Common Mistake</div>
+      <p>Students often forget <strong>DQL</strong> is a separate category from DML — SELECT does not modify data, so many textbooks split it out. Some syllabi merge DQL into DML; know which convention your paper uses.</p>
+    </div>
+  </div>
+</div>
+
+<!-- QR.2 -->
+<div class="topic" id="tqr-2">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.2</span>
+    <span class="topic-title">Keys — One-Glance Comparison</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Key Type</th><th>Definition</th><th>Example</th></tr>
+      <tr><td>Super Key</td><td>Any attribute set that uniquely identifies a row (may have redundant attributes)</td><td>{Student_ID, Name}</td></tr>
+      <tr><td>Candidate Key</td><td>A <em>minimal</em> super key — no extra/redundant attribute</td><td>{Student_ID}, {Email}</td></tr>
+      <tr><td>Primary Key</td><td>The candidate key chosen by the designer to identify rows</td><td>Student_ID</td></tr>
+      <tr><td>Alternate Key</td><td>Candidate key(s) not chosen as primary key</td><td>Roll_No, Email</td></tr>
+      <tr><td>Composite Key</td><td>A key made of two or more attributes together</td><td>{State, Reg#}</td></tr>
+      <tr><td>Secondary Key</td><td>Doesn't identify a row uniquely, but identifies a group</td><td>Department, Salary</td></tr>
+      <tr><td>Foreign Key</td><td>An attribute that is a primary key in another relation</td><td>DeptNo in Employee → Department.DeptNo</td></tr>
+    </table></div>
+    <div class="callout def">
+      <div class="c-label">📌 Formula Reminder</div>
+      <pre><code>Every Candidate Key is a Super Key,
+but not every Super Key is a Candidate Key.
+Primary Key ⊂ Candidate Keys ⊂ Super Keys</code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- QR.3 -->
+<div class="topic" id="tqr-3">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.3</span>
+    <span class="topic-title">ER Notation Legend (Recap)</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="diagram">
+      <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="110" height="45" rx="4" fill="none" stroke="#7c9ec9" stroke-width="2"/>
+        <text x="75" y="47" text-anchor="middle" fill="#e9e6ef" font-size="12">Entity</text>
+        <rect x="20" y="90" width="120" height="55" rx="4" fill="none" stroke="#7c9ec9" stroke-width="2"/>
+        <rect x="26" y="96" width="108" height="43" rx="3" fill="none" stroke="#7c9ec9" stroke-width="1.4"/>
+        <text x="80" y="122" text-anchor="middle" fill="#e9e6ef" font-size="11">Weak Entity</text>
+        <ellipse cx="230" cy="42" rx="55" ry="24" fill="none" stroke="#c4a35a" stroke-width="2"/>
+        <text x="230" y="47" text-anchor="middle" fill="#e9e6ef" font-size="12">Attribute</text>
+        <ellipse cx="230" cy="115" rx="55" ry="24" fill="none" stroke="#c4a35a" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="230" y="120" text-anchor="middle" fill="#e9e6ef" font-size="10">Multi-valued</text>
+        <ellipse cx="230" cy="180" rx="55" ry="22" fill="none" stroke="#c4a35a" stroke-width="1.4"/>
+        <line x1="205" y1="180" x2="255" y2="180" stroke="#c4a35a" stroke-width="1.2"/>
+        <text x="230" y="176" text-anchor="middle" fill="#e9e6ef" font-size="9">Derived (dashed</text>
+        <text x="230" y="188" text-anchor="middle" fill="#e9e6ef" font-size="9">underline)</text>
+        <polygon points="400,20 445,45 400,70 355,45" fill="none" stroke="#8dbf8d" stroke-width="2"/>
+        <text x="400" y="49" text-anchor="middle" fill="#e9e6ef" font-size="11">Relationship</text>
+        <polygon points="400,95 450,122 400,150 350,122" fill="none" stroke="#8dbf8d" stroke-width="1.4"/>
+        <polygon points="400,101 444,122 400,144 356,122" fill="none" stroke="#8dbf8d" stroke-width="1"/>
+        <text x="400" y="126" text-anchor="middle" fill="#e9e6ef" font-size="9">Identifying Rel.</text>
+        <line x1="500" y1="45" x2="580" y2="45" stroke="#e9e6ef" stroke-width="2"/>
+        <text x="540" y="35" text-anchor="middle" fill="#a8a4b3" font-size="9">1</text>
+        <text x="540" y="60" text-anchor="middle" fill="#e9e6ef" font-size="9">Single line = Partial</text>
+        <line x1="500" y1="110" x2="580" y2="110" stroke="#e9e6ef" stroke-width="2"/>
+        <line x1="500" y1="115" x2="580" y2="115" stroke="#e9e6ef" stroke-width="2"/>
+        <text x="540" y="130" text-anchor="middle" fill="#e9e6ef" font-size="9">Double line = Total</text>
+      </svg>
+      <div class="cap">Standard Chen-notation symbol legend used across most ER exam diagrams</div>
+    </div>
+  </div>
+</div>
+
+<!-- QR.4 -->
+<div class="topic" id="tqr-4">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.4</span>
+    <span class="topic-title">Relational Algebra Operator Cheat Sheet</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Operator</th><th>Symbol</th><th>Syntax</th><th>Purpose</th></tr>
+      <tr><td>Select</td><td>σ</td><td><code>σ&lt;condition&gt;(R)</code></td><td>Filters <strong>rows</strong></td></tr>
+      <tr><td>Project</td><td>π</td><td><code>π&lt;attrs&gt;(R)</code></td><td>Filters <strong>columns</strong>, removes duplicates</td></tr>
+      <tr><td>Rename</td><td>ρ</td><td><code>ρ_S(R)</code> or <code>ρ_S(A1,...,An)(R)</code></td><td>Renames relation/attributes</td></tr>
+      <tr><td>Union</td><td>∪</td><td><code>R ∪ S</code></td><td>All tuples in R or S (union-compatible)</td></tr>
+      <tr><td>Intersection</td><td>∩</td><td><code>R ∩ S</code></td><td>Tuples in both R and S</td></tr>
+      <tr><td>Difference</td><td>−</td><td><code>R − S</code></td><td>Tuples in R but not in S</td></tr>
+      <tr><td>Cartesian Product</td><td>×</td><td><code>R × S</code></td><td>All combinations of R and S tuples</td></tr>
+      <tr><td>Theta Join</td><td>⋈θ</td><td><code>R ⋈θ S</code></td><td>Join on any condition θ</td></tr>
+      <tr><td>Equijoin</td><td>⋈</td><td><code>R ⋈R.a=S.b S</code></td><td>Theta join where θ is "="; keeps duplicate columns</td></tr>
+      <tr><td>Natural Join</td><td>⋈</td><td><code>R ⋈ S</code></td><td>Equijoin on common attribute names, duplicate column removed automatically</td></tr>
+    </table></div>
+    <div class="callout def">
+      <div class="c-label">📌 Union Compatibility Rule</div>
+      <p>R ∪ S, R ∩ S and R − S are valid only if R and S have the <strong>same number of attributes</strong> and <strong>corresponding domains match</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- QR.5 -->
+<div class="topic" id="tqr-5">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.5</span>
+    <span class="topic-title">Join Types — Side-by-Side</span>
+    <span class="fire">🔥 High-yield</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="grid2">
+      <div class="grid-box pos">
+        <h5>Keeps Unmatched Rows</h5>
+        <ul>
+          <li><strong>Left Outer Join</strong> — all of R + matching S, NULLs where no match</li>
+          <li><strong>Right Outer Join</strong> — all of S + matching R, NULLs where no match</li>
+          <li><strong>Full Outer Join</strong> — all of R and all of S, NULLs on either side</li>
+        </ul>
+      </div>
+      <div class="grid-box neg">
+        <h5>Only Matching Rows</h5>
+        <ul>
+          <li><strong>Theta Join</strong> — any comparison condition</li>
+          <li><strong>Equijoin</strong> — condition uses "=" only, keeps duplicate columns</li>
+          <li><strong>Natural Join</strong> — implicit "=" on common attributes, duplicate column dropped</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR.6 -->
+<div class="topic" id="tqr-6">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.6</span>
+    <span class="topic-title">ER-to-Relational Mapping — 7 Steps at a Glance</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="table-wrap"><table>
+      <tr><th>Step</th><th>Rule</th></tr>
+      <tr><td>1</td><td>Map each <strong>strong entity type</strong> to a relation with all its simple/derived attributes</td></tr>
+      <tr><td>2</td><td>Map each <strong>weak entity type</strong> — include owner's primary key as a foreign key + partial key</td></tr>
+      <tr><td>3</td><td>Map <strong>binary 1:1</strong> relationships — merge FK into either side (prefer total participation side)</td></tr>
+      <tr><td>4</td><td>Map <strong>binary 1:N</strong> relationships — FK goes on the "N" (many) side</td></tr>
+      <tr><td>5</td><td>Map <strong>binary M:N</strong> relationships — create a new relation with both FKs as composite PK</td></tr>
+      <tr><td>6</td><td>Map <strong>multivalued attributes</strong> — create a new relation, PK = FK + attribute value</td></tr>
+      <tr><td>7</td><td>Map <strong>n-ary (degree ≥ 3)</strong> relationships — new relation with all participating PKs as composite key</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- QR.7 -->
+<div class="topic" id="tqr-7">
+  <div class="topic-head" onclick="toggle(this)">
+    <span class="topic-num">QR.7</span>
+    <span class="topic-title">Common Exam Traps &amp; Last-Minute Warnings</span>
+    <span class="fire">🔥🔥 Very Frequently Asked</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="topic-body">
+    <div class="callout warn">
+      <div class="c-label">⚠️ Trap 1</div>
+      <p>PROJECT (π) automatically removes duplicate rows — many students forget this and give the wrong tuple count.</p>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Trap 2</div>
+      <p>PROJECT is <strong>not commutative</strong>: π_A(π_B(R)) ≠ π_B(π_A(R)) in general — order of projected attributes changes the schema/output shape.</p>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Trap 3</div>
+      <p>Weak entity sets have <strong>no primary key of their own</strong> — they borrow the owner's key and add a partial/discriminator key.</p>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Trap 4</div>
+      <p>Data independence has two types — <strong>logical</strong> (conceptual schema changes don't affect external schema) and <strong>physical</strong> (internal schema changes don't affect conceptual schema). Don't mix them up.</p>
+    </div>
+    <div class="callout warn">
+      <div class="c-label">⚠️ Trap 5</div>
+      <p>Total participation is drawn with a <strong>double line</strong>; partial participation with a <strong>single line</strong> — the opposite of what many students initially assume.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>DBMS Study Notes · Module 1 (Introduction &amp; ER Model) + Module 2 (Relational Database) · Compiled for exam revision</p>
+  <p>🔥 = frequently examined · Tap any topic card to expand/collapse · Use Expand All / Collapse All in the nav for quick scanning</p>
+</footer>
+
+</div><!-- /.wrap -->
+
+<button class="totop" id="toTop" aria-label="Back to top" onclick="document.getElementById('top').scrollIntoView({behavior:'smooth'})">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+function toggle(head){
+  const topic = head.parentElement;
+  topic.classList.toggle('collapsed');
+}
+function expandAll(){
+  document.querySelectorAll('.topic').forEach(t => t.classList.remove('collapsed'));
+}
+function collapseAll(){
+  document.querySelectorAll('.topic').forEach(t => t.classList.add('collapsed'));
+}
+
+// nav dropdown menu (same behaviour on mobile and desktop)
+const hamburger = document.getElementById('hamburger');
+const navPanel = document.getElementById('navPanel');
+function closeMenu(){
+  navPanel.classList.remove('open');
+  hamburger.classList.remove('open');
+  hamburger.setAttribute('aria-expanded','false');
+}
+function openMenu(){
+  navPanel.classList.add('open');
+  hamburger.classList.add('open');
+  hamburger.setAttribute('aria-expanded','true');
+}
+if (hamburger) {
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navPanel.classList.contains('open') ? closeMenu() : openMenu();
+  });
+}
+document.addEventListener('click', (e) => {
+  if (navPanel.classList.contains('open') && !navPanel.contains(e.target) && e.target !== hamburger) {
+    closeMenu();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenu();
+});
+
+// scroll progress bar + back-to-top visibility
+const progressFill = document.getElementById('progressFill');
+const toTopBtn = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  if (progressFill) progressFill.style.width = pct + '%';
+  if (toTopBtn) toTopBtn.classList.toggle('show', scrollTop > 500);
+}, { passive: true });
+</script>
+
+</body>
+</html>

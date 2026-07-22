@@ -44,6 +44,15 @@
       "author_link" : "https://jidu.dev",
       "date" : "2026-07-21"
     }
+  ],
+      "dbms" :[{
+      "title" : "dbms module 1 and 2",
+      "description" : "intro er diagrams and relational algebra",
+      "file" : "simulations/cse/dbms/dbms_notes.html",
+      "author" : "Jidu",
+      "author_link" : "https://jidu.dev",
+      "date" : "2026-07-22"
+    }
   ]
   },
   "ECE": {},
