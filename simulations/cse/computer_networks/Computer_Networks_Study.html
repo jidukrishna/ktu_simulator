@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Networks — Study Notes | Module 1 & 2</title>
+<style>
+  :root{
+    --bg:#0f0e11;
+    --card:#1e1c22;
+    --border:#2e2c35;
+    --gold:#c4a35a;
+    --blue:#7c9ec9;
+    --green:#8dbf8d;
+    --red:#c98a7c;
+    --text:#e6e4ea;
+    --muted:#9a97a3;
+    --mono: "JetBrains Mono","Fira Code","Consolas",monospace;
+    --sans: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    padding-bottom:60px;
+  }
+  a{color:var(--blue);}
+
+  /* ===== HEADER / HERO ===== */
+  .hero{
+    padding:48px 24px 28px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    background:radial-gradient(circle at 50% -20%, rgba(196,163,90,0.12), transparent 60%);
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:2.1rem;
+    letter-spacing:0.3px;
+  }
+  .hero h1 span{color:var(--gold);}
+  .hero p{color:var(--muted); margin:0; font-size:0.98rem;}
+  .hero .tags{margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .hero .tag{
+    font-size:0.78rem; padding:4px 12px; border-radius:20px;
+    border:1px solid var(--border); color:var(--muted);
+  }
+
+  /* ===== STICKY NAV ===== */
+  nav.topnav{
+    position:sticky; top:0; z-index:100;
+    background:rgba(15,14,17,0.95);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-bar{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+  }
+  .nav-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    flex:1;
+    background:none;
+    border:none;
+    border-left:1px solid var(--border);
+    border-right:1px solid var(--border);
+    color:var(--gold);
+    font-size:0.85rem;
+    font-weight:600;
+    font-family:var(--sans);
+    padding:11px 16px;
+    cursor:pointer;
+    letter-spacing:0.3px;
+  }
+  .nav-toggle .arrow{
+    display:inline-block;
+    transition:transform .18s ease;
+    font-size:0.7rem;
+  }
+  nav.topnav.open .nav-toggle .arrow{transform:rotate(180deg);}
+  .nav-toggle:hover{color:#d8bc7a;}
+  .nav-action{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:0.78rem;
+    font-family:var(--sans);
+    padding:11px 14px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:color .15s ease;
+  }
+  .nav-action:hover{color:var(--text);}
+  .nav-links{
+    max-height:0;
+    overflow:hidden;
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    padding:0 16px;
+    transition:max-height .22s ease, padding .22s ease;
+  }
+  nav.topnav.open .nav-links{
+    max-height:400px;
+    padding:0 16px 14px;
+  }
+  nav.topnav a{
+    color:var(--text);
+    text-decoration:none;
+    font-size:0.85rem;
+    padding:7px 14px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--card);
+    transition:all .15s ease;
+    white-space:nowrap;
+  }
+  nav.topnav a:hover{border-color:var(--gold); color:var(--gold);}
+  nav.topnav a.module-link{border-color:var(--gold); color:var(--gold); font-weight:600;}
+
+  /* ===== LAYOUT ===== */
+  main{max-width:920px; margin:0 auto; padding:0 20px;}
+
+  .module-header{
+    margin:52px 0 20px;
+    padding-bottom:14px;
+    border-bottom:2px solid var(--gold);
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+  }
+  .module-header h2{margin:0; font-size:1.6rem;}
+  .module-header .module-sub{color:var(--muted); font-size:0.9rem;}
+
+  /* ===== COLLAPSIBLE MODULE BLOCK ===== */
+  details.module-block{ margin-top:40px; }
+  summary.module-header{
+    cursor:pointer;
+    list-style:none;
+    user-select:none;
+    background:var(--bg);
+  }
+  summary.module-header::-webkit-details-marker{display:none;}
+  summary.module-header .module-title{
+    font-size:1.6rem;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  summary.module-header .chev-module{
+    color:var(--gold);
+    font-size:1.05rem;
+    transition:transform .18s ease;
+    flex-shrink:0;
+  }
+  details.module-block[open] > summary.module-header .chev-module{transform:rotate(90deg);}
+  summary.module-header:hover .module-title{color:var(--gold);}
+  .module-content{ padding-top:4px; }
+  .module-collapse-hint{
+    font-size:0.78rem;
+    color:var(--muted);
+    margin:-8px 4px 8px;
+  }
+
+  /* ===== CARD / DETAILS ===== */
+  details.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin:16px 0;
+    overflow:hidden;
+    transition:border-color .15s ease;
+  }
+  details.card[open]{border-color:#3a3742;}
+  details.card summary{
+    cursor:pointer;
+    list-style:none;
+    padding:16px 20px;
+    font-size:1.08rem;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    user-select:none;
+  }
+  details.card summary::-webkit-details-marker{display:none;}
+  details.card summary .stitle{display:flex; align-items:center; gap:10px;}
+  details.card summary .chev{
+    color:var(--muted);
+    transition:transform .18s ease;
+    font-size:0.85rem;
+    flex-shrink:0;
+  }
+  details.card[open] summary .chev{transform:rotate(90deg);}
+  details.card summary:hover{background:rgba(255,255,255,0.02);}
+
+  .badge{
+    font-size:0.72rem;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:20px;
+    background:rgba(196,163,90,0.15);
+    border:1px solid var(--gold);
+    color:var(--gold);
+    white-space:nowrap;
+  }
+
+  .card-body{
+    padding:2px 22px 22px;
+    border-top:1px solid var(--border);
+    padding-top:16px;
+  }
+  .card-body p{margin:8px 0 14px; color:#d6d3db;}
+  .card-body ul, .card-body ol{margin:6px 0 16px; padding-left:22px;}
+  .card-body li{margin:5px 0; color:#d6d3db;}
+  .card-body li::marker{color:var(--gold);}
+  .card-body h4{
+    margin:20px 0 8px; font-size:0.95rem; color:var(--gold);
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .card-body h4:first-child{margin-top:4px;}
+
+  /* ===== CODE / FORMULA BLOCKS ===== */
+  pre{
+    background:#141317;
+    border:1px solid var(--border);
+    border-left:3px solid var(--gold);
+    border-radius:8px;
+    padding:14px 18px;
+    overflow-x:auto;
+    margin:12px 0 18px;
+  }
+  code, pre code{
+    font-family:var(--mono);
+    font-size:0.88rem;
+    color:#e8d9b5;
+    line-height:1.7;
+  }
+  p code, li code{
+    background:#141317;
+    padding:2px 6px;
+    border-radius:5px;
+    border:1px solid var(--border);
+    font-size:0.86rem;
+    color:#e8d9b5;
+  }
+
+  /* ===== CALLOUTS ===== */
+  .callout{
+    border-radius:8px;
+    padding:12px 16px;
+    margin:14px 0;
+    border:1px solid;
+    font-size:0.93rem;
+  }
+  .callout .co-label{
+    font-weight:700;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    display:block;
+    margin-bottom:5px;
+  }
+  .callout.def{ background:rgba(196,163,90,0.08); border-color:var(--gold); }
+  .callout.def .co-label{color:var(--gold);}
+  .callout.warn{ background:rgba(201,138,124,0.08); border-color:var(--red); }
+  .callout.warn .co-label{color:var(--red);}
+  .callout.note{ background:rgba(124,158,201,0.08); border-color:var(--blue); }
+  .callout.note .co-label{color:var(--blue);}
+  .callout.example{ background:rgba(141,191,141,0.08); border-color:var(--green); }
+  .callout.example .co-label{color:var(--green);}
+
+  /* ===== TABLES ===== */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0 20px;
+    font-size:0.88rem;
+    overflow:hidden;
+    border-radius:8px;
+  }
+  thead th{
+    background:#141317;
+    color:var(--gold);
+    text-align:left;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    font-size:0.8rem;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+  tbody td{
+    padding:10px 12px;
+    border:1px solid var(--border);
+    color:#d6d3db;
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:rgba(255,255,255,0.015);}
+
+  /* ===== TWO COLUMN GRID (pros/cons, comparisons) ===== */
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin:14px 0 18px;
+  }
+  .grid2 .col{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 16px;
+  }
+  .grid2 .col.pros{border-left:3px solid var(--green);}
+  .grid2 .col.cons{border-left:3px solid var(--red);}
+  .grid2 .col h5{
+    margin:0 0 8px; font-size:0.82rem; text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .grid2 .col.pros h5{color:var(--green);}
+  .grid2 .col.cons h5{color:var(--red);}
+  .grid2 .col ul{margin:0; padding-left:18px;}
+  .grid2 .col li{margin:4px 0; font-size:0.87rem;}
+
+  /* ===== DIAGRAMS ===== */
+  .diagram-wrap{
+    background:#141317;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 14px;
+    margin:14px 0 22px;
+    overflow-x:auto;
+    text-align:center;
+  }
+  .diagram-wrap svg{max-width:100%; height:auto; display:inline-block;}
+  .diagram-caption{
+    color:var(--muted);
+    font-size:0.78rem;
+    margin-top:10px;
+    font-style:italic;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.82rem;
+    margin-top:60px;
+    padding:24px;
+    border-top:1px solid var(--border);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:640px){
+    .hero{padding:32px 16px 22px;}
+    .hero h1{font-size:1.5rem;}
+    .nav-links{gap:6px; padding:0 10px;}
+    nav.topnav.open .nav-links{padding:0 10px 12px;}
+    nav.topnav a{font-size:0.78rem; padding:6px 10px;}
+    .nav-toggle{padding:10px; font-size:0.78rem;}
+    .nav-action{padding:10px 8px; font-size:0.68rem;}
+    .grid2{grid-template-columns:1fr;}
+    details.card summary{font-size:0.98rem; padding:14px 16px;}
+    .card-body{padding:2px 16px 18px;}
+    table{font-size:0.8rem;}
+    thead th, tbody td{padding:7px 8px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Computer Networks <span>— Study Notes</span></h1>
+  <p>101003 / CS500B &nbsp;·&nbsp; Module 1: Introduction &amp; Physical Layer &nbsp;·&nbsp; Module 2: Data Link Layer</p>
+  <div class="tags">
+    <span class="tag">🔥 = High Exam Probability</span>
+    <span class="tag">Formulas &amp; Numericals Included</span>
+    <span class="tag">Tap any card to collapse</span>
+  </div>
+</header>
+
+<nav class="topnav" id="topnav">
+  <div class="nav-bar">
+    <button class="nav-action" onclick="expandAllSections()">⊕ Expand All</button>
+    <button class="nav-toggle" onclick="document.getElementById('topnav').classList.toggle('open')">
+      Jump to a topic <span class="arrow">▼</span>
+    </button>
+    <button class="nav-action" onclick="collapseAllSections()">⊖ Collapse All</button>
+  </div>
+  <div class="nav-links" onclick="if(event.target.tagName==='A')document.getElementById('topnav').classList.remove('open')">
+    <a href="#module1" class="module-link">📘 Module 1</a>
+    <a href="#m1-intro">Intro</a>
+    <a href="#m1-hardware">Network Hardware</a>
+    <a href="#m1-software">Network Software</a>
+    <a href="#m1-osi">OSI Model</a>
+    <a href="#m1-tcpip">TCP/IP Model</a>
+    <a href="#m1-compare">OSI vs TCP/IP</a>
+    <a href="#m1-physical">Physical Layer</a>
+    <a href="#m1-topology">Topologies</a>
+    <a href="#m1-media">Transmission Media</a>
+    <a href="#m1-encoding">Signal Encoding</a>
+    <a href="#m1-perf">Performance</a>
+    <a href="#module2" class="module-link">📗 Module 2</a>
+    <a href="#m2-dll">DLL Basics</a>
+    <a href="#m2-framing">Framing</a>
+    <a href="#m2-error">Error Control</a>
+    <a href="#m2-sliding">Sliding Window</a>
+    <a href="#m2-hdlc">HDLC</a>
+    <a href="#m2-mac">MAC Sublayer</a>
+    <a href="#m2-ethernet">Ethernet</a>
+    <a href="#m2-wireless">Wireless LAN</a>
+    <a href="#m2-devices">Connecting Devices</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ======================================================= -->
+<!-- ======================= MODULE 1 ======================= -->
+<!-- ======================================================= -->
+<section id="module1">
+<details class="module-block" open>
+<summary class="module-header">
+  <span class="module-title"><span class="chev-module">▶</span> 📘 Module 1 — Introduction &amp; Physical Layer</span>
+  <span class="module-sub">Networks · Reference Models · Physical Layer · Performance Metrics</span>
+</summary>
+<div class="module-collapse-hint">Tap the heading above to collapse this whole module.</div>
+<div class="module-content">
+
+<!-- INTRO -->
+<details class="card" id="m1-intro" open>
+<summary><span class="stitle"><span class="chev">▶</span> Introduction to Computer Networks <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>A computer network is a large number of separate but interconnected computers, forming a collection of <strong>autonomous computers</strong> connected by a single technology. Two computers are "interconnected" if they can exchange information, over wired or wireless links.</p>
+
+<div class="callout def"><span class="co-label">Definition</span>
+The <strong>Internet</strong> is not a single network but a <em>network of networks</em>. The <strong>World Wide Web</strong> is a distributed system that runs on top of the Internet, presenting everything as a document (web page).
+</div>
+
+<h4>Uses of Computer Networks</h4>
+<ul>
+  <li><strong>Business applications:</strong> resource sharing, communication (email/messenger), e‑commerce with suppliers/customers, video conferencing.</li>
+  <li><strong>Home applications:</strong> access to remote information, person-to-person communication, interactive entertainment, e-commerce, video-on-demand.</li>
+  <li><strong>Mobile users:</strong> hotspots, texting, smartphones, e-books, GPS/m-commerce, wireless sensor networks, wearables.</li>
+</ul>
+
+<h4>Advantages vs Disadvantages</h4>
+<div class="grid2">
+  <div class="col pros">
+    <h5>✔ Advantages</h5>
+    <ul>
+      <li>Enhances communication &amp; availability of information</li>
+      <li>Convenient resource &amp; file sharing</li>
+      <li>Highly flexible, inexpensive, cost-efficient</li>
+      <li>Boosts storage capacity</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>✘ Disadvantages</h5>
+    <ul>
+      <li>Lacks independence</li>
+      <li>Security difficulties, malware/virus spread</li>
+      <li>Requires efficient administration</li>
+      <li>Can lack robustness</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout note"><span class="co-label">Note</span>
+A well-known example of a <strong>distributed system</strong> is the WWW — a <em>middleware</em> layer above the OS presents a single model/paradigm to users, hiding the underlying network of independent computers.
+</div>
+</div>
+</details>
+
+<!-- NETWORK HARDWARE -->
+<details class="card" id="m1-hardware" open>
+<summary><span class="stitle"><span class="chev">▶</span> Network Hardware: Transmission Technology &amp; Scale <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>Networks can be classified by two broad aspects: <strong>transmission technology</strong> and <strong>scale</strong>.</p>
+
+<h4>Transmission Technology</h4>
+<table>
+<thead><tr><th>Broadcast Networks</th><th>Point-to-Point Networks</th></tr></thead>
+<tbody>
+<tr><td>Single shared communication channel among all machines</td><td>Many connections between individual pairs of machines</td></tr>
+<tr><td>Packets sent by any machine received by all others; address field picks the recipient</td><td>A packet may hop through intermediate machines to reach destination</td></tr>
+<tr><td>Special address code = <strong>broadcasting</strong> (all); subset = <strong>multicasting</strong></td><td>One sender, one receiver = <strong>unicasting</strong></td></tr>
+<tr><td>Typically small, geographically localized networks</td><td>Typically larger networks</td></tr>
+</tbody>
+</table>
+
+<h4>Scale of Networks (small → large)</h4>
+<table>
+<thead><tr><th>Type</th><th>Key Characteristics</th></tr></thead>
+<tbody>
+<tr><td><strong>PAN</strong> (Personal Area Network)</td><td>Smallest/basic; wireless modem, phones, printers around one person, one building</td></tr>
+<tr><td><strong>LAN</strong> (Local Area Network)</td><td>Privately owned, within a single building; distinguished by Size, Transmission technology, Topology</td></tr>
+<tr><td><strong>WLAN</strong></td><td>LAN using wireless tech (Wi-Fi); no physical cabling needed</td></tr>
+<tr><td><strong>CAN</strong> (Campus Area Network)</td><td>Larger than LAN, smaller than MAN; spans nearby buildings</td></tr>
+<tr><td><strong>MAN</strong> (Metropolitan Area Network)</td><td>Spans a town/city; 20–40 km; connects multiple LANs; uplinks LAN→WAN</td></tr>
+<tr><td><strong>WAN</strong> (Wide Area Network)</td><td>Connects LANs/MANs across long distances / entire countries</td></tr>
+</tbody>
+</table>
+
+<div class="callout example"><span class="co-label">Example</span>
+Keyboard + wireless mouse = <strong>PAN</strong>. Office floor network = <strong>LAN</strong>. University connecting several LANs across buildings = <strong>CAN</strong>. A city-wide cable-TV network = <strong>MAN</strong>. The Internet backbone spanning countries = <strong>WAN</strong>.
+</div>
+
+<h4>Types of Services (Connection-Oriented vs Connectionless) 🔥</h4>
+<table>
+<thead><tr><th>Connection-Oriented Service</th><th>Connectionless Service</th></tr></thead>
+<tbody>
+<tr><td>Analogous to the telephone system</td><td>Analogous to the postal system</td></tr>
+<tr><td>3 phases: connection establishment → data transfer → termination</td><td>Single phase: data transfer only</td></tr>
+<tr><td>Reliable and secure</td><td>No guarantee of reliability/security</td></tr>
+<tr><td>Order of data bits preserved</td><td>Data need not arrive in order</td></tr>
+<tr><td>All packets follow the same route</td><td>Packets may follow different routes</td></tr>
+<tr><td>Requires authentication</td><td>Does not require authentication</td></tr>
+<tr><td>Example: <strong>TCP</strong></td><td>Example: <strong>UDP</strong></td></tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<!-- NETWORK SOFTWARE -->
+<details class="card" id="m1-software" open>
+<summary><span class="stitle"><span class="chev">▶</span> Network Software: Protocols, Layers &amp; Design Issues <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+
+<div class="callout def"><span class="co-label">Key Definitions</span>
+<strong>Protocol</strong> — an agreement between communicating parties on rules of communication (syntax, semantics, timing).<br>
+<strong>Peers</strong> — entities at the same layer on different machines.<br>
+<strong>Interface</strong> — primitive operations offered by a layer to the layer above it.<br>
+<strong>Network architecture</strong> — the set of layers + protocols.<br>
+<strong>Protocol stack</strong> — the list of protocols used by a system.
+</div>
+
+<h4>Protocol Hierarchies (Layering)</h4>
+<ul>
+  <li>Networks are organized as a stack of layers, each built upon the one below it, to reduce design complexity.</li>
+  <li>Each layer offers services to the layer above, hiding implementation details — like a virtual machine.</li>
+  <li>Layer <em>n</em> on one machine "talks" to layer <em>n</em> on another — governed by the <strong>layer n protocol</strong>.</li>
+  <li>Violating the protocol makes communication difficult or impossible.</li>
+</ul>
+
+<h4>Service Primitives</h4>
+<p>Adjacent layers communicate via function calls called <strong>primitives</strong> (usually OS system calls). Common connection-oriented primitives:</p>
+<table>
+<thead><tr><th>Primitive</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>LISTEN</td><td>Server prepares for incoming connections (blocks)</td></tr>
+<tr><td>CONNECT</td><td>Client establishes connection with server (blocks)</td></tr>
+<tr><td>ACCEPT</td><td>Server unblocks + sends ACK, which unblocks client</td></tr>
+<tr><td>RECEIVE</td><td>Server accepts first client request (blocks)</td></tr>
+<tr><td>SEND</td><td>Client transmits request / server replies</td></tr>
+<tr><td>DISCONNECT</td><td>Releases the connection on both ends</td></tr>
+</tbody>
+</table>
+
+<h4>Service vs Protocol 🔥 (common exam confusion)</h4>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Service</h5>
+    <ul>
+      <li>Set of primitives a layer provides to the layer above it</li>
+      <li>Defines <em>what</em> operations can be performed, not <em>how</em></li>
+      <li>Relates to the interface between two layers (provider &amp; user)</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Protocol</h5>
+    <ul>
+      <li>Rules governing format/meaning of packets exchanged between peer entities</li>
+      <li>Entities use protocols to <em>implement</em> service definitions</li>
+      <li>Relates to packets between peers on different machines</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+Students often confuse "service" and "protocol" — remember: a <strong>service</strong> is a vertical relationship (between layers on the <em>same</em> machine); a <strong>protocol</strong> is a horizontal relationship (between peer layers on <em>different</em> machines).
+</div>
+
+<h4>Key Network Design Issues</h4>
+<ul>
+  <li>Addressing — identifying senders/receivers</li>
+  <li>Rules for data transfer — one-way / two-way channels</li>
+  <li>Error control — detection &amp; correction codes</li>
+  <li>Sequencing of messages — numbering</li>
+  <li>Flow control — buffers</li>
+  <li>Splitting long messages; MUX/DEMUX for multiple processes</li>
+  <li>Routing algorithms; Scalability; Security (confidentiality, integrity)</li>
+</ul>
+</div>
+</details>
+
+<!-- OSI MODEL -->
+<details class="card" id="m1-osi" open>
+<summary><span class="stitle"><span class="chev">▶</span> OSI Reference Model (7 Layers) <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+
+<div class="callout def"><span class="co-label">Definition</span>
+The <strong>OSI (Open Systems Interconnection)</strong> model is a proposal by ISO, standardizing protocols for connecting open systems. Revised in 1995. Its protocols are rarely used today, but the 7-layer <em>model</em> remains conceptually important.
+</div>
+
+<h4>Design Principles</h4>
+<ul>
+  <li>A layer is created where a different abstraction is needed</li>
+  <li>Each layer performs a well-defined function</li>
+  <li>Layer functions chosen with international standardization in mind</li>
+  <li>Layer boundaries minimize information flow across interfaces</li>
+  <li>Number of layers should be optimum — not too many, not too few</li>
+</ul>
+
+<h4>The 7 Layers (top → bottom)</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+  <rect x="60" y="10" width="400" height="34" rx="6" fill="#1e1c22" stroke="#c4a35a" stroke-width="1.5"/>
+  <circle cx="40" cy="27" r="16" fill="#c4a35a"/><text x="40" y="32" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">7</text>
+  <text x="260" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Application</text>
+
+  <rect x="60" y="50" width="400" height="34" rx="6" fill="#1e1c22" stroke="#c4a35a" stroke-width="1.5"/>
+  <circle cx="40" cy="67" r="16" fill="#c4a35a"/><text x="40" y="72" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">6</text>
+  <text x="260" y="72" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Presentation</text>
+
+  <rect x="60" y="90" width="400" height="34" rx="6" fill="#1e1c22" stroke="#c4a35a" stroke-width="1.5"/>
+  <circle cx="40" cy="107" r="16" fill="#c4a35a"/><text x="40" y="112" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">5</text>
+  <text x="260" y="112" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Session</text>
+
+  <rect x="60" y="130" width="400" height="34" rx="6" fill="#1e1c22" stroke="#7c9ec9" stroke-width="1.5"/>
+  <circle cx="40" cy="147" r="16" fill="#7c9ec9"/><text x="40" y="152" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">4</text>
+  <text x="260" y="152" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Transport</text>
+
+  <rect x="60" y="170" width="400" height="34" rx="6" fill="#1e1c22" stroke="#8dbf8d" stroke-width="1.5"/>
+  <circle cx="40" cy="187" r="16" fill="#8dbf8d"/><text x="40" y="192" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">3</text>
+  <text x="260" y="192" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Network</text>
+
+  <rect x="60" y="210" width="400" height="34" rx="6" fill="#1e1c22" stroke="#c98a7c" stroke-width="1.5"/>
+  <circle cx="40" cy="227" r="16" fill="#c98a7c"/><text x="40" y="232" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">2</text>
+  <text x="260" y="232" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Data Link</text>
+
+  <rect x="60" y="250" width="400" height="34" rx="6" fill="#1e1c22" stroke="#c98a7c" stroke-width="1.5"/>
+  <circle cx="40" cy="267" r="16" fill="#c98a7c"/><text x="40" y="272" text-anchor="middle" font-family="monospace" font-size="13" font-weight="700" fill="#0f0e11">1</text>
+  <text x="260" y="272" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="15" font-weight="600" fill="#e6e4ea">Physical</text>
+</svg>
+<div class="diagram-caption">The OSI stack — data flows down through all 7 layers on the sender, and back up on the receiver.</div>
+</div>
+
+<table>
+<thead><tr><th>#</th><th>Layer</th><th>Main Function</th></tr></thead>
+<tbody>
+<tr><td>7</td><td>Application</td><td>User interface; protocols for file transfer, email, etc. (HTTP, FTP, DNS, SMTP)</td></tr>
+<tr><td>6</td><td>Presentation</td><td>Data format translation, encryption/decryption, compression/decompression</td></tr>
+<tr><td>5</td><td>Session</td><td>Dialog control, token management, synchronization (checkpointing)</td></tr>
+<tr><td>4</td><td>Transport</td><td>First true end-to-end layer; segmentation/reassembly, port addressing, reliability, flow &amp; error control</td></tr>
+<tr><td>3</td><td>Network</td><td>Routing, flow control, congestion control across heterogeneous networks</td></tr>
+<tr><td>2</td><td>Data Link</td><td>Frames bits, error detection/correction, flow control between adjacent nodes</td></tr>
+<tr><td>1</td><td>Physical</td><td>Transmits raw bits; mechanical, electrical, timing interfaces</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><span class="co-label">Mnemonic</span>
+"<strong>A</strong>ll <strong>P</strong>eople <strong>S</strong>eem <strong>T</strong>o <strong>N</strong>eed <strong>D</strong>ata <strong>P</strong>rocessing" (top to bottom: App, Pres, Session, Transport, Network, DataLink, Physical).
+</div>
+
+<h4>Layer Details Worth Remembering 🔥</h4>
+<ul>
+  <li><strong>Physical:</strong> volts per bit, bit duration, simplex/duplex, connector pins — all mechanical/electrical/timing aspects.</li>
+  <li><strong>Data Link:</strong> breaks input into frames; processes acknowledgement frames; creates/recognizes frame boundaries using special bit patterns.</li>
+  <li><strong>Network:</strong> overcomes heterogeneity — different addressing schemes, packet size limits, differing protocols between networks.</li>
+  <li><strong>Transport:</strong> the <em>first end-to-end layer</em> — unlike the lower 3 layers which are "chained" hop-by-hop.</li>
+  <li><strong>Session:</strong> manages "whose turn it is to transmit" (dialog control) + checkpointing for crash recovery.</li>
+  <li><strong>Presentation:</strong> concerned with syntax/semantics of transmitted info — converts local representation to network standard.</li>
+</ul>
+</div>
+</details>
+
+<!-- TCP/IP MODEL -->
+<details class="card" id="m1-tcpip" open>
+<summary><span class="stitle"><span class="chev">▶</span> TCP/IP Reference Model <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>Named after its two main protocols: <strong>TCP</strong> (Transmission Control Protocol) and <strong>IP</strong> (Internet Protocol). Designed in the 1970s; became the standard Internet protocol suite, connecting multiple networks seamlessly.</p>
+
+<h4>The 4 Layers</h4>
+<table>
+<thead><tr><th>Layer</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><strong>Host-to-Network</strong> (Network Access)</td><td>Not well-specified by the model; host connects to network via some protocol (varies by host/network) to send IP packets — e.g. twisted pair, fiber</td></tr>
+<tr><td><strong>Internet</strong></td><td>Connectionless layer defining protocol <strong>IP</strong>; delivers packets independently — may arrive out of order (higher layers handle ordering)</td></tr>
+<tr><td><strong>Transport</strong></td><td>Two end-to-end protocols: <strong>TCP</strong> (connection-oriented, ordered, reliable, flow control) and <strong>UDP</strong> (connectionless, unreliable, used for real-time voice/video)</td></tr>
+<tr><td><strong>Application</strong></td><td>No session/presentation layers; contains higher-level protocols — TELNET, FTP, SMTP, HTTP, DNS</td></tr>
+</tbody>
+</table>
+
+<div class="callout example"><span class="co-label">Example</span>
+TCP guarantees ordered, error-free delivery — ideal for file downloads. UDP is connectionless and faster but unreliable — used for live video/voice calls where late data is worse than lost data.
+</div>
+
+<h4>Addressing at Different Layers 🔥</h4>
+<p>As data travels down the stack, each layer wraps the data with its <em>own</em> kind of address — this is why the same piece of data ends up carrying several different addresses by the time it hits the wire.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 620 230" xmlns="http://www.w3.org/2000/svg">
+  <text x="310" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Port (Transport) → IP (Network) → MAC (Data Link) — each layer adds its own address</text>
+  <g font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">
+    <text x="30" y="45">Application</text>
+    <text x="30" y="80">Transport</text>
+    <text x="30" y="115">Network</text>
+    <text x="30" y="150">Data Link</text>
+  </g>
+  <g font-family="monospace" font-size="10.5" text-anchor="middle" font-weight="700">
+    <rect x="130" y="30" width="150" height="26" fill="#c98a7c" opacity="0.3" stroke="#c98a7c"/><text x="205" y="47" fill="#e6e4ea">Data</text>
+
+    <rect x="130" y="65" width="30" height="26" fill="#7c9ec9"/><text x="145" y="82" fill="#0f0e11">a</text>
+    <rect x="160" y="65" width="30" height="26" fill="#7c9ec9"/><text x="175" y="82" fill="#0f0e11">j</text>
+    <rect x="190" y="65" width="90" height="26" fill="#c98a7c" opacity="0.3" stroke="#c98a7c"/><text x="235" y="82" fill="#e6e4ea">Data</text>
+    <text x="480" y="82" fill="#7c9ec9" font-weight="400" text-anchor="start">a = source port, j = destination port</text>
+
+    <rect x="100" y="100" width="30" height="26" fill="#c4a35a"/><text x="115" y="117" fill="#0f0e11">A</text>
+    <rect x="130" y="100" width="30" height="26" fill="#c4a35a"/><text x="145" y="117" fill="#0f0e11">P</text>
+    <rect x="160" y="100" width="30" height="26" fill="#7c9ec9"/><text x="175" y="117" fill="#0f0e11">a</text>
+    <rect x="190" y="100" width="30" height="26" fill="#7c9ec9"/><text x="205" y="117" fill="#0f0e11">j</text>
+    <rect x="220" y="100" width="60" height="26" fill="#c98a7c" opacity="0.3" stroke="#c98a7c"/><text x="250" y="117" fill="#e6e4ea">Data</text>
+    <text x="480" y="117" fill="#c4a35a" font-weight="400" text-anchor="start">A = source IP, P = destination IP</text>
+
+    <rect x="60" y="135" width="30" height="26" fill="#8dbf8d"/><text x="75" y="152" fill="#0f0e11">H2</text>
+    <rect x="90" y="135" width="30" height="26" fill="#c4a35a"/><text x="105" y="152" fill="#0f0e11">A</text>
+    <rect x="120" y="135" width="30" height="26" fill="#c4a35a"/><text x="135" y="152" fill="#0f0e11">P</text>
+    <rect x="150" y="135" width="30" height="26" fill="#7c9ec9"/><text x="165" y="152" fill="#0f0e11">a</text>
+    <rect x="180" y="135" width="30" height="26" fill="#7c9ec9"/><text x="195" y="152" fill="#0f0e11">j</text>
+    <rect x="210" y="135" width="50" height="26" fill="#c98a7c" opacity="0.3" stroke="#c98a7c"/><text x="235" y="152" fill="#e6e4ea">Data</text>
+    <rect x="260" y="135" width="30" height="26" fill="#8dbf8d"/><text x="275" y="152" fill="#0f0e11">T2</text>
+    <text x="480" y="152" fill="#8dbf8d" font-weight="400" text-anchor="start">H2/T2 = MAC header/trailer</text>
+  </g>
+  <text x="310" y="195" text-anchor="middle" font-size="10.5" fill="#9a97a3">A router forwarding between LANs strips and rebuilds only the MAC (H2/T2) layer</text>
+  <text x="310" y="212" text-anchor="middle" font-size="10.5" fill="#9a97a3">at every hop — the IP addresses (A, P) stay unchanged end-to-end.</text>
+</svg>
+<div class="diagram-caption">Port numbers identify a <em>process</em> on the host (Transport layer). IP addresses identify the <em>host</em> on the network (Network layer). MAC addresses identify the <em>physical adapter</em> on the local link (Data Link layer) — and get rewritten at every router hop.</div>
+</div>
+
+<div class="callout note"><span class="co-label">Note</span>
+This 3-tier addressing is exactly why a router changes the MAC address of a frame at every hop but never touches the IP address inside it — see the <strong>Router vs Bridge</strong> comparison in Module 2's Connecting Devices section.
+</div>
+</div>
+</details>
+
+<!-- OSI vs TCP/IP -->
+<details class="card" id="m1-compare" open>
+<summary><span class="stitle"><span class="chev">▶</span> OSI vs TCP/IP — Comparison <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+<p>A classic exam question. Key differences to remember:</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="95" y="0" font-size="1"></text>
+  <!-- OSI stack -->
+  <text x="95" y="0"></text>
+  <rect x="20" y="10" width="150" height="34" rx="5" fill="rgba(196,163,90,0.12)" stroke="#c4a35a"/>
+  <text x="95" y="31" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Application</text>
+  <rect x="20" y="50" width="150" height="34" rx="5" fill="rgba(196,163,90,0.12)" stroke="#c4a35a"/>
+  <text x="95" y="71" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Presentation</text>
+  <rect x="20" y="90" width="150" height="34" rx="5" fill="rgba(196,163,90,0.12)" stroke="#c4a35a"/>
+  <text x="95" y="111" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Session</text>
+  <rect x="20" y="130" width="150" height="34" rx="5" fill="rgba(124,158,201,0.12)" stroke="#7c9ec9"/>
+  <text x="95" y="151" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Transport</text>
+  <rect x="20" y="170" width="150" height="34" rx="5" fill="rgba(141,191,141,0.12)" stroke="#8dbf8d"/>
+  <text x="95" y="191" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Network</text>
+  <rect x="20" y="210" width="150" height="34" rx="5" fill="rgba(201,138,124,0.12)" stroke="#c98a7c"/>
+  <text x="95" y="231" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Data Link</text>
+  <rect x="20" y="250" width="150" height="34" rx="5" fill="rgba(201,138,124,0.12)" stroke="#c98a7c"/>
+  <text x="95" y="271" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" fill="#e6e4ea">Physical</text>
+
+  <!-- connecting lines -->
+  <path d="M170,27 Q290,27 390,87" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,67 Q290,67 390,87" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,107 Q290,107 390,87" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,147 L390,147" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,187 L390,187" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,227 Q290,227 390,247" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+  <path d="M170,267 Q290,267 390,247" fill="none" stroke="#9a97a3" stroke-dasharray="3,3"/>
+
+  <!-- TCP/IP stack -->
+  <rect x="390" y="10" width="150" height="154" rx="5" fill="rgba(196,163,90,0.12)" stroke="#c4a35a" stroke-width="1.5"/>
+  <text x="465" y="90" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#e6e4ea">Application</text>
+  <rect x="390" y="130" width="150" height="34" rx="5" fill="rgba(124,158,201,0.12)" stroke="#7c9ec9" stroke-width="1.5"/>
+  <text x="465" y="151" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#e6e4ea">Transport</text>
+  <rect x="390" y="170" width="150" height="34" rx="5" fill="rgba(141,191,141,0.12)" stroke="#8dbf8d" stroke-width="1.5"/>
+  <text x="465" y="191" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#e6e4ea">Internet</text>
+  <rect x="390" y="210" width="150" height="74" rx="5" fill="rgba(201,138,124,0.12)" stroke="#c98a7c" stroke-width="1.5"/>
+  <text x="465" y="250" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#e6e4ea">Host-to-</text>
+  <text x="465" y="266" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" font-weight="600" fill="#e6e4ea">Network</text>
+
+  <text x="95" y="-10"></text>
+</svg>
+<div class="diagram-caption">OSI's 7 layers map onto TCP/IP's 4 layers — TCP/IP merges Session/Presentation/Application, and merges Data Link/Physical.</div>
+</div>
+
+<table>
+<thead><tr><th>Basis</th><th>OSI Model</th><th>TCP/IP Model</th></tr></thead>
+<tbody>
+<tr><td>Layers</td><td>7 layers</td><td>4 layers</td></tr>
+<tr><td>Approach</td><td>Reference/conceptual model (protocol-independent)</td><td>Protocol-based model (actual implementation)</td></tr>
+<tr><td>Development</td><td>Developed by ISO before protocols existed</td><td>Protocols developed first, model described later</td></tr>
+<tr><td>Session &amp; Presentation layers</td><td>Present as separate layers</td><td>Absent — merged into Application layer</td></tr>
+<tr><td>Transport layer reliability</td><td>Guarantees delivery</td><td>Does not always guarantee delivery (depends on TCP/UDP choice)</td></tr>
+<tr><td>Usage today</td><td>Rarely used in practice; used for teaching/reference</td><td>Widely used — the basis of the actual Internet</td></tr>
+<tr><td>Coupling</td><td>Layers &amp; services strictly defined before protocols</td><td>Layers defined after protocols; less strict boundaries</td></tr>
+</tbody>
+</table>
+<div class="callout note"><span class="co-label">Note</span>
+Both models use the concept of a protocol stack and layering, and both were designed to enable communication between heterogeneous systems — the key exam distinction is <strong>7 vs 4 layers</strong> and OSI being a general <em>reference</em> model vs TCP/IP being an <em>implemented</em> protocol suite.
+</div>
+</div>
+</details>
+
+<!-- PHYSICAL LAYER: MODES OF COMM -->
+<details class="card" id="m1-physical" open>
+<summary><span class="stitle"><span class="chev">▶</span> Physical Layer: Data Communication &amp; Modes <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Data communication</strong> is the exchange of data between two devices via a transmission medium. Effectiveness depends on 4 characteristics: <strong>Delivery, Accuracy, Timeliness, Jitter</strong>.
+</div>
+
+<h4>Components of a Data Communication System</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="55" width="90" height="50" rx="6" fill="#1e1c22" stroke="#7c9ec9" stroke-width="1.5"/><text x="65" y="85" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#e6e4ea">Sender</text>
+  <rect x="405" y="55" width="90" height="50" rx="6" fill="#1e1c22" stroke="#7c9ec9" stroke-width="1.5"/><text x="450" y="85" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#e6e4ea">Receiver</text>
+  <rect x="150" y="65" width="220" height="30" rx="15" fill="#c4a35a" opacity="0.85"/><text x="260" y="86" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="11.5" font-weight="700" fill="#0f0e11">Transmission Medium</text>
+  <line x1="110" y1="80" x2="148" y2="80" stroke="#8dbf8d" stroke-width="2"/>
+  <line x1="372" y1="80" x2="403" y2="80" stroke="#8dbf8d" stroke-width="2"/>
+  <text x="260" y="35" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="11" fill="#8dbf8d">Message ──▶</text>
+  <rect x="150" y="115" width="220" height="26" rx="5" fill="none" stroke="#c98a7c" stroke-dasharray="3,3"/><text x="260" y="133" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#c98a7c">Protocol — the rules both sides agree to follow</text>
+</svg>
+<div class="diagram-caption">5 components: Sender + Receiver (the devices), Message (the data), Transmission medium (the physical path), Protocol (the agreed-upon rules governing the exchange).</div>
+</div>
+
+<ol>
+  <li><strong>Message</strong> — the information (text, numbers, images, audio, video)</li>
+  <li><strong>Sender</strong> — device sending the data</li>
+  <li><strong>Receiver</strong> — device receiving the data</li>
+  <li><strong>Transmission medium</strong> — the physical path (twisted-pair, coax, fiber, radio)</li>
+  <li><strong>Protocol</strong> — rules governing communication</li>
+</ol>
+
+<h4>Modes of Communication (Data Flow) 🔥</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 250" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arw1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8dbf8d"/></marker>
+    <marker id="arw2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c9ec9"/></marker>
+  </defs>
+
+  <text x="10" y="35" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#c4a35a">Simplex</text>
+  <rect x="140" y="18" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="163" y="37" text-anchor="middle" font-size="12" fill="#e6e4ea">A</text>
+  <rect x="300" y="18" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="323" y="37" text-anchor="middle" font-size="12" fill="#e6e4ea">B</text>
+  <line x1="186" y1="33" x2="296" y2="33" stroke="#8dbf8d" stroke-width="2.5" marker-end="url(#arw1)"/>
+  <text x="241" y="20" text-anchor="middle" font-size="10" fill="#9a97a3">one direction only</text>
+
+  <text x="10" y="120" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#c4a35a">Half-Duplex</text>
+  <rect x="140" y="95" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="163" y="114" text-anchor="middle" font-size="12" fill="#e6e4ea">A</text>
+  <rect x="300" y="95" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="323" y="114" text-anchor="middle" font-size="12" fill="#e6e4ea">B</text>
+  <line x1="186" y1="104" x2="296" y2="104" stroke="#7c9ec9" stroke-width="2.5" marker-end="url(#arw2)"/>
+  <line x1="296" y1="118" x2="186" y2="118" stroke="#7c9ec9" stroke-width="2.5" stroke-dasharray="4,3" marker-end="url(#arw2)"/>
+  <text x="241" y="90" text-anchor="middle" font-size="10" fill="#9a97a3">both directions — one at a time</text>
+
+  <text x="10" y="200" font-family="Segoe UI,sans-serif" font-size="13" font-weight="600" fill="#c4a35a">Full-Duplex</text>
+  <rect x="140" y="175" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="163" y="194" text-anchor="middle" font-size="12" fill="#e6e4ea">A</text>
+  <rect x="300" y="175" width="46" height="30" rx="4" fill="#1e1c22" stroke="#9a97a3"/><text x="323" y="194" text-anchor="middle" font-size="12" fill="#e6e4ea">B</text>
+  <line x1="186" y1="184" x2="296" y2="184" stroke="#8dbf8d" stroke-width="2.5" marker-end="url(#arw1)"/>
+  <line x1="296" y1="198" x2="186" y2="198" stroke="#8dbf8d" stroke-width="2.5" marker-end="url(#arw1)"/>
+  <text x="241" y="170" text-anchor="middle" font-size="10" fill="#9a97a3">both directions — simultaneously</text>
+</svg>
+</div>
+
+<table>
+<thead><tr><th>Mode</th><th>Description</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>Simplex</strong></td><td>Unidirectional — one device transmits, other only receives; uses full channel capacity</td><td>Keyboard → Monitor</td></tr>
+<tr><td><strong>Half-Duplex</strong></td><td>Both can transmit/receive, but not simultaneously; full capacity per direction, one at a time</td><td>Walkie-talkies</td></tr>
+<tr><td><strong>Full-Duplex</strong></td><td>Both transmit &amp; receive simultaneously; capacity divided or two physical paths used</td><td>Telephone network</td></tr>
+</tbody>
+</table>
+
+<h4>Analog vs Digital</h4>
+<ul>
+  <li><strong>Analog data/signal</strong> — continuous, infinitely many intensity levels over time.</li>
+  <li><strong>Digital data/signal</strong> — discrete states, limited defined values (commonly 1 and 0).</li>
+  <li>Signals can be <strong>periodic</strong> (repeats a pattern — a "cycle") or <strong>nonperiodic</strong> (no repeating pattern).</li>
+</ul>
+
+<pre><code>Wave speed = frequency × wavelength
+        v = f × λ
+
+Higher frequency → shorter wavelength (at constant speed)
+Lower frequency  → longer wavelength</code></pre>
+</div>
+</details>
+
+<!-- TOPOLOGIES -->
+<details class="card" id="m1-topology" open>
+<summary><span class="stitle"><span class="chev">▶</span> Physical Topologies (Mesh, Star, Bus, Ring) <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+<p>Physical topology = the geometric layout of links and nodes in a network. Four basic types: <strong>mesh, star, bus, ring</strong> (plus hybrid).</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 540" xmlns="http://www.w3.org/2000/svg">
+  <!-- MESH (top-left) -->
+  <text x="125" y="20" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#c4a35a">Mesh</text>
+  <g stroke="#7c9ec9" stroke-width="1.2">
+    <line x1="125" y1="80" x2="192" y2="128"/><line x1="125" y1="80" x2="166" y2="207"/><line x1="125" y1="80" x2="84" y2="207"/><line x1="125" y1="80" x2="58" y2="128"/>
+    <line x1="192" y1="128" x2="166" y2="207"/><line x1="192" y1="128" x2="84" y2="207"/><line x1="192" y1="128" x2="58" y2="128"/>
+    <line x1="166" y1="207" x2="84" y2="207"/><line x1="166" y1="207" x2="58" y2="128"/>
+    <line x1="84" y1="207" x2="58" y2="128"/>
+  </g>
+  <g fill="#c4a35a" stroke="#141317" stroke-width="1.5">
+    <circle cx="125" cy="80" r="9"/><circle cx="192" cy="128" r="9"/><circle cx="166" cy="207" r="9"/><circle cx="84" cy="207" r="9"/><circle cx="58" cy="128" r="9"/>
+  </g>
+
+  <!-- STAR (top-right) -->
+  <g transform="translate(270,0)">
+    <text x="125" y="20" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#c4a35a">Star</text>
+    <g stroke="#7c9ec9" stroke-width="1.2">
+      <line x1="125" y1="150" x2="125" y2="65"/><line x1="125" y1="150" x2="201" y2="113"/><line x1="125" y1="150" x2="172" y2="203"/><line x1="125" y1="150" x2="78" y2="203"/><line x1="125" y1="150" x2="49" y2="113"/>
+    </g>
+    <circle cx="125" cy="150" r="12" fill="#8dbf8d" stroke="#141317" stroke-width="1.5"/>
+    <g fill="#c4a35a" stroke="#141317" stroke-width="1.5">
+      <circle cx="125" cy="65" r="9"/><circle cx="201" cy="113" r="9"/><circle cx="172" cy="203" r="9"/><circle cx="78" cy="203" r="9"/><circle cx="49" cy="113" r="9"/>
+    </g>
+  </g>
+
+  <!-- BUS (bottom-left) -->
+  <g transform="translate(0,270)">
+    <text x="125" y="20" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#c4a35a">Bus</text>
+    <line x1="30" y1="150" x2="220" y2="150" stroke="#7c9ec9" stroke-width="3"/>
+    <g stroke="#7c9ec9" stroke-width="1.2">
+      <line x1="50" y1="150" x2="50" y2="100"/><line x1="90" y1="150" x2="90" y2="100"/><line x1="130" y1="150" x2="130" y2="100"/><line x1="170" y1="150" x2="170" y2="100"/><line x1="210" y1="150" x2="210" y2="100"/>
+    </g>
+    <g fill="#c4a35a" stroke="#141317" stroke-width="1.5">
+      <circle cx="50" cy="92" r="9"/><circle cx="90" cy="92" r="9"/><circle cx="130" cy="92" r="9"/><circle cx="170" cy="92" r="9"/><circle cx="210" cy="92" r="9"/>
+    </g>
+  </g>
+
+  <!-- RING (bottom-right) -->
+  <g transform="translate(270,270)">
+    <text x="125" y="20" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="14" font-weight="700" fill="#c4a35a">Ring</text>
+    <g stroke="#7c9ec9" stroke-width="1.2">
+      <line x1="125" y1="80" x2="192" y2="128"/><line x1="192" y1="128" x2="166" y2="207"/><line x1="166" y1="207" x2="84" y2="207"/><line x1="84" y1="207" x2="58" y2="128"/><line x1="58" y1="128" x2="125" y2="80"/>
+    </g>
+    <g fill="#c4a35a" stroke="#141317" stroke-width="1.5">
+      <circle cx="125" cy="80" r="9"/><circle cx="192" cy="128" r="9"/><circle cx="166" cy="207" r="9"/><circle cx="84" cy="207" r="9"/><circle cx="58" cy="128" r="9"/>
+    </g>
+  </g>
+</svg>
+<div class="diagram-caption">Gold nodes = devices. Mesh: every pair directly linked. Star: all links pass through a central hub (green). Bus: shared backbone cable. Ring: each node linked only to its two neighbors.</div>
+</div>
+
+<h4>1. Mesh Topology</h4>
+<p>Every device has a dedicated point-to-point link to every other device.</p>
+<pre><code>Links needed (unidirectional) = n(n − 1)
+Links needed (duplex mode)    = n(n − 1) / 2</code></pre>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Advantages</h5>
+    <ul>
+      <li>No traffic problems — dedicated links</li>
+      <li>Robust — one link failure doesn't cripple system</li>
+      <li>Privacy/security via dedicated lines</li>
+      <li>Easy fault identification &amp; isolation</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Disadvantages</h5>
+    <ul>
+      <li>Difficult installation/reconnection</li>
+      <li>Excessive cabling &amp; expensive hardware (I/O ports)</li>
+      <li>Usually only used for backbones in hybrid networks</li>
+    </ul>
+  </div>
+</div>
+
+<h4>2. Star Topology</h4>
+<p>Each device has a dedicated point-to-point link only to a central <strong>hub</strong>; devices aren't directly linked to each other — the hub acts as an exchange.</p>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Advantages</h5>
+    <ul>
+      <li>Less expensive than mesh</li>
+      <li>Easy install/reconfigure — one link/port per device</li>
+      <li>Robust — one link failure doesn't affect others</li>
+      <li>Easy fault isolation</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Disadvantages</h5>
+    <ul>
+      <li>Single point of failure — the hub</li>
+      <li>More cabling than ring/bus</li>
+    </ul>
+  </div>
+</div>
+
+<h4>3. Bus Topology</h4>
+<p>One long backbone cable links all devices via <strong>drop lines</strong> and <strong>taps</strong>. Signal weakens (attenuates) with distance — limiting the number of taps and distance.</p>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Advantages</h5>
+    <ul>
+      <li>Ease of installation</li>
+      <li>Uses less cabling than other topologies</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Disadvantages</h5>
+    <ul>
+      <li>Difficult reconnection &amp; fault isolation</li>
+      <li>Signal reflection at taps → quality degradation</li>
+      <li>Backbone fault stops all transmission</li>
+    </ul>
+  </div>
+</div>
+
+<h4>4. Ring Topology</h4>
+<p>Each device connects to only its two neighbors; signal passes in one direction, regenerated at each device's repeater.</p>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Advantages</h5>
+    <ul>
+      <li>Easy install/reconfigure (neighbor-only links)</li>
+      <li>Simplified fault isolation</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Disadvantages</h5>
+    <ul>
+      <li>Unidirectional traffic can be limiting</li>
+      <li>Single break can disable the entire ring</li>
+    </ul>
+  </div>
+</div>
+
+<h4>5. Hybrid Topology</h4>
+<p>Combines two or more topologies (bus + mesh + ring + star + tree), chosen based on business/institution needs, device count, location, and desired performance.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Two star clusters bridged by a bus backbone — a common hybrid design</text>
+  <line x1="80" y1="100" x2="400" y2="100" stroke="#c98a7c" stroke-width="3"/>
+  <text x="240" y="90" text-anchor="middle" font-size="9.5" fill="#c98a7c">bus backbone</text>
+
+  <circle cx="80" cy="100" r="14" fill="#c4a35a"/><text x="80" y="104" text-anchor="middle" font-size="9" font-weight="700" fill="#0f0e11">HUB1</text>
+  <g stroke="#7c9ec9" stroke-width="1.4">
+    <line x1="80" y1="88" x2="40" y2="45"/><line x1="80" y1="88" x2="80" y2="40"/><line x1="80" y1="88" x2="120" y2="45"/>
+  </g>
+  <g fill="#8dbf8d"><circle cx="40" cy="35" r="9"/><circle cx="80" cy="30" r="9"/><circle cx="120" cy="35" r="9"/></g>
+
+  <circle cx="400" cy="100" r="14" fill="#c4a35a"/><text x="400" y="104" text-anchor="middle" font-size="9" font-weight="700" fill="#0f0e11">HUB2</text>
+  <g stroke="#7c9ec9" stroke-width="1.4">
+    <line x1="400" y1="112" x2="360" y2="160"/><line x1="400" y1="112" x2="400" y2="165"/><line x1="400" y1="112" x2="440" y2="160"/>
+  </g>
+  <g fill="#8dbf8d"><circle cx="360" cy="170" r="9"/><circle cx="400" cy="175" r="9"/><circle cx="440" cy="170" r="9"/></g>
+
+  <text x="240" y="190" text-anchor="middle" font-size="10" fill="#9a97a3">Each department runs a star LAN internally; the two hubs are joined by a bus link between buildings</text>
+</svg>
+</div>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+Don't confuse mesh's <code>n(n-1)/2</code> link formula direction — this is for <em>duplex</em> links. For unidirectional (one-way per pair) links it's <code>n(n-1)</code>, exactly double.
+</div>
+</div>
+</details>
+
+<!-- TRANSMISSION MEDIA -->
+<details class="card" id="m1-media" open>
+<summary><span class="stitle"><span class="chev">▶</span> Transmission Media &amp; Physical Layer Devices <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>Transmission media are classed as <strong>Guided (wired)</strong> and <strong>Unguided (wireless)</strong>.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="230" y="10" width="100" height="34" rx="6" fill="#c4a35a" /><text x="280" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#0f0e11">Transmission Media</text>
+  <line x1="280" y1="44" x2="140" y2="70" stroke="#9a97a3"/>
+  <line x1="280" y1="44" x2="420" y2="70" stroke="#9a97a3"/>
+  <rect x="80" y="70" width="120" height="30" rx="6" fill="#7c9ec9"/><text x="140" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">Guided (wired)</text>
+  <rect x="360" y="70" width="120" height="30" rx="6" fill="#8dbf8d"/><text x="420" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">Unguided (wireless)</text>
+
+  <line x1="140" y1="100" x2="52" y2="125" stroke="#9a97a3"/>
+  <line x1="140" y1="100" x2="142" y2="125" stroke="#9a97a3"/>
+  <line x1="140" y1="100" x2="232" y2="125" stroke="#9a97a3"/>
+  <rect x="8" y="125" width="88" height="28" rx="5" fill="#1e1c22" stroke="#7c9ec9"/><text x="52" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Twisted Pair</text>
+  <rect x="98" y="125" width="88" height="28" rx="5" fill="#1e1c22" stroke="#7c9ec9"/><text x="142" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Coaxial Cable</text>
+  <rect x="188" y="125" width="88" height="28" rx="5" fill="#1e1c22" stroke="#7c9ec9"/><text x="232" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Fiber Optic</text>
+
+  <line x1="420" y1="100" x2="325" y2="125" stroke="#9a97a3"/>
+  <line x1="420" y1="100" x2="418" y2="125" stroke="#9a97a3"/>
+  <line x1="420" y1="100" x2="510" y2="125" stroke="#9a97a3"/>
+  <rect x="282" y="125" width="86" height="28" rx="5" fill="#1e1c22" stroke="#8dbf8d"/><text x="325" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Radio Waves</text>
+  <rect x="374" y="125" width="88" height="28" rx="5" fill="#1e1c22" stroke="#8dbf8d"/><text x="418" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Microwaves</text>
+  <rect x="466" y="125" width="88" height="28" rx="5" fill="#1e1c22" stroke="#8dbf8d"/><text x="510" y="143" text-anchor="middle" font-size="10" fill="#e6e4ea">Infrared</text>
+</svg>
+</div>
+
+<h4>Guided Media</h4>
+<table>
+<thead><tr><th>Medium</th><th>Key Points</th></tr></thead>
+<tbody>
+<tr><td><strong>Twisted Pair</strong></td><td>Two insulated copper conductors twisted together; one carries signal, other is ground reference. <strong>UTP</strong> (unshielded) is most common; <strong>STP</strong> (shielded — IBM) has metal foil/braided mesh shielding against noise/crosstalk.</td></tr>
+<tr><td><strong>Coaxial Cable</strong></td><td>Central copper core + insulating sheath + metal foil/braid outer conductor (shield + 2nd conductor) + plastic cover. Carries higher frequencies than twisted pair. Used in Ethernet LANs, cable TV.</td></tr>
+<tr><td><strong>Fiber Optic Cable</strong></td><td>Glass/plastic core surrounded by less-dense cladding; uses total internal reflection to guide light. Extremely high throughput, very high noise resistance, excellent security, long distances without repeaters — industry standard for high-speed networking.</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg">
+  <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Coaxial Cable — cross-section</text>
+  <circle cx="130" cy="95" r="65" fill="#1e1c22" stroke="#c98a7c" stroke-width="10"/>
+  <circle cx="130" cy="95" r="55" fill="#1e1c22" stroke="#8dbf8d" stroke-width="3" stroke-dasharray="2,3"/>
+  <circle cx="130" cy="95" r="42" fill="#7c9ec9"/>
+  <circle cx="130" cy="95" r="10" fill="#c4a35a"/>
+  <text x="130" y="99" text-anchor="middle" font-size="8" fill="#0f0e11" font-weight="700">core</text>
+  <g font-family="Segoe UI,sans-serif" font-size="9.5" fill="#9a97a3">
+    <text x="205" y="40">Plastic jacket (outer cover)</text>
+    <text x="205" y="60">Braided/foil shield (2nd conductor)</text>
+    <text x="205" y="80">Insulating sheath</text>
+    <text x="205" y="100">Copper core (signal)</text>
+  </g>
+  <line x1="185" y1="35" x2="192" y2="35" stroke="#c98a7c"/>
+  <line x1="172" y1="55" x2="192" y2="55" stroke="#8dbf8d"/>
+  <line x1="165" y1="76" x2="192" y2="76" stroke="#7c9ec9"/>
+  <line x1="140" y1="96" x2="192" y2="96" stroke="#c4a35a"/>
+
+  <g transform="translate(300,0)">
+    <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Fiber Optic — total internal reflection</text>
+    <rect x="20" y="70" width="220" height="50" fill="#1e1c22" stroke="#8dbf8d" stroke-dasharray="2,2"/>
+    <rect x="20" y="85" width="220" height="20" fill="#7c9ec9" opacity="0.5"/>
+    <text x="10" y="80" font-size="9" fill="#8dbf8d" text-anchor="start">cladding</text>
+    <text x="10" y="130" font-size="9" fill="#8dbf8d" text-anchor="start">cladding</text>
+    <text x="130" y="98" text-anchor="middle" font-size="9" fill="#0f0e11" font-weight="700">core (light path)</text>
+    <path d="M20,95 L60,85 L100,105 L140,85 L180,105 L220,95" fill="none" stroke="#c4a35a" stroke-width="2"/>
+    <text x="130" y="145" text-anchor="middle" font-size="10" fill="#9a97a3">Light bounces inside the denser core — never escapes into the less-dense cladding</text>
+  </g>
+</svg>
+</div>
+
+<h4>Unguided Media (Wireless)</h4>
+<table>
+<thead><tr><th>Wave Type</th><th>Characteristics</th></tr></thead>
+<tbody>
+<tr><td><strong>Radio waves</strong></td><td>Multicast (radio/TV/paging); penetrate walls; omnidirectional antennas; highly regulated</td></tr>
+<tr><td><strong>Microwaves</strong></td><td>Unicast (cellular, satellite, WLANs); cannot penetrate walls at high frequency; directional antennas — line-of-sight</td></tr>
+<tr><td><strong>Infrared</strong></td><td>Short-range, closed-area, line-of-sight communication</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><span class="co-label">Note</span>
+Wireless channels suffer more errors than guided media — interference (mitigated with high SNR), fading, and coverage holes. Higher SNR generally means less capacity available due to the broadcast nature of the channel.
+</div>
+
+<h4>Physical Layer Devices</h4>
+<table>
+<thead><tr><th>Device</th><th>Function</th></tr></thead>
+<tbody>
+<tr><td><strong>Repeater</strong></td><td>Regenerates a weakening/corrupted signal before re-sending it — physical layer only</td></tr>
+<tr><td><strong>Hub</strong></td><td>Just a connector joining wires from different branches; in star topology it's the "collision point"</td></tr>
+<tr><td><strong>Switch</strong></td><td>Layer 2 (DLL); stores MAC addresses; does unicasting to exact recipient</td></tr>
+<tr><td><strong>Bridge</strong></td><td>Layer 2 (DLL); connects two LANs of the same protocol; regenerates signal</td></tr>
+<tr><td><strong>Router</strong></td><td>Layer 3 (Network); connects 2+ networks (same or different protocols); forwards based on IP address</td></tr>
+<tr><td><strong>Brouter</strong></td><td>Combination of Bridge + Router</td></tr>
+<tr><td><strong>Modem</strong></td><td>Modulation/Demodulation of signals</td></tr>
+<tr><td><strong>Firewall</strong></td><td>Security device</td></tr>
+</tbody>
+</table>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 130" xmlns="http://www.w3.org/2000/svg">
+  <text x="260" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Why a repeater is needed — signal attenuates with distance</text>
+  <path d="M20,70 L100,70 L110,50 L120,90 L130,60 L140,80 L150,70 L230,70" fill="none" stroke="#8dbf8d" stroke-width="2"/>
+  <text x="125" y="105" text-anchor="middle" font-size="9.5" fill="#8dbf8d">strong signal</text>
+  <path d="M240,70 L280,70 L283,65 L287,75 L291,68 L295,72 L300,70 L340,70" fill="none" stroke="#c98a7c" stroke-width="1.6" opacity="0.7"/>
+  <text x="290" y="105" text-anchor="middle" font-size="9.5" fill="#c98a7c">weakened + noisy</text>
+  <rect x="345" y="55" width="60" height="30" rx="5" fill="#c4a35a"/><text x="375" y="75" text-anchor="middle" font-size="10" font-weight="700" fill="#0f0e11">Repeater</text>
+  <path d="M415,70 L460,70 L470,50 L480,90 L490,60 L500,80 L510,70" fill="none" stroke="#8dbf8d" stroke-width="2"/>
+  <text x="460" y="105" text-anchor="middle" font-size="9.5" fill="#8dbf8d">regenerated</text>
+</svg>
+</div>
+</div>
+</details>
+
+<!-- SIGNAL ENCODING -->
+<details class="card" id="m1-encoding" open>
+<summary><span class="stitle"><span class="chev">▶</span> Signal Encoding: Digital-to-Digital Conversion <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>Signal encoding techniques fall into 4 categories: Digital data→Digital signal, Digital data→Analog signal, Analog data→Digital signal, Analog data→Analog signal. Focus here: <strong>Digital-to-Digital</strong> (line coding).</p>
+
+<h4>Data Element vs Signal Element</h4>
+<ul>
+  <li><strong>Data element</strong> — smallest unit of information = the <em>bit</em> (what we need to send).</li>
+  <li><strong>Signal element</strong> — shortest unit of a digital signal (what we can actually send/carry).</li>
+  <li><strong>r</strong> = ratio of data elements carried per signal element.</li>
+</ul>
+
+<h4>Data Rate vs Signal Rate</h4>
+<ul>
+  <li><strong>Data rate (N)</strong> — bits sent per second (bps) = bit rate.</li>
+  <li><strong>Signal rate (S)</strong> — signal elements sent per second, measured in <strong>bauds</strong> = baud/modulation rate.</li>
+  <li>Goal: increase data rate while reducing baud rate.</li>
+</ul>
+
+<pre><code>Relationship between data rate (N) and signal rate (S):
+
+        S = c × N × (1/r)
+
+where c = case factor (worst/best/average), r = data elements per signal element
+Average case typically uses c = 1/2</code></pre>
+
+<div class="callout example"><span class="co-label">Solved Example</span>
+r = 1 (one data element per signal element), bit rate N = 100 kbps, average c = 1/2.<br>
+<code>S = (1/2) × 100,000 × (1/1) = 50,000 baud</code>
+</div>
+
+<h4>Line Coding Schemes</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 375" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Encoding the same bit sequence with each scheme</text>
+
+  <!-- gridlines -->
+  <g stroke="#2e2c35" stroke-dasharray="2,3">
+    <line x1="90" y1="25" x2="90" y2="335"/><line x1="145" y1="25" x2="145" y2="335"/><line x1="200" y1="25" x2="200" y2="335"/><line x1="255" y1="25" x2="255" y2="335"/><line x1="310" y1="25" x2="310" y2="335"/><line x1="365" y1="25" x2="365" y2="335"/><line x1="420" y1="25" x2="420" y2="335"/><line x1="475" y1="25" x2="475" y2="335"/>
+  </g>
+
+  <!-- row labels -->
+  <g font-family="Segoe UI,sans-serif" font-size="11" fill="#c4a35a" font-weight="600">
+    <text x="10" y="63">Unipolar NRZ</text>
+    <text x="10" y="143">Polar NRZ-L</text>
+    <text x="10" y="223">Polar NRZ-I</text>
+    <text x="10" y="303">Manchester</text>
+  </g>
+
+  <!-- Row 1: Unipolar NRZ — 1=high, 0=low -->
+  <path d="M90,75 L145,75 L145,45 L200,45 L200,75 L310,75 L310,45 L420,45 L420,75 L475,75" fill="none" stroke="#7c9ec9" stroke-width="2.2"/>
+
+  <!-- Row 2: Polar NRZ-L — 0=high(positive), 1=low(negative) -->
+  <path d="M90,125 L145,125 L145,155 L200,155 L200,125 L310,125 L310,155 L420,155 L420,125 L475,125" fill="none" stroke="#8dbf8d" stroke-width="2.2"/>
+
+  <!-- Row 3: Polar NRZ-I — transition=1, no transition=0 (start high) -->
+  <path d="M90,205 L145,205 L145,235 L310,235 L310,205 L365,205 L365,235 L475,235" fill="none" stroke="#c4a35a" stroke-width="2.2"/>
+
+  <!-- Row 4: Manchester — 1=high-then-low, 0=low-then-high -->
+  <path d="M90,315 L117.5,315 L117.5,285 L145,285 L172.5,285 L172.5,315 L200,315 L227.5,315 L227.5,285 L255,285 L255,315 L282.5,315 L282.5,285 L310,285 L337.5,285 L337.5,315 L365,315 L365,285 L392.5,285 L392.5,315 L420,315 L447.5,315 L447.5,285 L475,285" fill="none" stroke="#c98a7c" stroke-width="2.2"/>
+
+  <!-- bit values -->
+  <g font-family="monospace" font-size="13" fill="#e6e4ea" text-anchor="middle" font-weight="700">
+    <text x="117.5" y="352">0</text><text x="172.5" y="352">1</text><text x="227.5" y="352">0</text><text x="282.5" y="352">0</text><text x="337.5" y="352">1</text><text x="392.5" y="352">1</text><text x="447.5" y="352">0</text>
+  </g>
+  <text x="280" y="368" text-anchor="middle" font-size="9.5" fill="#9a97a3">bit sequence: 0 1 0 0 1 1 0</text>
+</svg>
+<div class="diagram-caption">Same 7-bit sequence shown across the four schemes — notice Manchester is the only one with a transition <em>every single bit</em> (self-clocking), while NRZ schemes can have long silent runs of no transitions.</div>
+</div>
+
+<table>
+<thead><tr><th>Scheme</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Unipolar NRZ</strong></td><td>All signal levels on one side of axis; positive voltage = 1, zero voltage = 0; signal doesn't return to zero mid-bit</td></tr>
+<tr><td><strong>Polar NRZ-L</strong></td><td>Two voltage levels; the <em>level</em> itself determines the bit value</td></tr>
+<tr><td><strong>Polar NRZ-I</strong></td><td>A <em>change</em> (or no change) in level determines the bit — transition = 1, no transition = 0</td></tr>
+<tr><td><strong>Manchester coding</strong></td><td>Combines NRZ-L + RZ; every symbol has a mid-bit transition (high→low or low→high); 2 voltage levels; used by <strong>IEEE 802.3 Ethernet</strong> 🔥</td></tr>
+<tr><td><strong>Differential Manchester</strong></td><td>Combines NRZ-I + RZ; every symbol has a mid-bit transition, but the starting level depends on the bit value</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><span class="co-label">Note</span>
+<strong>Manchester encoding is used by classic Ethernet</strong> — a frequently tested fact. Remember: a binary 1 = high-then-low; binary 0 = low-then-high (within each bit period).
+</div>
+</div>
+</details>
+
+<!-- PERFORMANCE -->
+<details class="card" id="m1-perf" open>
+<summary><span class="stitle"><span class="chev">▶</span> Performance Indicators: Bandwidth, Throughput, Latency, BDP, Jitter <span class="badge">🔥🔥 Very High Yield — Numericals!</span></span></summary>
+<div class="card-body">
+<p>Performance metrics measure a network's <strong>Quality of Service (QoS)</strong> as perceived by the user: <strong>Bandwidth, Throughput, Latency (Delay), Bandwidth-Delay Product, Jitter.</strong></p>
+
+<h4>1. Bandwidth</h4>
+<ul>
+  <li><strong>Bandwidth in Hertz</strong> — range of frequencies in a composite signal/channel: <code>Bandwidth = upper frequency − lower frequency</code></li>
+  <li><strong>Bandwidth in bits per second</strong> — the number of bits/sec a channel can transmit (a "speed" measure)</li>
+  <li>"Bandwidth" = Capacity; "Speed" = Transfer rate. Data rate is <strong>directly proportional</strong> to bandwidth (Hz).</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Solved Example — Bandwidth</span>
+A composite signal has frequencies 100–5000 Hz (5 sine waves: 100,300,500,700,900 Hz).<br>
+<code>Bandwidth B = f_high − f_low = 900 − 100 = 800 Hz</code>
+</div>
+
+<h4>2. Throughput</h4>
+<ul>
+  <li>Number of bits <em>successfully</em> transmitted per unit time — how fast data can <em>actually</em> be sent.</li>
+  <li>Bandwidth = <em>potential</em> measurement; Throughput = <em>actual</em> measurement (always ≤ bandwidth, limited by SNR &amp; hardware).</li>
+</ul>
+<pre><code>Throughput = (frames × bits per frame) / time
+
+Example: 10 Mbps link, 12,000 frames/min, 10,000 bits/frame
+Throughput = (12,000 × 10,000) / 60 = 2,000,000 bps = 2 Mbps
+(≈ one-fifth of the 10 Mbps bandwidth)</code></pre>
+
+<h4>3. Latency (Delay) 🔥</h4>
+<p>Time for an entire message to completely arrive at the destination — from first bit sent to last bit delivered.</p>
+<pre><code>Latency = Propagation Time + Transmission Time + Queuing Time + Processing Delay
+
+Propagation Time  = Distance / Propagation Speed
+Transmission Time = Message size / Bandwidth</code></pre>
+<ul>
+  <li><strong>Propagation delay</strong> — time for one bit to travel from source to destination.</li>
+  <li><strong>Transmission delay</strong> — time for the entire message to be pushed onto the link.</li>
+  <li><strong>Queuing time</strong> — time a frame waits at an intermediate device (router); increases with network load.</li>
+  <li><strong>Processing delay</strong> — time for a router to determine where to forward a packet.</li>
+  <li>Low-Latency networks = small delays; High-Latency networks = long delays → causes bottlenecks.</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Solved Example — Propagation Time</span>
+Distance = 12,000 km, propagation speed = 2.4×10⁸ m/s.<br>
+<code>Propagation time = (12,000 × 1000) / (2.4×10⁸) = 50 ms</code>
+</div>
+
+<div class="callout example"><span class="co-label">Solved Example — Short Message, High Bandwidth</span>
+2.5 kbyte message, bandwidth = 1 Gbps, distance = 12,000 km, speed = 2.4×10⁸ m/s.<br>
+Propagation time dominates; transmission time is negligible and can be ignored.
+</div>
+
+<div class="callout example"><span class="co-label">Solved Example — Long Message, Low Bandwidth</span>
+5 Mbyte message (image), bandwidth = 1 Mbps, distance = 12,000 km.<br>
+Transmission time dominates; propagation time is negligible and can be ignored.
+</div>
+
+<h4>4. Bandwidth–Delay Product 🔥</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+The product of a link's <strong>bandwidth</strong> and its <strong>delay</strong> gives the maximum number of bits that can "fill" the link at any instant (i.e., the number of bits in transit).
+</div>
+<pre><code>Bandwidth-Delay Product = Bandwidth × Delay
+
+Case 1: Bandwidth = 1 bps, Delay = 5s
+BDP = 1 × 5 = 5 bits can fill the link at any given time
+
+Case 2: Bandwidth = 5 bps, Delay = 5s (same delay, wider pipe)
+BDP = 5 × 5 = 25 bits can fill the link at any given time</code></pre>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 130" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Think of the link as a pipe — BDP is its volume in bits</text>
+  <rect x="40" y="35" width="20" height="14" fill="#1e1c22" stroke="#c4a35a"/>
+  <rect x="60" y="35" width="360" height="60" fill="none" stroke="#7c9ec9" stroke-width="2"/>
+  <rect x="420" y="65" width="20" height="14" fill="#1e1c22" stroke="#c4a35a"/>
+  <g fill="#c4a35a">
+    <circle cx="90" cy="55" r="7"/><circle cx="130" cy="60" r="7"/><circle cx="170" cy="50" r="7"/><circle cx="210" cy="65" r="7"/><circle cx="250" cy="55" r="7"/>
+  </g>
+  <text x="240" y="115" text-anchor="middle" font-size="10.5" fill="#9a97a3">bits already sent but not yet received — "in flight" inside the link</text>
+  <text x="50" y="30" font-size="10" fill="#8dbf8d">Sender</text>
+  <text x="430" y="120" font-size="10" fill="#8dbf8d">Receiver</text>
+</svg>
+<div class="diagram-caption">Same delay (5s), but a wider pipe (Case 2: 5 bps vs Case 1: 1 bps) holds 5× more bits in flight — 25 bits instead of 5. Bandwidth is literally how "fat" the pipe is; delay is how "long" it is.</div>
+</div>
+
+<h4>5. Jitter</h4>
+<ul>
+  <li>Jitter = "packet delay variance" — occurs when different packets face different delays and the receiving application is time-sensitive (audio/video).</li>
+  <li>Measured in milliseconds (ms).</li>
+  <li>Can cause flickering in video displays.</li>
+  <li><strong>Jitter buffer</strong> mitigates jitter by buffering packets before feeding them out at a steady rate (e.g. YouTube buffering before playback).</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Example</span>
+If the delay for the first packet is 10 ms, for the second is 35 ms, and for the third is 50 ms, the real-time destination application experiences <strong>jitter</strong> — the uneven gaps between packet arrivals (10ms, then 25ms, then 15ms) disrupt smooth playback even though every packet eventually arrives.
+</div>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+Don't confuse <strong>Bandwidth</strong> (potential/capacity) with <strong>Throughput</strong> (actual achieved rate) — throughput is always less than or equal to bandwidth in practice.
+</div>
+</div>
+</details>
+
+</div>
+</details>
+
+</section>
+
+<!-- ======================================================= -->
+<!-- ======================= MODULE 2 ======================= -->
+<!-- ======================================================= -->
+<section id="module2">
+<details class="module-block" open>
+<summary class="module-header">
+  <span class="module-title"><span class="chev-module">▶</span> 📗 Module 2 — Data Link Layer</span>
+  <span class="module-sub">Framing · Error Control · Sliding Window · MAC Sublayer · Ethernet · Wireless LAN</span>
+</summary>
+<div class="module-collapse-hint">Tap the heading above to collapse this whole module.</div>
+<div class="module-content">
+
+<!-- DLL BASICS -->
+<details class="card" id="m2-dll" open>
+<summary><span class="stitle"><span class="chev">▶</span> Data Link Layer: Design Issues &amp; Services <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>The DLL's data unit is the <strong>frame</strong> (not individual bits, as in the physical layer). DLL design deals with algorithms for reliable, efficient communication between two <em>adjacent</em> machines.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 150" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="20" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">A Network-layer packet is wrapped into a Data Link frame:</text>
+  <rect x="30" y="45" width="420" height="50" rx="6" fill="#1e1c22" stroke="#2e2c35" stroke-dasharray="3,3"/>
+  <text x="240" y="35" text-anchor="middle" font-size="10.5" fill="#7c9ec9">Network-layer Packet</text>
+  <rect x="40" y="55" width="340" height="30" fill="#7c9ec9" opacity="0.25"/>
+
+  <rect x="30" y="105" width="70" height="34" fill="#c4a35a"/><text x="65" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">Header</text>
+  <rect x="100" y="105" width="280" height="34" fill="#8dbf8d"/><text x="240" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">Payload (the packet)</text>
+  <rect x="380" y="105" width="70" height="34" fill="#c98a7c"/><text x="415" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">Trailer</text>
+  <text x="240" y="150" text-anchor="middle" font-size="10" fill="#9a97a3">Frame = Header (addr/control) + Payload (data) + Trailer (FCS/checksum)</text>
+</svg>
+</div>
+
+<h4>Problems the DLL Must Solve</h4>
+<ul>
+  <li>Communication channels make errors occasionally</li>
+  <li>Channels have finite data rate + nonzero propagation delay</li>
+  <li>These limitations affect data transfer efficiency</li>
+</ul>
+
+<h4>Functions of the Data Link Layer</h4>
+<ol>
+  <li>Well-defined service interface to the network layer</li>
+  <li>Frame management (encapsulating packets into frames: header + payload + trailer)</li>
+  <li>Dealing with transmission errors (error detection &amp; correction)</li>
+  <li>Flow control — preventing fast senders from swamping slow receivers</li>
+</ol>
+
+<h4>Services Provided to the Network Layer 🔥</h4>
+<table>
+<thead><tr><th>Service</th><th>Description</th><th>Best Used For</th></tr></thead>
+<tbody>
+<tr><td><strong>Unacknowledged connectionless</strong></td><td>Independent frames sent, no ack, no logical connection, no loss recovery</td><td>Low error-rate channels; real-time traffic (voice); most LANs</td></tr>
+<tr><td><strong>Acknowledged connectionless</strong></td><td>No logical connection, but each frame individually acknowledged &amp; resent if needed</td><td>Unreliable channels like wireless</td></tr>
+<tr><td><strong>Acknowledged connection-oriented</strong></td><td>Connection established first; each frame numbered; guaranteed exactly-once, in-order delivery</td><td>Long unreliable links (satellite, long-distance telephone)</td></tr>
+</tbody>
+</table>
+<p>The connection-oriented service has 3 phases: <strong>(1) Connection establishment</strong> (initialize counters/variables), <strong>(2) Data transfer</strong>, <strong>(3) Connection release</strong> (free buffers/resources).</p>
+
+<div class="callout example"><span class="co-label">Example</span>
+A VoIP call over Wi-Fi uses <strong>unacknowledged connectionless</strong> service — a dropped voice frame just causes a tiny glitch, not worth the delay of retransmission. A file transfer over a shaky satellite link uses <strong>acknowledged connection-oriented</strong> service — every single frame must arrive, in order, exactly once.
+</div>
+</div>
+</details>
+
+<!-- FRAMING -->
+<details class="card" id="m2-framing" open>
+<summary><span class="stitle"><span class="chev">▶</span> Framing Methods <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+<p>Breaking a bit stream into frames is harder than it looks — the receiver must easily find frame boundaries while using minimal bandwidth. Four methods exist:</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Continuous bit stream → chopped into delimited frames</text>
+  <rect x="20" y="35" width="60" height="30" fill="#c98a7c"/><text x="50" y="55" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">FLAG</text>
+  <rect x="80" y="35" width="140" height="30" fill="#7c9ec9"/><text x="150" y="55" text-anchor="middle" font-size="10.5" fill="#0f0e11" font-weight="700">Frame 1 data</text>
+  <rect x="220" y="35" width="60" height="30" fill="#c98a7c"/><text x="250" y="55" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">FLAG</text>
+  <rect x="280" y="35" width="140" height="30" fill="#8dbf8d"/><text x="350" y="55" text-anchor="middle" font-size="10.5" fill="#0f0e11" font-weight="700">Frame 2 data</text>
+  <rect x="420" y="35" width="60" height="30" fill="#c98a7c"/><text x="450" y="55" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">FLAG</text>
+  <rect x="480" y="35" width="60" height="30" fill="#c4a35a" opacity="0.5"/><text x="510" y="55" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">…</text>
+  <text x="280" y="95" text-anchor="middle" font-size="10.5" fill="#9a97a3">A repeated FLAG pattern in the two-flags-in-a-row = end of one frame, start of the next</text>
+</svg>
+</div>
+
+<h4>1. Byte/Character Count</h4>
+<ul>
+  <li>A header field specifies the number of bytes/characters in the frame.</li>
+  <li><strong>Disadvantage:</strong> if the count is garbled by a transmission error, the destination loses synchronization — and retransmission requests don't help since the destination doesn't know how many bytes to skip. <strong>Rarely used.</strong></li>
+</ul>
+
+<h4>2. Flag Bytes with Byte (Character) Stuffing</h4>
+<ul>
+  <li>Each frame starts/ends with a special <strong>FLAG byte</strong>; two consecutive flags = end of one frame + start of next.</li>
+  <li>Problem: the flag pattern might occur naturally in the data (especially binary data).</li>
+  <li><strong>Solution:</strong> sender inserts an <strong>escape byte (ESC)</strong> before every accidental flag byte in the data — called <strong>byte stuffing</strong>. Receiver removes the ESC bytes before passing data up.</li>
+  <li>If an ESC byte occurs naturally in data, it too is stuffed with another ESC (doubled ESC = natural occurrence).</li>
+  <li>Used in <strong>PPP</strong> (Point-to-Point Protocol).</li>
+  <li><strong>Disadvantage:</strong> tied to 8-bit characters — not all character codes use 8 bits.</li>
+</ul>
+<div class="callout example"><span class="co-label">Example — Byte Stuffing</span>
+If the data itself contains a FLAG byte, the sender inserts an ESC just before it: <code>...DATA ESC FLAG DATA...</code>. The receiver sees the ESC, discards it, and treats the following byte as ordinary data instead of a real delimiter. If the data contains an ESC byte, it gets doubled: <code>...DATA ESC ESC DATA...</code>.
+</div>
+
+<h4>3. Flag Bits with Bit Stuffing 🔥</h4>
+<ul>
+  <li>Bit-level framing — frames can hold an arbitrary number of bits. Developed for <strong>HDLC</strong>.</li>
+  <li>Each frame begins/ends with the bit pattern <code>01111110</code> (0x7E) — the FLAG byte.</li>
+  <li>Whenever the sender's DLL sees <strong>five consecutive 1s</strong> in the data, it automatically stuffs a 0 bit after them.</li>
+  <li>Receiver, upon seeing 5 consecutive 1s followed by a 0, automatically destuffs (removes) that 0 — fully transparent to the network layer.</li>
+  <li>Also ensures a minimum density of transitions for synchronization — reason <strong>USB</strong> uses bit stuffing.</li>
+</ul>
+<div class="callout example"><span class="co-label">Example — Bit Stuffing</span>
+Data: <code>01001111110111110</code><br>
+After adding flags: <code>01111110 01001111110111110 01111110</code><br>
+After bit stuffing: <code>01111110 0100111110101111100 01111110</code>
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="20" font-family="Segoe UI,sans-serif" font-size="11" fill="#7c9ec9">Before (original data, 17 bits)</text>
+  <text x="20" y="112" font-family="Segoe UI,sans-serif" font-size="11" fill="#8dbf8d">After (stuffed, 19 bits — red = inserted bit)</text>
+<rect x="20" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="31" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="44" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="55" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="68" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="79" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="92" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="103" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="116" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="127" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="140" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="151" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="164" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="175" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="188" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="199" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="212" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="223" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="236" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="247" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="260" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="271" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="284" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="295" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="308" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="319" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="332" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="343" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="356" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="367" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="380" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="391" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="404" y="30" width="22" height="26" fill="#1e1c22" stroke="#7c9ec9"/><text x="415" y="48" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="20" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="31" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="44" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="55" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="68" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="79" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="92" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="103" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="116" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="127" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="140" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="151" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="164" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="175" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="188" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="199" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="212" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="223" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="236" y="90" width="22" height="26" fill="#c98a7c" stroke="#c98a7c"/><text x="247" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#0f0e11">0</text>
+<rect x="260" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="271" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="284" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="295" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<rect x="308" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="319" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="332" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="343" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="356" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="367" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="380" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="391" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="404" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="415" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">1</text>
+<rect x="428" y="90" width="22" height="26" fill="#c98a7c" stroke="#c98a7c"/><text x="439" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#0f0e11">0</text>
+<rect x="452" y="90" width="22" height="26" fill="#1e1c22" stroke="#8dbf8d"/><text x="463" y="108" text-anchor="middle" font-size="11" font-family="monospace" fill="#e6e4ea">0</text>
+<text x="250" y="150" text-anchor="middle" font-size="10" fill="#9a97a3">A 0 gets inserted right after every run of five consecutive 1s — receiver strips these back out</text>
+</svg>
+</div>
+
+<h4>4. Physical Layer Coding Violations</h4>
+<ul>
+  <li>Used only where the encoding method includes redundancy (e.g. some LANs encode 1 bit using 2 physical levels: high-low = 1, low-high = 0).</li>
+  <li>Combinations high-high / low-low are unused for data → reserved to delimit frames.</li>
+  <li><strong>Advantage:</strong> easy to find frame boundaries, no need to stuff data.</li>
+</ul>
+
+<h4>Byte Stuffing vs Bit Stuffing 🔥</h4>
+<table>
+<thead><tr><th>Byte Stuffing</th><th>Bit Stuffing</th></tr></thead>
+<tbody>
+<tr><td>Larger increase in frame length — worst case roughly doubles frame size if data is all flag-pattern bytes</td><td>Smaller increase — roughly 12.5% overhead (1 bit added per 5 consecutive 1s)</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><span class="co-label">Note</span>
+Most real protocols use a combination of byte count + one other method for extra safety. If the delimiter/checksum doesn't match at the expected position, the stream is re-scanned for the next delimiter.
+</div>
+</div>
+</details>
+
+<!-- ERROR CONTROL -->
+<details class="card" id="m2-error" open>
+<summary><span class="stitle"><span class="chev">▶</span> Error Detection &amp; Correction: Hamming, Parity, Checksum, CRC <span class="badge">🔥🔥 Very High Yield — Numericals!</span></span></summary>
+<div class="card-body">
+
+<h4>Types of Errors</h4>
+<ul>
+  <li><strong>Single-bit error</strong> — only 1 bit changes.</li>
+  <li><strong>Burst error</strong> — 2 or more bits change; harder to correct, but since data is sent in blocks, low error rates mean only 1–2 blocks may be affected.</li>
+</ul>
+
+<h4>Detection vs Correction</h4>
+<div class="grid2">
+  <div class="col pros">
+    <h5>Error Detection</h5>
+    <ul>
+      <li>Simple yes/no — just checks if an error occurred</li>
+      <li>Not concerned with number/location of errors</li>
+      <li>Triggers retransmission</li>
+      <li>Best on reliable channels (fiber) — cheaper to just retransmit</li>
+    </ul>
+  </div>
+  <div class="col cons">
+    <h5>Error Correction (FEC)</h5>
+    <ul>
+      <li>Needs to know exact count &amp; location of corrupted bits</li>
+      <li>Also called <strong>Forward Error Correction</strong></li>
+      <li>Needs more redundant bits than detection</li>
+      <li>Best on unreliable channels (wireless) — retransmission itself may fail</li>
+    </ul>
+  </div>
+</div>
+<p>4 error-correcting code families: <strong>Hamming codes, Binary convolutional codes, Reed-Solomon codes, Low-Density Parity Check (LDPC) codes.</strong></p>
+
+<pre><code>Frame = k data bits + r redundant (check) bits;  n = k + r  (n-bit "codeword")
+
+Constraint on r:     2^r ≥ k + r + 1
+Example: if k = 7, the smallest valid r = 4</code></pre>
+
+<h4>Hamming Distance 🔥</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+The Hamming distance between two codewords = the number of bit positions in which they differ. Found via <strong>XOR</strong> of the two codewords, then counting the 1s.
+</div>
+<div class="callout example"><span class="co-label">Solved Examples</span>
+d(000, 011) = 2 &nbsp;|&nbsp; d(10101, 11110) = 3
+</div>
+<p>The Hamming distance <strong>of a complete code</strong> = the minimum HD between all possible pairs of legal codewords. With r check bits, only 1/2ʳ of all possible messages are legal codewords — this "sparseness" is what enables error detection/correction.</p>
+
+<h4>Significance of Hamming Distance (dmin) 🔥🔥</h4>
+<pre><code>To reliably DETECT  d errors → need a code with distance ≥ d + 1
+To reliably CORRECT d errors → need a code with distance ≥ 2d + 1</code></pre>
+<div class="callout example"><span class="co-label">Solved Example</span>
+A code has dmin = 4.<br>
+Detection: can detect 3-bit errors (3+1=4)<br>
+Correction: can correct only 1-bit errors (since 1.5 isn't valid — needs odd dmin)<br>
+<strong>Rule:</strong> error-correcting codes need an <em>odd</em> minimum distance (3, 5, 7…)
+</div>
+
+<div class="callout example"><span class="co-label">Solved Example — Where Correction Breaks Down</span>
+A code has only 4 valid codewords: <code>0000000000</code>, <code>0000011111</code>, <code>1111100000</code>, <code>1111111111</code>. Its dmin = 5, so it can detect 4-bit errors (4+1=5) and correct 2-bit errors (2×2+1=5).<br><br>
+<strong>Correction works:</strong> if <code>0000000111</code> arrives, the receiver correctly concludes the original was <code>0000011111</code> (closest codeword, only 2 bits off).<br><br>
+<strong>Correction fails:</strong> if a <em>triple</em>-bit error changes <code>0000000000</code> into <code>0000000111</code>, the receiver makes the exact same guess — <code>0000011111</code> — which is now <strong>wrong</strong>. A 3-bit error exceeds this code's 2-bit correction capability (2×3+1=7 > 5), so it gets "corrected" to the wrong codeword instead of being flagged.
+</div>
+
+<h4>Hamming Code — Single Bit Error Correction 🔥🔥</h4>
+<ol>
+  <li>Number codeword bits starting at 1. Positions that are <strong>powers of 2</strong> (1, 2, 4, 8, 16…) are parity bits; all others hold data.</li>
+  <li>Each parity bit at position <em>p</em> checks bit positions whose binary representation has that power-of-2 bit set (e.g., bit 11 = 1+2+8, so checked by parity bits 1, 2, 8).</li>
+  <li>Set each parity bit per the even/odd parity rule.</li>
+  <li><strong>At the receiver:</strong> recheck each parity bit; sum the positions of all incorrect parity checks — this sum directly gives the position of the bad bit (the "error syndrome"). Flip that bit to correct it.</li>
+</ol>
+<div class="diagram-wrap">
+<svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="monospace" font-size="12" text-anchor="middle">
+    <!-- positions 1-12, parity at 1,2,4,8 -->
+    <!-- pos1 -->
+    <rect x="20" y="35" width="46" height="46" fill="#c4a35a"/><text x="43" y="30" fill="#9a97a3" font-size="10">1</text><text x="43" y="62" fill="#0f0e11" font-weight="700">P1</text><text x="43" y="76" fill="#0f0e11">0</text>
+    <rect x="70" y="35" width="46" height="46" fill="#c4a35a"/><text x="93" y="30" fill="#9a97a3" font-size="10">2</text><text x="93" y="62" fill="#0f0e11" font-weight="700">P2</text><text x="93" y="76" fill="#0f0e11">1</text>
+    <rect x="120" y="35" width="46" height="46" fill="#7c9ec9"/><text x="143" y="30" fill="#9a97a3" font-size="10">3</text><text x="143" y="62" fill="#0f0e11" font-weight="700">D1</text><text x="143" y="76" fill="#0f0e11">1</text>
+    <rect x="170" y="35" width="46" height="46" fill="#c4a35a"/><text x="193" y="30" fill="#9a97a3" font-size="10">4</text><text x="193" y="62" fill="#0f0e11" font-weight="700">P4</text><text x="193" y="76" fill="#0f0e11">1</text>
+    <rect x="220" y="35" width="46" height="46" fill="#7c9ec9"/><text x="243" y="30" fill="#9a97a3" font-size="10">5</text><text x="243" y="62" fill="#0f0e11" font-weight="700">D2</text><text x="243" y="76" fill="#0f0e11">0</text>
+    <rect x="270" y="35" width="46" height="46" fill="#7c9ec9"/><text x="293" y="30" fill="#9a97a3" font-size="10">6</text><text x="293" y="62" fill="#0f0e11" font-weight="700">D3</text><text x="293" y="76" fill="#0f0e11">0</text>
+    <rect x="320" y="35" width="46" height="46" fill="#7c9ec9"/><text x="343" y="30" fill="#9a97a3" font-size="10">7</text><text x="343" y="62" fill="#0f0e11" font-weight="700">D4</text><text x="343" y="76" fill="#0f0e11">1</text>
+    <rect x="370" y="35" width="46" height="46" fill="#c4a35a"/><text x="393" y="30" fill="#9a97a3" font-size="10">8</text><text x="393" y="62" fill="#0f0e11" font-weight="700">P8</text><text x="393" y="76" fill="#0f0e11">0</text>
+    <rect x="420" y="35" width="46" height="46" fill="#7c9ec9"/><text x="443" y="30" fill="#9a97a3" font-size="10">9</text><text x="443" y="62" fill="#0f0e11" font-weight="700">D5</text><text x="443" y="76" fill="#0f0e11">1</text>
+    <rect x="470" y="35" width="46" height="46" fill="#7c9ec9"/><text x="493" y="30" fill="#9a97a3" font-size="10">10</text><text x="493" y="62" fill="#0f0e11" font-weight="700">D6</text><text x="493" y="76" fill="#0f0e11">0</text>
+    <rect x="520" y="35" width="46" height="46" fill="#7c9ec9"/><text x="543" y="30" fill="#9a97a3" font-size="10">11</text><text x="543" y="62" fill="#0f0e11" font-weight="700">D7</text><text x="543" y="76" fill="#0f0e11">1</text>
+    <rect x="570" y="35" width="46" height="46" fill="#7c9ec9"/><text x="593" y="30" fill="#9a97a3" font-size="10">12</text><text x="593" y="62" fill="#0f0e11" font-weight="700">D8</text><text x="593" y="76" fill="#0f0e11">0</text>
+  </g>
+  <g stroke="#141317" fill="none" stroke-width="1.5">
+    <rect x="20" y="35" width="46" height="46"/><rect x="70" y="35" width="46" height="46"/><rect x="120" y="35" width="46" height="46"/><rect x="170" y="35" width="46" height="46"/><rect x="220" y="35" width="46" height="46"/><rect x="270" y="35" width="46" height="46"/><rect x="320" y="35" width="46" height="46"/><rect x="370" y="35" width="46" height="46"/><rect x="420" y="35" width="46" height="46"/><rect x="470" y="35" width="46" height="46"/><rect x="520" y="35" width="46" height="46"/><rect x="570" y="35" width="46" height="46"/>
+  </g>
+  <text x="20" y="115" font-size="11" fill="#c4a35a">■ Gold = parity bit (power-of-2 position)</text>
+  <text x="20" y="132" font-size="11" fill="#7c9ec9">■ Blue = data bit</text>
+</svg>
+<div class="diagram-caption">Positions 1, 2, 4, 8 (powers of 2) hold parity bits; all other positions hold data bits — codeword shown is the worked example below (011100101010).</div>
+</div>
+
+<div class="callout example"><span class="co-label">Worked Example — 8 data bits: 10011010</span>
+Codeword positions: P1 P2 D1 P4 D2 D3 D4 P8 D5 D6 D7 D8 → skeleton <code>_ _ 1 _ 0 0 1 _ 1 0 1 0</code><br>
+Computed (even parity): <strong>Codeword = 011100101010</strong><br>
+If received as <code>011100101110</code>: positions 2 &amp; 8 fail parity → 2+8=10 → bit 10 is flipped → recovers <code>011100101010</code> ✓
+</div>
+
+<div class="callout example"><span class="co-label">Worked Example 2 — Receiver Side: 8 data bits 11000111</span>
+Sender computes and transmits codeword <strong>111010010111</strong>. In transit, the bit at position 5 flips.<br>
+Receiver recomputes all 4 parity checks on the corrupted codeword <code>111000010111</code>:
+</div>
+
+<table>
+<thead><tr><th>Parity bit</th><th>Checks positions</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>P1</td><td>1,3,5,7,9,11</td><td>fails (contributes 1)</td></tr>
+<tr><td>P2</td><td>2,3,6,7,10,11</td><td>passes (contributes 0)</td></tr>
+<tr><td>P4</td><td>4,5,6,7,12</td><td>fails (contributes 4)</td></tr>
+<tr><td>P8</td><td>8,9,10,11,12</td><td>passes (contributes 0)</td></tr>
+</tbody>
+</table>
+<div class="callout example"><span class="co-label">Syndrome</span>
+Add up the positions of every <em>failed</em> check: <code>1 + 4 = 5</code>. That sum <strong>is</strong> the exact position of the corrupted bit — flip bit 5 and the original codeword <code>111010010111</code> is recovered. This "add up the failed parity positions" trick is the fast way to solve Hamming problems in an exam without redrawing the whole 12-bit table each time.
+</div>
+
+<h4>Error-Detecting Codes: Parity, Checksum, CRC</h4>
+<p>All three are linear, systematic block codes — cheaper than correction, ideal for low-error channels (copper/fiber).</p>
+
+<table>
+<thead><tr><th>Method</th><th>How it works</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Parity Bit</strong></td><td>One bit appended so total 1-bits is even (or odd) — equivalent to XOR of data bits</td><td>Distance = 2, detects only single-bit errors reliably. For burst protection, arrange data as a matrix and use row/column parity (<strong>interleaving</strong>) — detects up to <em>k</em> bit errors per row/column.</td></tr>
+<tr><td><strong>Checksum</strong></td><td>Running sum of data "words", then complement taken; appended at message end. Receiver sums everything (incl. checksum) — result of 0 means no error.</td><td>e.g., 16-bit Internet checksum used on all IP packets.</td></tr>
+<tr><td><strong>CRC (Cyclic Redundancy Check)</strong></td><td>Treats bit strings as coefficients of a polynomial; sender &amp; receiver agree on generator polynomial G(x). Frame is made divisible by G(x) via modulo-2 division.</td><td>Also called polynomial code; strongest of the three. Detects <strong>all single-bit errors</strong> and all burst errors of length ≤ r (the degree of G(x)).</td></tr>
+</tbody>
+</table>
+
+<pre><code>CRC Algorithm:
+1. Let r = degree of G(x). Append r zero bits to the frame → represents x^r · M(x)
+2. Divide this bit string by G(x) using modulo-2 (XOR) division
+3. Subtract the remainder from x^r · M(x) (mod-2) → gives the transmitted codeword T(x)
+4. Receiver divides received T(x) by G(x): remainder 0 = no error, nonzero = error detected</code></pre>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+Polynomial arithmetic in CRC is <strong>modulo 2</strong> — there are NO carries in addition and NO borrows in subtraction; both operations are simply <strong>XOR</strong>.
+</div>
+
+<div class="callout example"><span class="co-label">Worked Example — CRC Division</span>
+Data = <code>1101011011</code>, Generator G(x) = <code>10011</code> (degree r = 4).<br>
+1. Append 4 zero bits: <code>11010110110000</code><br>
+2. Modulo-2 divide by <code>10011</code> → remainder = <code>1110</code><br>
+3. Transmitted codeword = data + remainder = <strong><code>11010110111110</code></strong><br>
+4. Receiver divides the codeword by <code>10011</code> again — remainder <code>0000</code> confirms no error.
+</div>
+
+<div class="callout example"><span class="co-label">Example — Internet Checksum</span>
+Sender splits data into 16-bit words, adds them with end-around carry, then sends the <em>1's complement</em> of the sum as the checksum. Receiver adds all words (including the checksum) — a result of all 1s (equivalently, complement = 0) means the data arrived intact.
+</div>
+
+<div class="callout example"><span class="co-label">Worked Example — Checksum (simplified, 8-bit words)</span>
+Three data bytes: <code>11001100</code>, <code>10101010</code>, <code>01110111</code>.<br>
+1. Add them together (with <strong>end-around carry</strong> — any overflow bit wraps back and gets added in): sum = <code>11101110</code><br>
+2. Checksum = 1's complement of the sum = <code>00010001</code> — this is what gets sent alongside the data.<br>
+3. Receiver adds all 3 data bytes <em>and</em> the checksum together: result = <code>11111111</code> (all 1s) → no error detected. Any single corrupted bit would break this all-1s result.
+</div>
+
+<div class="callout note"><span class="co-label">Note — Overhead Comparison</span>
+For a 1000-bit block with 10⁻⁶ error rate: <strong>Error correction</strong> needs ~10,000 check bits/megabit (10 check bits per 1000-bit block). <strong>Error detection + retransmission</strong> needs only ~2001 bits/megabit (1 parity bit/block + occasional retransmission) — far more efficient when errors are rare!
+</div>
+</div>
+</details>
+
+<!-- SLIDING WINDOW -->
+<details class="card" id="m2-sliding" open>
+<summary><span class="stitle"><span class="chev">▶</span> Flow Control &amp; Sliding Window Protocols <span class="badge">🔥🔥 Very High Yield — Numericals!</span></span></summary>
+<div class="card-body">
+
+<h4>Flow Control vs Error Control</h4>
+<ul>
+  <li><strong>Flow control</strong> restricts how much data a sender can send before waiting for acknowledgement.</li>
+  <li><strong>Error control</strong> uses <strong>ARQ (Automatic Repeat reQuest)</strong> = acknowledgements + timeouts to guarantee reliable delivery.</li>
+</ul>
+
+<h4>ARQ Basics</h4>
+<ul>
+  <li><strong>ACK</strong> — small control frame (header only, no data) confirming receipt.</li>
+  <li><strong>Timeout</strong> — if no ACK arrives in a reasonable time, the sender retransmits.</li>
+</ul>
+
+<h4>Stop-and-Wait Protocol 🔥</h4>
+<ul>
+  <li>Sender sends one frame, then waits for an ACK before sending the next.</li>
+  <li>Uses a <strong>1-bit sequence number (0 or 1)</strong> to detect duplicate frames (in case an ACK is lost/delayed).</li>
+</ul>
+<pre><code>Stop-and-Wait ARQ = Stop-and-Wait + Timer/Timeouts + Sequence Numbers</code></pre>
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+Without sequence numbers, a retransmitted frame after a lost ACK looks identical to the "next" frame to the receiver — causing duplicate delivery to the network layer. Sequence numbers fix this.
+</div>
+<div class="callout note"><span class="co-label">Disadvantage</span>
+Stop-and-Wait is bandwidth-inefficient — the sender is idle after every frame, waiting for an ACK. <strong>Piggybacking</strong> (combining an ACK with an outgoing data frame in bidirectional links) helps, but the real fix is <strong>Sliding Window</strong>.
+</div>
+
+<h4>Sliding Window Protocols — Core Idea 🔥</h4>
+<ul>
+  <li>Applies <strong>pipelining</strong> — sender can transmit multiple frames before needing an ACK.</li>
+  <li><strong>Sender's window</strong> = set of sequence numbers it's permitted to send (unacknowledged/outstanding frames).</li>
+  <li><strong>Receiver's window</strong> = set of sequence numbers it's willing to accept.</li>
+  <li>Sequence numbers use <em>m</em> header bits → range 0 to 2ᵐ−1.</li>
+  <li>Window slides forward as ACKs arrive (lower edge) and new frames are sent (upper edge).</li>
+</ul>
+
+<h4>Go-Back-N ARQ</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 330" xmlns="http://www.w3.org/2000/svg">
+  <text x="100" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Sender</text>
+  <text x="440" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Receiver</text>
+  <line x1="100" y1="22" x2="100" y2="300" stroke="#2e2c35"/>
+  <line x1="440" y1="22" x2="440" y2="300" stroke="#2e2c35"/>
+
+  <defs><marker id="arwSW" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c9ec9"/></marker>
+  <marker id="arwAK" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8dbf8d"/></marker></defs>
+
+  <line x1="100" y1="30" x2="440" y2="55" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="27" font-size="10" fill="#7c9ec9">F0</text>
+  <line x1="100" y1="55" x2="440" y2="80" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="52" font-size="10" fill="#7c9ec9">F1</text>
+  <line x1="100" y1="80" x2="270" y2="92" stroke="#c98a7c" stroke-width="1.6" stroke-dasharray="4,3"/><text x="105" y="77" font-size="10" fill="#c98a7c">F2 (lost)</text>
+  <text x="255" y="87" font-size="13" fill="#c98a7c" font-weight="700">✕</text>
+  <line x1="100" y1="105" x2="440" y2="130" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="102" font-size="10" fill="#7c9ec9">F3</text>
+  <line x1="100" y1="130" x2="440" y2="155" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="127" font-size="10" fill="#7c9ec9">F4</text>
+
+  <line x1="440" y1="60" x2="100" y2="85" stroke="#8dbf8d" stroke-width="1.6" marker-end="url(#arwAK)"/><text x="390" y="57" font-size="10" fill="#8dbf8d">ACK0</text>
+  <line x1="440" y1="85" x2="100" y2="110" stroke="#8dbf8d" stroke-width="1.6" marker-end="url(#arwAK)"/><text x="390" y="82" font-size="10" fill="#8dbf8d">ACK1</text>
+
+  <text x="445" y="134" font-size="9.5" fill="#c98a7c">discard (out of order)</text>
+  <text x="445" y="159" font-size="9.5" fill="#c98a7c">discard (out of order)</text>
+
+  <line x1="30" y1="175" x2="530" y2="175" stroke="#c4a35a" stroke-dasharray="5,3"/>
+  <text x="285" y="190" text-anchor="middle" font-size="10.5" fill="#c4a35a">Timeout for F2 expires at sender</text>
+
+  <line x1="100" y1="205" x2="440" y2="230" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="202" font-size="10" fill="#7c9ec9">F2</text>
+  <line x1="100" y1="230" x2="440" y2="255" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="227" font-size="10" fill="#7c9ec9">F3</text>
+  <line x1="100" y1="255" x2="440" y2="280" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSW)"/><text x="105" y="252" font-size="10" fill="#7c9ec9">F4</text>
+  <text x="270" y="300" text-anchor="middle" font-size="11" fill="#e6e4ea" font-weight="600">Go-Back-N: sender resends F2, F3 &amp; F4</text>
+</svg>
+<div class="diagram-caption">F2 is lost in transit. The receiver silently discards the out-of-order frames F3 and F4 that follow. When the sender's timer for F2 expires, it goes back and resends F2, F3, F4 — even though F3 and F4 were sent correctly the first time.</div>
+</div>
+
+<ul>
+  <li>Sender window size = <code>2^m − 1</code>; Receiver window size = <strong>1</strong>.</li>
+  <li>One timer for the oldest outstanding (unacknowledged) frame.</li>
+  <li>Receiver sends a positive ACK only for frames arriving safe &amp; in order; if a frame is damaged/out-of-order, receiver stays silent and <strong>discards all subsequent frames</strong> (no buffering of out-of-order frames).</li>
+  <li>On timeout, sender resends <strong>all frames starting from the one with the expired timer</strong> — hence "Go Back N".</li>
+  <li>Supports <strong>cumulative ACK</strong> — ACK2 implicitly acknowledges ACK1 too.</li>
+</ul>
+
+<h4>Selective Repeat ARQ</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="100" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Sender</text>
+  <text x="440" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Receiver</text>
+  <line x1="100" y1="22" x2="100" y2="200" stroke="#2e2c35"/>
+  <line x1="440" y1="22" x2="440" y2="200" stroke="#2e2c35"/>
+
+  <defs><marker id="arwSR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c9ec9"/></marker>
+  <marker id="arwSRnak" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c98a7c"/></marker></defs>
+
+  <line x1="100" y1="30" x2="440" y2="55" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSR)"/><text x="105" y="27" font-size="10" fill="#7c9ec9">F0</text>
+  <line x1="100" y1="55" x2="270" y2="67" stroke="#c98a7c" stroke-width="1.6" stroke-dasharray="4,3"/><text x="105" y="52" font-size="10" fill="#c98a7c">F1 (lost)</text>
+  <text x="255" y="62" font-size="13" fill="#c98a7c" font-weight="700">✕</text>
+  <line x1="100" y1="80" x2="440" y2="105" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSR)"/><text x="105" y="77" font-size="10" fill="#7c9ec9">F2</text>
+  <line x1="100" y1="105" x2="440" y2="130" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSR)"/><text x="105" y="102" font-size="10" fill="#7c9ec9">F3</text>
+
+  <text x="445" y="60" font-size="9.5" fill="#8dbf8d">buffered</text>
+  <text x="445" y="110" font-size="9.5" fill="#8dbf8d">F2 buffered ✓</text>
+  <text x="445" y="135" font-size="9.5" fill="#8dbf8d">F3 buffered ✓</text>
+
+  <line x1="440" y1="110" x2="100" y2="135" stroke="#c98a7c" stroke-width="1.6" marker-end="url(#arwSRnak)"/><text x="380" y="107" font-size="10" fill="#c98a7c">NAK1</text>
+
+  <line x1="100" y1="155" x2="440" y2="180" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwSR)"/><text x="105" y="152" font-size="10" fill="#7c9ec9">F1 resent</text>
+  <text x="270" y="200" text-anchor="middle" font-size="11" fill="#e6e4ea" font-weight="600">Only F1 is retransmitted — F2, F3 are NOT resent</text>
+</svg>
+<div class="diagram-caption">Unlike Go-Back-N, the receiver <strong>keeps</strong> F2 and F3 in a buffer instead of discarding them, and tells the sender exactly which frame (F1) is missing via a NAK — so only that one frame needs to be resent.</div>
+</div>
+
+<ul>
+  <li>Window size (sender = receiver) reduced to <code>2^m / 2</code>.</li>
+  <li>Uses <strong>NAK</strong> (negative ACK) reporting the sequence number of a damaged frame, before the timer expires.</li>
+  <li>Receiver buffers correctly-received out-of-order frames; only resends the specific missing/damaged frame.</li>
+  <li>More efficient over noisy links, but needs more receiver memory/complexity.</li>
+  <li>Delivery to network layer requires: (1) a set of consecutive frames has arrived, (2) that set starts from the window's beginning.</li>
+</ul>
+
+<h4>Go-Back-N vs Selective Repeat 🔥🔥</h4>
+<table>
+<thead><tr><th>Go-Back-N</th><th>Selective Repeat</th></tr></thead>
+<tbody>
+<tr><td>Discards all subsequent frames on error</td><td>Discards only the bad frame, buffers good ones</td></tr>
+<tr><td>Sends no ACK for discarded frames</td><td>Sends a NAK when it detects an error</td></tr>
+<tr><td>Receiver window size = 1</td><td>Receiver window size > 1</td></tr>
+<tr><td>Won't accept any frame except the next expected one</td><td>Buffers remaining received frames</td></tr>
+<tr><td>Resends ALL unacknowledged frames from the lost one onward</td><td>Resends only the oldest unacknowledged frame</td></tr>
+<tr><td>Wastes bandwidth</td><td>Better bandwidth use, but needs more memory</td></tr>
+<tr><td>Good when error rate is high</td><td>Good when error rate is low but must be robust</td></tr>
+</tbody>
+</table>
+
+<div class="callout example"><span class="co-label">Solved Example — Window Sizes (5-bit sequence numbers, n=5)</span>
+<code>Stop-and-Wait:      sender/receiver window = 1</code><br>
+<code>Go-Back-N:          sender window = 2^5 − 1 = 31, receiver window = 1</code><br>
+<code>Selective Repeat:   window = 2^5 / 2 = 16</code>
+</div>
+
+<div class="callout example"><span class="co-label">Solved Example — Sequence Number After N Packets</span>
+5-bit sequence numbers → range 0–31 (32 values), starting at 0. After sending <strong>100 packets</strong>:<br>
+100 mod 32 = 4 → <strong>sequence number after 100 packets = 4</strong>
+</div>
+</div>
+</details>
+
+<!-- HDLC -->
+<details class="card" id="m2-hdlc" open>
+<summary><span class="stitle"><span class="chev">▶</span> HDLC (High-Level Data Link Control) Protocol <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>HDLC is a <strong>bit-oriented, synchronous</strong> data link layer protocol by ISO, used over point-to-point and multipoint links. Implements Stop-and-Wait; supports error &amp; flow control.</p>
+
+<h4>Station Types &amp; Transfer Modes</h4>
+<ul>
+  <li>Station types: <strong>Primary, Secondary, Combined</strong>.</li>
+  <li><strong>Normal Response Mode (NRM):</strong> unbalanced configuration — 1 primary + multiple secondary stations. Primary sends commands; secondaries only respond. Used point-to-point &amp; multipoint.</li>
+  <li><strong>Asynchronous Balanced Mode (ABM):</strong> point-to-point only; each station acts as both primary &amp; secondary (peers). The commonly used mode.</li>
+</ul>
+
+<h4>Frame Types</h4>
+<ul>
+  <li><strong>I-frames</strong> (Information) — carry user data + control info (piggybacking)</li>
+  <li><strong>S-frames</strong> (Supervisory) — carry control information only</li>
+  <li><strong>U-frames</strong> (Unnumbered) — reserved for link/system management</li>
+</ul>
+
+<h4>Frame Format</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Segoe UI,sans-serif" font-size="11.5" text-anchor="middle">
+    <rect x="20" y="35" width="55" height="55" fill="#c98a7c"/><text x="47" y="58" font-size="10" fill="#0f0e11" font-weight="700">Flag</text><text x="47" y="72" font-size="10" fill="#0f0e11">8b</text>
+    <rect x="75" y="35" width="75" height="55" fill="#c4a35a"/><text x="112" y="58" fill="#0f0e11" font-weight="700">Address</text><text x="112" y="72" fill="#0f0e11">8+ b</text>
+    <rect x="150" y="35" width="80" height="55" fill="#7c9ec9"/><text x="190" y="58" fill="#0f0e11" font-weight="700">Control</text><text x="190" y="72" fill="#0f0e11">8/16 b</text>
+    <rect x="230" y="35" width="250" height="55" fill="#8dbf8d"/><text x="355" y="58" fill="#0f0e11" font-weight="700">Information</text><text x="355" y="72" fill="#0f0e11">variable (user data)</text>
+    <rect x="480" y="35" width="80" height="55" fill="#7c9ec9"/><text x="520" y="58" fill="#0f0e11" font-weight="700">FCS</text><text x="520" y="72" fill="#0f0e11">16/32 b</text>
+    <rect x="560" y="35" width="55" height="55" fill="#c98a7c"/><text x="587" y="58" font-size="10" fill="#0f0e11" font-weight="700">Flag</text><text x="587" y="72" font-size="10" fill="#0f0e11">8b</text>
+  </g>
+  <g stroke="#2e2c35" fill="none"><rect x="20" y="35" width="55" height="55"/><rect x="75" y="35" width="75" height="55"/><rect x="150" y="35" width="80" height="55"/><rect x="230" y="35" width="250" height="55"/><rect x="480" y="35" width="80" height="55"/><rect x="560" y="35" width="55" height="55"/></g>
+  <text x="20" y="20" font-size="11" fill="#9a97a3">HDLC Frame — flag pattern 01111110 marks start &amp; end</text>
+</svg>
+</div>
+
+<table>
+<thead><tr><th>Field</th><th>Size</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Flag</td><td>8 bits</td><td><code>01111110</code> — marks frame start/end</td></tr>
+<tr><td>Address</td><td>1+ byte(s)</td><td>To/From address depending on primary/secondary; last bit of last byte = 1</td></tr>
+<tr><td>Control</td><td>1–2 bytes</td><td>Frame &amp; error control; interpretation differs by frame type</td></tr>
+<tr><td>Information</td><td>variable</td><td>User data from network layer</td></tr>
+<tr><td>FCS</td><td>2 or 4 bytes</td><td>Frame Check Sequence — error detection</td></tr>
+</tbody>
+</table>
+
+<h4>Control Field Formats</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 170" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="monospace" font-size="10" text-anchor="middle" font-weight="700">
+    <text x="10" y="30" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="11" fill="#c4a35a">I-frame</text>
+    <rect x="90" y="15" width="30" height="26" fill="#7c9ec9"/><text x="105" y="32" fill="#0f0e11">0</text>
+    <rect x="120" y="15" width="70" height="26" fill="#8dbf8d"/><text x="155" y="32" fill="#0f0e11">N(S)</text>
+    <rect x="190" y="15" width="30" height="26" fill="#c4a35a"/><text x="205" y="32" fill="#0f0e11">P/F</text>
+    <rect x="220" y="15" width="70" height="26" fill="#c98a7c"/><text x="255" y="32" fill="#0f0e11">N(R)</text>
+    <text x="300" y="32" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="9.5" fill="#9a97a3" font-weight="400">data + piggyback ACK</text>
+
+    <text x="10" y="75" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="11" fill="#c4a35a">S-frame</text>
+    <rect x="90" y="60" width="30" height="26" fill="#7c9ec9"/><text x="105" y="77" fill="#0f0e11">10</text>
+    <rect x="120" y="60" width="45" height="26" fill="#8dbf8d"/><text x="142" y="77" fill="#0f0e11">code</text>
+    <rect x="165" y="60" width="30" height="26" fill="#c4a35a"/><text x="180" y="77" fill="#0f0e11">P/F</text>
+    <rect x="195" y="60" width="70" height="26" fill="#c98a7c"/><text x="230" y="77" fill="#0f0e11">N(R)</text>
+    <text x="300" y="77" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="9.5" fill="#9a97a3" font-weight="400">RR / RNR / REJ / SREJ</text>
+
+    <text x="10" y="120" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="11" fill="#c4a35a">U-frame</text>
+    <rect x="90" y="105" width="30" height="26" fill="#7c9ec9"/><text x="105" y="122" fill="#0f0e11">11</text>
+    <rect x="120" y="105" width="45" height="26" fill="#8dbf8d"/><text x="142" y="122" fill="#0f0e11">code</text>
+    <rect x="165" y="105" width="30" height="26" fill="#c4a35a"/><text x="180" y="122" fill="#0f0e11">P/F</text>
+    <rect x="195" y="105" width="70" height="26" fill="#8dbf8d"/><text x="230" y="122" fill="#0f0e11">code</text>
+    <text x="300" y="122" text-anchor="start" font-family="Segoe UI,sans-serif" font-size="9.5" fill="#9a97a3" font-weight="400">session mgmt (SABM, DISC, UA…)</text>
+  </g>
+  <text x="10" y="155" font-family="Segoe UI,sans-serif" font-size="9.5" fill="#9a97a3">The leading bit(s) tell the receiver which of the 3 formats to parse — 0 → I-frame, 10 → S-frame, 11 → U-frame.</text>
+</svg>
+</div>
+
+<ul>
+  <li><strong>I-frame:</strong> bit 0 = 0 (type flag); next 3 bits = N(S) sequence number; last 3 bits = N(R) piggyback ack number; includes P/F (Poll/Final) bit.</li>
+  <li><strong>S-frame:</strong> first 2 bits = <code>10</code>; last 3 bits = N(R); bits 3–4 = code identifying S-frame type:</li>
+</ul>
+<table>
+<thead><tr><th>Code</th><th>Type</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>00</td><td>RR (Receive Ready)</td><td>Acknowledges safe receipt</td></tr>
+<tr><td>10</td><td>RNR (Receive Not Ready)</td><td>ACK + "I'm busy" (congestion control)</td></tr>
+<tr><td>01</td><td>REJ (Reject)</td><td>NAK used in Go-Back-N ARQ</td></tr>
+<tr><td>11</td><td>SREJ (Selective Reject)</td><td>NAK used in Selective Repeat ARQ</td></tr>
+</tbody>
+</table>
+<ul>
+  <li><strong>U-frame:</strong> first 2 bits = <code>11</code>; used for session management (32 different types possible).</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Example — Piggybacking in Action</span>
+Station A sends I-frame with N(S)=2 (its 3rd frame) to B. B has data to send back too, so instead of a bare ACK, B replies with an I-frame carrying N(S)=0 (its own data) <em>and</em> N(R)=3 (acknowledging it has correctly received A's frames up through sequence 2) — one frame does double duty as data + ACK.
+</div>
+</div>
+</details>
+
+<!-- MAC SUBLAYER -->
+<details class="card" id="m2-mac" open>
+<summary><span class="stitle"><span class="chev">▶</span> MAC Sublayer: Channel Allocation, ALOHA, CSMA/CD <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+<p>DLL splits into <strong>LLC</strong> (Logical Link Control — one protocol for all IEEE LANs) and <strong>MAC</strong> (Medium Access Control — different per LAN type). MAC solves: <em>who gets to use a shared/broadcast channel?</em></p>
+
+<h4>Channel Allocation: Static vs Dynamic</h4>
+<table>
+<thead><tr><th>Static Allocation</th><th>Dynamic Allocation</th></tr></thead>
+<tbody>
+<tr><td><strong>FDM</strong> (Frequency Division Multiplexing) — bandwidth split into N fixed bands; used in FM radio, GSM</td><td>Allocation adapts to current demand; called <strong>Multiple Access Protocols</strong></td></tr>
+<tr><td><strong>TDM</strong> (Time Division Multiplexing) — each user gets every Nth time slot; used in POTS, GSM</td><td>Split into: <strong>Contention protocols</strong> (resolve collision after it happens — ALOHA, CSMA, CSMA/CD) and <strong>Collision-free protocols</strong> (avoid collisions entirely — Bit-Map, Token Passing, Binary Countdown)</td></tr>
+<tr><td>Wastes bandwidth if fewer than N users are active, or blocks users if more than N want to communicate</td><td>Efficient for bursty/varying traffic</td></tr>
+</tbody>
+</table>
+
+<h4>ALOHA 🔥</h4>
+<p>Developed by Norman Abramson (1970) for radio LANs; applicable to any shared-channel system.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Pure ALOHA — stations transmit whenever ready</text>
+  <line x1="20" y1="55" x2="540" y2="55" stroke="#2e2c35"/>
+  <rect x="40" y="40" width="55" height="30" fill="#7c9ec9"/><text x="67" y="59" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">A</text>
+  <rect x="120" y="40" width="55" height="30" fill="#8dbf8d"/><text x="147" y="59" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">B</text>
+  <rect x="155" y="40" width="55" height="30" fill="#c98a7c" opacity="0.9"/><text x="182" y="59" text-anchor="middle" font-size="9" fill="#0f0e11" font-weight="700">✕ C</text>
+  <rect x="260" y="40" width="55" height="30" fill="#7c9ec9"/><text x="287" y="59" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">D</text>
+  <rect x="390" y="40" width="55" height="30" fill="#8dbf8d"/><text x="417" y="59" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">E</text>
+  <rect x="420" y="40" width="55" height="30" fill="#c98a7c" opacity="0.9"/><text x="447" y="59" text-anchor="middle" font-size="9" fill="#0f0e11" font-weight="700">✕ F</text>
+  <text x="280" y="90" text-anchor="middle" font-size="10" fill="#9a97a3">Frames start at random instants — any overlap, however small, destroys both frames</text>
+
+  <text x="280" y="125" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Slotted ALOHA — transmission only allowed at slot boundaries</text>
+  <line x1="20" y1="165" x2="540" y2="165" stroke="#2e2c35"/>
+  <g stroke="#2e2c35" stroke-dasharray="2,2">
+    <line x1="40" y1="150" x2="40" y2="180"/><line x1="105" y1="150" x2="105" y2="180"/><line x1="170" y1="150" x2="170" y2="180"/><line x1="235" y1="150" x2="235" y2="180"/><line x1="300" y1="150" x2="300" y2="180"/><line x1="365" y1="150" x2="365" y2="180"/><line x1="430" y1="150" x2="430" y2="180"/><line x1="495" y1="150" x2="495" y2="180"/>
+  </g>
+  <rect x="42" y="150" width="61" height="30" fill="#7c9ec9"/><text x="72" y="169" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">A</text>
+  <rect x="172" y="150" width="61" height="30" fill="#8dbf8d"/><text x="202" y="169" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">B</text>
+  <rect x="302" y="150" width="61" height="30" fill="#7c9ec9"/><text x="332" y="169" text-anchor="middle" font-size="9.5" fill="#0f0e11" font-weight="700">D</text>
+  <text x="280" y="205" text-anchor="middle" font-size="10" fill="#9a97a3">Every station must wait for the next slot to start — frames either fully overlap (collide) or don't overlap at all</text>
+</svg>
+<div class="diagram-caption">Pure ALOHA's free-for-all timing doubles the danger window compared to Slotted ALOHA's synchronized slots — this is exactly why vulnerable time is 2t vs t.</div>
+</div>
+
+<table>
+<thead><tr><th>Pure ALOHA</th><th>Slotted ALOHA</th></tr></thead>
+<tbody>
+<tr><td>Transmit whenever data is ready — continuous time</td><td>Time divided into discrete slots; must wait for slot boundary — discrete time</td></tr>
+<tr><td>No global time synchronization required</td><td>Requires synchronization (clocks)</td></tr>
+<tr><td>Higher collision probability</td><td>Improved efficiency over pure ALOHA</td></tr>
+<tr><td><strong>Vulnerable time = 2t</strong> (t = frame transmission time)</td><td><strong>Vulnerable time = t</strong> (frame transmission time only)</td></tr>
+</tbody>
+</table>
+<p>On collision, sender waits a <strong>random</strong> time before retrying (a "contention system") — different wait times reduce repeated collision probability.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 150" xmlns="http://www.w3.org/2000/svg">
+  <text x="260" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Pure ALOHA — vulnerable period for frame B</text>
+  <line x1="20" y1="80" x2="500" y2="80" stroke="#2e2c35"/>
+  <rect x="180" y="65" width="100" height="28" fill="#8dbf8d"/><text x="230" y="83" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f0e11">Frame B</text>
+  <rect x="90" y="65" width="100" height="28" fill="#7c9ec9" opacity="0.85"/><text x="140" y="83" text-anchor="middle" font-size="10" font-weight="700" fill="#0f0e11">starts before B</text>
+  <rect x="270" y="65" width="100" height="28" fill="#c98a7c" opacity="0.85"/><text x="320" y="83" text-anchor="middle" font-size="10" font-weight="700" fill="#0f0e11">starts during B</text>
+  <path d="M90,105 L370,105" stroke="#c4a35a" stroke-width="1.5"/>
+  <path d="M90,100 L90,110 M370,100 L370,110" stroke="#c4a35a" stroke-width="1.5"/>
+  <text x="230" y="122" text-anchor="middle" font-size="11" fill="#c4a35a" font-weight="700">Vulnerable time = 2t</text>
+  <text x="230" y="138" text-anchor="middle" font-size="9.5" fill="#9a97a3">any frame starting in this 2t window collides with B</text>
+</svg>
+</div>
+
+<div class="callout example"><span class="co-label">Example — Vulnerable Time</span>
+A LAN sends 1000-bit frames at 1 Mbps → frame transmission time t = 1000/1,000,000 = 1 ms.<br>
+<strong>Pure ALOHA</strong> vulnerable time = 2t = <strong>2 ms</strong>. <strong>Slotted ALOHA</strong> vulnerable time = t = <strong>1 ms</strong> — half the risk, because transmissions can only begin at slot boundaries.
+</div>
+
+<h4>Carrier Sense Multiple Access (CSMA)</h4>
+<p>Improves on ALOHA — station senses the medium <em>before</em> transmitting. Reduces (but can't eliminate) collisions due to propagation delay.</p>
+<table>
+<thead><tr><th>Variant</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td><strong>1-Persistent CSMA</strong></td><td>If channel busy, keep sensing continuously; transmit with probability 1 the instant it's idle. Higher collision risk if 2 stations were both waiting.</td></tr>
+<tr><td><strong>Non-Persistent CSMA</strong></td><td>If busy, don't keep sensing — wait a <em>random</em> time, then re-check. Better utilization, longer delays than 1-persistent.</td></tr>
+<tr><td><strong>p-Persistent CSMA</strong></td><td>If idle, transmit with probability <em>p</em>; defer to next slot with probability <em>q=1−p</em>. Repeats until sent or channel busy.</td></tr>
+</tbody>
+</table>
+
+<h4>CSMA/CD (Collision Detection) 🔥🔥</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="55" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#e6e4ea">Station A</text>
+  <rect x="90" y="35" width="250" height="30" fill="#7c9ec9"/><text x="215" y="55" text-anchor="middle" font-size="11" fill="#0f0e11" font-weight="700">A transmitting</text>
+
+  <text x="10" y="115" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" fill="#e6e4ea">Station B</text>
+  <rect x="240" y="95" width="250" height="30" fill="#8dbf8d"/><text x="365" y="115" text-anchor="middle" font-size="11" fill="#0f0e11" font-weight="700">B transmits (senses idle, unaware of A)</text>
+
+  <rect x="240" y="35" width="100" height="90" fill="#c98a7c" opacity="0.35"/>
+  <line x1="240" y1="30" x2="240" y2="130" stroke="#c98a7c" stroke-dasharray="3,3"/>
+  <line x1="340" y1="30" x2="340" y2="130" stroke="#c98a7c" stroke-dasharray="3,3"/>
+  <text x="290" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#c98a7c">COLLISION</text>
+
+  <rect x="340" y="165" width="60" height="24" fill="#c98a7c"/><text x="370" y="181" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">JAM</text>
+  <line x1="400" y1="177" x2="480" y2="177" stroke="#9a97a3" stroke-width="2" marker-end="url(#arwCD)"/>
+  <defs><marker id="arwCD" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9a97a3"/></marker></defs>
+  <text x="440" y="200" text-anchor="middle" font-size="10" fill="#9a97a3">random backoff → retry</text>
+</svg>
+<div class="diagram-caption">Both stations sense the channel idle and transmit almost simultaneously → signals overlap (collision) → both send a jam signal and back off for a random time before retrying.</div>
+</div>
+
+<ul>
+  <li>Station continues listening <em>while transmitting</em> — aborts immediately on detecting a collision, saving time/bandwidth.</li>
+  <li>Basis of classical Ethernet. Uses signal power/pulse-width to detect collisions. <strong>No ACK used.</strong></li>
+  <li><strong>Steps:</strong> (1) Check ready → (2) sense channel idle → (3) transmit + monitor for collision; if collision, stop, send <strong>jam signal</strong>, wait random time, retry → (4) if no collision, complete transmission.</li>
+  <li>CSMA/CD can be in one of 3 states: <strong>contention, transmission, idle</strong>.</li>
+</ul>
+
+<h4>Collision-Free Protocols</h4>
+<table>
+<thead><tr><th>Protocol</th><th>How it works</th></tr></thead>
+<tbody>
+<tr><td><strong>Bit-Map Protocol</strong></td><td>Each contention period has N slots; station <em>j</em> announces intent by placing a 1 bit in slot <em>j</em>. After N slots, all stations know who wants to transmit — they go in numerical order (a "reservation protocol")</td></tr>
+<tr><td><strong>Binary Countdown</strong></td><td>Stations broadcast their binary address bit-by-bit (high-order first); bits are OR-ed on the channel. If a station sees its 0-bit overwritten with 1, it withdraws. Scales better than bit-map (avoids 1-bit-per-station overhead)</td></tr>
+<tr><td><strong>Token Passing</strong></td><td>A "token" message circulates in a fixed order; only the token holder may transmit, then passes the token on</td></tr>
+</tbody>
+</table>
+
+<div class="callout example"><span class="co-label">Example — Binary Countdown</span>
+Stations with addresses <code>1001</code>, <code>1010</code>, and <code>0111</code> all want to transmit. They broadcast their address bit by bit, high-order first, and the channel OR-combines the bits: after bit 1, the combined value is <strong>1</strong> (since 1001 and 1010 both send 1) — station 0111 sees its 0 overwritten by a 1 and immediately withdraws. After bit 2, both remaining stations send 0, so both continue. After bit 3, 1001 sends 0 and 1010 sends 1 — 1001 sees its bit overwritten and withdraws. <strong>Station 1010 wins</strong> (highest address) and transmits first.
+</div>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+CSMA/CD ≠ CSMA/CA. CSMA/CD (Collision <strong>Detection</strong>) is for wired Ethernet; CSMA/CA (Collision <strong>Avoidance</strong>, via RTS/CTS like MACA) is for wireless — because wireless stations often can't detect their own collisions.
+</div>
+</div>
+</details>
+
+<!-- ETHERNET -->
+<details class="card" id="m2-ethernet" open>
+<summary><span class="stitle"><span class="chev">▶</span> Ethernet (IEEE 802.3) <span class="badge">🔥🔥 Very High Yield</span></span></summary>
+<div class="card-body">
+<p>The first LAN technology — jointly defined by DEC, Intel &amp; Xerox (1978). "Ether" = thick coaxial cable. Uses bus topology traditionally.</p>
+
+<h4>IEEE 802 Standards Family</h4>
+<table>
+<thead><tr><th>Standard</th><th>Covers</th></tr></thead>
+<tbody>
+<tr><td>802.3</td><td>Ethernet</td></tr>
+<tr><td>802.4</td><td>Token Bus</td></tr>
+<tr><td>802.5</td><td>Token Ring</td></tr>
+<tr><td>802.11</td><td>Wireless LAN (Wi-Fi)</td></tr>
+<tr><td>802.15</td><td>Bluetooth</td></tr>
+<tr><td>802.16</td><td>Wireless MAN</td></tr>
+</tbody>
+</table>
+
+<h4>Ethernet Versions &amp; Cabling</h4>
+<table>
+<thead><tr><th>Variant</th><th>Speed / Length</th><th>Cable / Topology</th></tr></thead>
+<tbody>
+<tr><td>10Base5 (Thick coax)</td><td>10 Mbps, ≤500 m/segment</td><td>Thick coax, bus</td></tr>
+<tr><td>10Base2 (Thin coax)</td><td>10 Mbps, ≤180 m</td><td>Thin coax, bus</td></tr>
+<tr><td>10Base-T</td><td>10 Mbps, ≤100 m</td><td>UTP, star</td></tr>
+<tr><td>10Base-F</td><td>10 Mbps, ≤2000 m</td><td>Fiber, star</td></tr>
+</tbody>
+</table>
+<p>Later speeds: 100 Mbps (Fast Ethernet), 1000 Mbps (Gigabit Ethernet), 10000 Mbps (10 Gigabit Ethernet).</p>
+
+<div class="callout note"><span class="co-label">Note</span>
+"10Base5" decodes as: <strong>10</strong> = Mbps speed, <strong>Base</strong> = baseband signaling, <strong>5</strong> = max segment length (×100m). Max 4 repeaters between any pair of hosts on classic Ethernet → total reach 2500m.
+</div>
+
+<h4>Ethernet Addressing (MAC Address)</h4>
+<ul>
+  <li>6-byte address, burnt into ROM on the adaptor, written as 6 hex-pairs separated by colons (e.g. <code>8:0:2b:e4:b1:2</code>).</li>
+  <li>Manufacturer prefix allocated per vendor (e.g. AMD = <code>8:0:20</code>).</li>
+  <li><strong>Unicast</strong> — 2nd hex digit from left is even.</li>
+  <li><strong>Multicast</strong> — 2nd hex digit from left is odd.</li>
+  <li><strong>Broadcast</strong> — all digits are F (<code>FF:FF:FF:FF:FF:FF</code>).</li>
+  <li>MAC addresses can be altered — known as <strong>MAC spoofing</strong>.</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Example — Reading a MAC Address</span>
+Address <code>01:00:5E:00:00:01</code>: the first byte is <code>01</code> = binary <code>00000001</code> — the low-order bit of the first byte is 1, marking it as a <strong>multicast</strong> address (this specific one is IPv4 multicast). Address <code>FF:FF:FF:FF:FF:FF</code> is the reserved <strong>broadcast</strong> address — every station on the LAN accepts it.
+</div>
+
+<h4>Ethernet Frame Format</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 760 130" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Segoe UI,sans-serif" font-size="11.5" fill="#0f0e11" text-anchor="middle">
+    <rect x="20" y="35" width="70" height="55" fill="#7c9ec9"/><text x="55" y="58" fill="#0f0e11" font-weight="700">Preamble</text><text x="55" y="72" fill="#0f0e11">7 B</text>
+    <rect x="90" y="35" width="40" height="55" fill="#8dbf8d"/><text x="110" y="58" font-size="10" fill="#0f0e11" font-weight="700">SFD</text><text x="110" y="72" font-size="10" fill="#0f0e11">1 B</text>
+    <rect x="130" y="35" width="95" height="55" fill="#c4a35a"/><text x="177" y="58" fill="#0f0e11" font-weight="700">Dest Addr</text><text x="177" y="72" fill="#0f0e11">6 B</text>
+    <rect x="225" y="35" width="95" height="55" fill="#c4a35a"/><text x="272" y="58" fill="#0f0e11" font-weight="700">Src Addr</text><text x="272" y="72" fill="#0f0e11">6 B</text>
+    <rect x="320" y="35" width="60" height="55" fill="#7c9ec9"/><text x="350" y="58" fill="#0f0e11" font-weight="700">Length</text><text x="350" y="72" fill="#0f0e11">2 B</text>
+    <rect x="380" y="35" width="290" height="55" fill="#c98a7c"/><text x="525" y="58" fill="#0f0e11" font-weight="700">Data (Payload)</text><text x="525" y="72" fill="#0f0e11">46–1500 B, padded if short</text>
+    <rect x="670" y="35" width="60" height="55" fill="#8dbf8d"/><text x="700" y="58" font-size="10" fill="#0f0e11" font-weight="700">CRC</text><text x="700" y="72" font-size="10" fill="#0f0e11">4 B</text>
+  </g>
+  <g stroke="#2e2c35"><rect x="20" y="35" width="70" height="55" fill="none"/><rect x="90" y="35" width="40" height="55" fill="none"/><rect x="130" y="35" width="95" height="55" fill="none"/><rect x="225" y="35" width="95" height="55" fill="none"/><rect x="320" y="35" width="60" height="55" fill="none"/><rect x="380" y="35" width="290" height="55" fill="none"/><rect x="670" y="35" width="60" height="55" fill="none"/></g>
+  <text x="20" y="20" font-size="11" fill="#9a97a3">← Ethernet Frame (min 64 bytes, max ~1518 bytes) →</text>
+</svg>
+</div>
+
+<table>
+<thead><tr><th>Field</th><th>Size</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>Preamble</td><td>7 bytes</td><td>Alternating 0s/1s for bit synchronization</td></tr>
+<tr><td>SFD</td><td>1 byte</td><td><code>10101011</code> — signals start of destination address</td></tr>
+<tr><td>Destination Address</td><td>6 bytes</td><td>MAC of receiving machine</td></tr>
+<tr><td>Source Address</td><td>6 bytes</td><td>MAC of sending machine</td></tr>
+<tr><td>Length</td><td>2 bytes</td><td>Length of the entire frame</td></tr>
+<tr><td>Data</td><td>46–1500 bytes</td><td>Payload; padded with 0s if &lt; 46 bytes; fragmented if too large</td></tr>
+<tr><td>CRC</td><td>4 bytes</td><td>32-bit hash over Dest/Src/Length/Data for error detection</td></tr>
+</tbody>
+</table>
+
+<h4>Transmitter Algorithm &amp; Collisions 🔥</h4>
+<ul>
+  <li>If line idle → transmit immediately. If busy → wait until idle, then transmit.</li>
+  <li>On collision detection: send a <strong>32-bit jamming sequence</strong>, then stop. Minimum sent during collision = 96 bits (64-bit preamble + 32-bit jam).</li>
+  <li>Worst-case round-trip propagation time on 10Mbps Ethernet = <strong>51.2 μs</strong> (defines the collision slot time).</li>
+  <li>To guarantee detecting a collision on its own frame, a transmitter needs to send ≥512 bits → hence <strong>minimum Ethernet frame = 512 bits = 64 bytes</strong> (14 header + 46 data + 4 CRC).</li>
+</ul>
+<pre><code>Minimum frame size derivation:
+Delay × Bandwidth = 51.2 × 10⁻⁶ s × 10 × 10⁶ bps = 512 bits = 64 bytes</code></pre>
+
+<h4>Binary Exponential Backoff Algorithm 🔥🔥</h4>
+<pre><code>After collision number n, wait k × 51.2 μs,
+where k is randomly chosen from 0 to (2ⁿ − 1)
+
+Collision 1: choose k from {0,1}         → range 2^1
+Collision 2: choose k from {0,1,2,3}     → range 2^2
+Collision 3: choose k from {0..7}        → range 2^3
+...
+After 10 collisions: randomization interval frozen at 1023 slots (2^10)
+After 16 collisions: controller reports failure to computer</code></pre>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 130" xmlns="http://www.w3.org/2000/svg">
+  <text x="260" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Backoff range doubles with every collision</text>
+  <g font-family="monospace" font-size="10.5" fill="#0f0e11" text-anchor="middle">
+    <rect x="20" y="35" width="60" height="60" fill="#7c9ec9"/><text x="50" y="60" font-weight="700">n=1</text><text x="50" y="76">{0,1}</text>
+    <rect x="100" y="35" width="80" height="60" fill="#8dbf8d"/><text x="140" y="60" font-weight="700">n=2</text><text x="140" y="76">{0..3}</text>
+    <rect x="200" y="35" width="100" height="60" fill="#c4a35a"/><text x="250" y="60" font-weight="700">n=3</text><text x="250" y="76">{0..7}</text>
+    <rect x="320" y="35" width="120" height="60" fill="#c98a7c"/><text x="380" y="60" font-weight="700">n=4</text><text x="380" y="76">{0..15}</text>
+  </g>
+  <text x="460" y="70" font-size="14" fill="#9a97a3">…</text>
+  <text x="260" y="118" text-anchor="middle" font-size="10" fill="#9a97a3">wait = k × 51.2 μs, where k is randomly picked from the widening range</text>
+</svg>
+</div>
+
+<div class="callout example"><span class="co-label">Worked Example — Backoff Delay</span>
+After the <strong>3rd</strong> collision, a station picks k randomly from {0,1,2,...,7} (range 2³). If it picks k=5, it waits <code>5 × 51.2 μs = 256 μs</code> before its next attempt. Two stations colliding repeatedly become increasingly unlikely to pick the same k as the range widens — this is what makes the algorithm converge.
+</div>
+
+<h4>Switched Ethernet</h4>
+<ul>
+  <li>A switch has a high-speed backplane with 4–32 plug-in line cards, 1–8 connectors each.</li>
+  <li>Each connector = 10Base-T twisted-pair connection to a single host.</li>
+  <li>Frame is copied locally if destined for the same card; otherwise sent over the backplane (many Gbps, proprietary protocol) to the destination card.</li>
+</ul>
+</div>
+</details>
+
+<!-- WIRELESS LAN -->
+<details class="card" id="m2-wireless" open>
+<summary><span class="stitle"><span class="chev">▶</span> Wireless LAN &amp; IEEE 802.11 <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+
+<h4>Why Wireless is Different</h4>
+<ul>
+  <li>In wired LAN, when one station sends, all others receive it. In wireless, limited radio range means a station may not reach every other station.</li>
+  <li>Radio signals reflect off objects (<strong>multipath fading</strong>); mobility requires reconfiguration when moving between base stations.</li>
+</ul>
+
+<h4>Hidden Terminal &amp; Exposed Terminal Problems 🔥🔥</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg">
+  <text x="130" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" font-weight="700" fill="#c4a35a">Hidden Terminal</text>
+  <circle cx="60" cy="140" r="80" fill="none" stroke="#7c9ec9" stroke-dasharray="4,3"/>
+  <circle cx="200" cy="140" r="80" fill="none" stroke="#8dbf8d" stroke-dasharray="4,3"/>
+  <circle cx="60" cy="140" r="8" fill="#7c9ec9"/><text x="60" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">A</text>
+  <circle cx="130" cy="140" r="8" fill="#c4a35a"/><text x="130" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">B</text>
+  <circle cx="200" cy="140" r="8" fill="#8dbf8d"/><text x="200" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">C</text>
+  <line x1="68" y1="138" x2="122" y2="138" stroke="#7c9ec9" stroke-width="1.6"/>
+  <line x1="192" y1="142" x2="138" y2="142" stroke="#8dbf8d" stroke-width="1.6"/>
+  <text x="130" y="225" text-anchor="middle" font-size="10" fill="#9a97a3">A &amp; C can't hear each other — both</text>
+  <text x="130" y="238" text-anchor="middle" font-size="10" fill="#9a97a3">send to B at once → collision at B</text>
+
+  <g transform="translate(280,0)">
+    <text x="130" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12.5" font-weight="700" fill="#c4a35a">Exposed Terminal</text>
+    <circle cx="130" cy="140" r="80" fill="none" stroke="#c4a35a" stroke-dasharray="4,3"/>
+    <circle cx="60" cy="140" r="8" fill="#7c9ec9"/><text x="60" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">A</text>
+    <circle cx="130" cy="140" r="8" fill="#c4a35a"/><text x="130" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">B</text>
+    <circle cx="200" cy="140" r="8" fill="#8dbf8d"/><text x="200" y="165" text-anchor="middle" font-size="11" fill="#e6e4ea">C</text>
+    <circle cx="245" cy="90" r="8" fill="#c98a7c"/><text x="245" y="115" text-anchor="middle" font-size="11" fill="#e6e4ea">D</text>
+    <line x1="122" y1="138" x2="68" y2="138" stroke="#c4a35a" stroke-width="1.6"/>
+    <line x1="207" y1="132" x2="238" y2="98" stroke="#c98a7c" stroke-width="1.6" stroke-dasharray="3,2"/>
+    <text x="130" y="225" text-anchor="middle" font-size="10" fill="#9a97a3">C hears B→A and stays silent, though</text>
+    <text x="130" y="238" text-anchor="middle" font-size="10" fill="#9a97a3">C→D would not have interfered</text>
+  </g>
+</svg>
+</div>
+
+<div class="grid2">
+  <div class="col cons">
+    <h5>Hidden Terminal Problem</h5>
+    <p style="font-size:0.87rem; margin:0;">A talks to C. B can't hear A (out of range) and thinks C is idle, so B also transmits to C — causing a <strong>collision at C</strong>. B is "hidden" from A.</p>
+  </div>
+  <div class="col cons">
+    <h5>Exposed Terminal Problem</h5>
+    <p style="font-size:0.87rem; margin:0;">A is talking to some other station. C is in range of A and senses the channel busy, so C refrains from talking to B — even though B and C could safely communicate. A is "exposed" to C.</p>
+  </div>
+</div>
+
+<h4>MACA (Multiple Access with Collision Avoidance)</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 460 190" xmlns="http://www.w3.org/2000/svg">
+  <text x="70" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">A</text>
+  <text x="230" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">B (receiver)</text>
+  <text x="390" y="18" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">C (nearby)</text>
+  <line x1="70" y1="25" x2="70" y2="175" stroke="#2e2c35"/>
+  <line x1="230" y1="25" x2="230" y2="175" stroke="#2e2c35"/>
+  <line x1="390" y1="25" x2="390" y2="175" stroke="#2e2c35"/>
+
+  <defs><marker id="arwM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c9ec9"/></marker></defs>
+
+  <line x1="70" y1="45" x2="226" y2="45" stroke="#7c9ec9" stroke-width="1.6" marker-end="url(#arwM)"/><text x="150" y="40" text-anchor="middle" font-size="10" fill="#7c9ec9">RTS</text>
+  <line x1="70" y1="45" x2="386" y2="45" stroke="#7c9ec9" stroke-width="1" stroke-dasharray="2,2" opacity="0.5"/>
+  <text x="390" y="60" text-anchor="middle" font-size="9" fill="#9a97a3">hears RTS → stays silent</text>
+
+  <line x1="230" y1="85" x2="74" y2="85" stroke="#8dbf8d" stroke-width="1.6" marker-end="url(#arwM)"/><text x="150" y="80" text-anchor="middle" font-size="10" fill="#8dbf8d">CTS</text>
+  <line x1="230" y1="85" x2="386" y2="85" stroke="#8dbf8d" stroke-width="1.6" marker-end="url(#arwM)"/><text x="310" y="80" text-anchor="middle" font-size="10" fill="#8dbf8d">CTS</text>
+  <text x="390" y="102" text-anchor="middle" font-size="9" fill="#9a97a3">hears CTS → stays silent too</text>
+
+  <rect x="70" y="120" width="160" height="26" fill="#c4a35a"/><text x="150" y="137" text-anchor="middle" font-size="10.5" fill="#0f0e11" font-weight="700">A transmits DATA to B</text>
+  <text x="150" y="165" text-anchor="middle" font-size="9.5" fill="#9a97a3">C now knows to stay silent for the whole exchange — collision avoided</text>
+</svg>
+</div>
+
+<ul>
+  <li>Sender stimulates the receiver into sending a short frame first, alerting nearby stations to stay silent.</li>
+  <li><strong>RTS</strong> (Request To Send, ~30 bytes, contains data length) sent by A → <strong>CTS</strong> (Clear To Send, echoes data length) sent back by B → A then transmits data.</li>
+  <li>Stations hearing RTS stay silent (near A); stations hearing CTS stay silent (near B) — solves the <strong>hidden terminal</strong> problem only.</li>
+  <li>Collisions still possible if RTS frames from 2 senders collide — resolved via random backoff.</li>
+</ul>
+
+<h4>MACAW (MACA for Wireless)</h4>
+<ul>
+  <li>Improves MACA: adds <strong>ACK frames</strong> at DLL for each successful data frame.</li>
+  <li>Adds carrier sensing (avoids simultaneous RTS).</li>
+  <li>Runs backoff separately per source-destination stream.</li>
+  <li>Solves <strong>both</strong> hidden and exposed terminal problems.</li>
+</ul>
+
+<div class="callout example"><span class="co-label">Example</span>
+In plain MACA, C (exposed to A but wanting to talk to D) would still stay silent after overhearing A's RTS — even though a C→D exchange wouldn't disturb A/B's link. MACAW's added carrier sensing and ACK-based bookkeeping let C recognize this and transmit safely, recovering wasted capacity.
+</div>
+
+<h4>IEEE 802.11 (Wi-Fi) Basics</h4>
+<ul>
+  <li>Operates on 2.4 GHz, 5 GHz, 6 GHz, and 60 GHz frequency bands.</li>
+  <li><strong>BSS</strong> (Basic Service Set) — building block: wireless stations + optional central <strong>AP</strong> (Access Point).</li>
+  <li><strong>ESS</strong> (Extended Service Set) — 2+ BSSs connected via a distribution system (usually a wired LAN).</li>
+  <li>Two configurations: <strong>infrastructure mode</strong> (with AP/base station) and <strong>ad-hoc mode</strong> (without one).</li>
+</ul>
+
+<h4>802.11 MAC Modes</h4>
+<table>
+<thead><tr><th>Mode</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>DCF</strong> (Distributed Coordination Function)</td><td>No central control; uses physical + virtual channel sensing. <strong>Mandatory</strong> in all implementations</td></tr>
+<tr><td><strong>PCF</strong> (Point Coordination Function)</td><td>Base station controls all activity in its cell. <strong>Optional</strong></td></tr>
+</tbody>
+</table>
+
+<h4>802.11 Frame Structure</h4>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 780 130" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Segoe UI,sans-serif" font-size="10.5" text-anchor="middle">
+    <rect x="20" y="35" width="90" height="55" fill="#7c9ec9"/><text x="65" y="56" fill="#0f0e11" font-weight="700">Frame</text><text x="65" y="68" fill="#0f0e11" font-weight="700">Control</text><text x="65" y="80" fill="#0f0e11" font-size="9">2 B</text>
+    <rect x="110" y="35" width="70" height="55" fill="#8dbf8d"/><text x="145" y="60" fill="#0f0e11" font-weight="700">Duration</text><text x="145" y="72" fill="#0f0e11" font-size="9">2 B</text>
+    <rect x="180" y="35" width="90" height="55" fill="#c4a35a"/><text x="225" y="60" fill="#0f0e11" font-weight="700">Address 1</text><text x="225" y="72" fill="#0f0e11" font-size="9">6 B</text>
+    <rect x="270" y="35" width="90" height="55" fill="#c4a35a"/><text x="315" y="60" fill="#0f0e11" font-weight="700">Address 2</text><text x="315" y="72" fill="#0f0e11" font-size="9">6 B</text>
+    <rect x="360" y="35" width="90" height="55" fill="#c4a35a"/><text x="405" y="60" fill="#0f0e11" font-weight="700">Address 3</text><text x="405" y="72" fill="#0f0e11" font-size="9">6 B</text>
+    <rect x="450" y="35" width="70" height="55" fill="#7c9ec9"/><text x="485" y="60" fill="#0f0e11" font-weight="700">Sequence</text><text x="485" y="72" fill="#0f0e11" font-size="9">2 B</text>
+    <rect x="520" y="35" width="90" height="55" fill="#c4a35a"/><text x="565" y="60" fill="#0f0e11" font-weight="700">Address 4</text><text x="565" y="72" fill="#0f0e11" font-size="9">6 B</text>
+    <rect x="610" y="35" width="100" height="55" fill="#c98a7c"/><text x="660" y="60" fill="#0f0e11" font-weight="700">Data</text><text x="660" y="72" fill="#0f0e11" font-size="9">0–2312 B</text>
+    <rect x="710" y="35" width="60" height="55" fill="#8dbf8d"/><text x="740" y="60" fill="#0f0e11" font-weight="700">CRC</text><text x="740" y="72" fill="#0f0e11" font-size="9">4 B</text>
+  </g>
+  <g stroke="#2e2c35" fill="none"><rect x="20" y="35" width="90" height="55"/><rect x="110" y="35" width="70" height="55"/><rect x="180" y="35" width="90" height="55"/><rect x="270" y="35" width="90" height="55"/><rect x="360" y="35" width="90" height="55"/><rect x="450" y="35" width="70" height="55"/><rect x="520" y="35" width="90" height="55"/><rect x="610" y="35" width="100" height="55"/><rect x="710" y="35" width="60" height="55"/></g>
+  <text x="20" y="20" font-size="11" fill="#9a97a3">802.11 MAC Frame — the unusual part is 4 address fields, not 2 (needed for AP-relayed traffic)</text>
+  <text x="20" y="112" font-size="10" fill="#9a97a3">Addr 1/2 = immediate sender/receiver (may be an AP) · Addr 3 = original source or final dest · Addr 4 = used only in AP-to-AP wireless bridging</text>
+</svg>
+</div>
+
+<ul>
+  <li><strong>Frame Control</strong> fields: Version, Type (Data/Control/Management), Subtype (RTS/CTS), To-DS, From-DS, More Fragments, Retry, Power, More Data, WEP encryption flag, Strict Order flag.</li>
+  <li><strong>Duration</strong> — channel occupation time; <strong>Four Address fields</strong> (source, dest, + 2 base station addresses); <strong>Sequence</strong> (16 bits: 12 for frame ID, 4 for fragment); <strong>Data</strong> (up to 2312 bytes); <strong>Checksum</strong> (4-byte CRC).</li>
+  <li><strong>Frame types:</strong> Management (single-cell only), Control (RTS/CTS/ACK — short, few addresses), Data (actual payload).</li>
+</ul>
+
+<div class="callout note"><span class="co-label">Note — Why 4 Addresses?</span>
+A wired Ethernet frame only ever needs source + destination. In infrastructure-mode Wi-Fi, a frame often bounces through an <strong>Access Point</strong>, so the MAC layer needs to separately track "who physically sent this hop" and "who is the original/final endpoint." The 4th address only comes into play for AP-to-AP wireless distribution links.
+</div>
+</div>
+</details>
+
+<!-- CONNECTING DEVICES -->
+<details class="card" id="m2-devices" open>
+<summary><span class="stitle"><span class="chev">▶</span> Connecting Devices: Repeaters, Hubs, Bridges, Switches, Routers, Gateways <span class="badge">🔥 High Yield</span></span></summary>
+<div class="card-body">
+<p>Devices used to connect LANs/WANs together or to the Internet, operating at different OSI layers.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 200" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Segoe UI,sans-serif" font-size="11" text-anchor="middle" fill="#0f0e11" font-weight="700">
+    <rect x="20" y="140" width="100" height="40" fill="#7c9ec9"/><text x="70" y="163">Repeater / Hub</text>
+    <rect x="130" y="110" width="100" height="70" fill="#8dbf8d"/><text x="180" y="148">Bridge /</text><text x="180" y="163">Switch</text>
+    <rect x="240" y="80" width="100" height="100" fill="#c4a35a"/><text x="290" y="133">Router</text>
+    <rect x="350" y="50" width="100" height="130" fill="#c98a7c"/><text x="400" y="118">Gateway</text>
+  </g>
+  <g font-family="monospace" font-size="9.5" fill="#9a97a3" text-anchor="middle">
+    <text x="70" y="195">L1 only</text>
+    <text x="180" y="195">L1–L2</text>
+    <text x="290" y="195">L1–L3</text>
+    <text x="400" y="195">L1–L7 (all layers)</text>
+  </g>
+  <line x1="10" y1="180" x2="470" y2="180" stroke="#2e2c35"/>
+  <text x="10" y="30" font-size="11" fill="#9a97a3">Higher up the stack →</text>
+  <text x="10" y="45" font-size="10" fill="#9a97a3">= more of the frame/packet the device reads before forwarding</text>
+</svg>
+</div>
+
+<h4>Layers of Operation</h4>
+<table>
+<thead><tr><th>Device</th><th>Layer(s)</th></tr></thead>
+<tbody>
+<tr><td>Passive Hub</td><td>Below Physical Layer</td></tr>
+<tr><td>Repeater / Active Hub</td><td>Physical Layer (Layer 1)</td></tr>
+<tr><td>Bridge / Two-layer Switch</td><td>Physical + Data Link (Layers 1–2)</td></tr>
+<tr><td>Router / Three-layer Switch</td><td>Physical + Data Link + Network (Layers 1–3)</td></tr>
+<tr><td>Gateway</td><td>All layers (up to Application)</td></tr>
+</tbody>
+</table>
+
+<h4>Device Details</h4>
+<ul>
+  <li><strong>Passive Hub</strong> — just a wire connector; in star topology it's the collision point.</li>
+  <li><strong>Repeater</strong> — regenerates a weakening/corrupted signal, physical layer device; used to overcome bus-topology length limits.</li>
+  <li><strong>Active Hub</strong> — a multiport repeater; when A sends to B, hub forwards to <em>all</em> ports; only B keeps the data, others discard it. Has no data-link address awareness.</li>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 190" xmlns="http://www.w3.org/2000/svg">
+  <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Active Hub — floods every port</text>
+  <circle cx="130" cy="90" r="26" fill="#c4a35a"/><text x="130" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#0f0e11">HUB</text>
+  <circle cx="35" cy="35" r="14" fill="#7c9ec9"/><text x="35" y="39" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">A</text>
+  <circle cx="35" cy="145" r="14" fill="#8dbf8d"/><text x="35" y="149" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">B</text>
+  <circle cx="225" cy="35" r="14" fill="#8dbf8d"/><text x="225" y="39" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">C</text>
+  <circle cx="225" cy="145" r="14" fill="#8dbf8d"/><text x="225" y="149" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">D</text>
+  <line x1="47" y1="42" x2="112" y2="80" stroke="#7c9ec9" stroke-width="2"/>
+  <line x1="112" y1="100" x2="47" y2="138" stroke="#9a97a3" stroke-width="1.6" stroke-dasharray="3,2"/>
+  <line x1="148" y1="80" x2="213" y2="42" stroke="#9a97a3" stroke-width="1.6" stroke-dasharray="3,2"/>
+  <line x1="148" y1="100" x2="213" y2="138" stroke="#9a97a3" stroke-width="1.6" stroke-dasharray="3,2"/>
+  <text x="130" y="175" text-anchor="middle" font-size="10" fill="#9a97a3">A sends to B — hub blindly re-broadcasts to B, C, and D alike; only B keeps it</text>
+
+  <g transform="translate(280,0)">
+    <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Bridge — filters by MAC table</text>
+    <rect x="105" y="70" width="50" height="40" rx="6" fill="#8dbf8d"/><text x="130" y="94" text-anchor="middle" font-size="10" font-weight="700" fill="#0f0e11">Bridge</text>
+    <circle cx="35" cy="35" r="14" fill="#7c9ec9"/><text x="35" y="39" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">A</text>
+    <circle cx="35" cy="145" r="14" fill="#c98a7c"/><text x="35" y="149" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">C</text>
+    <circle cx="225" cy="35" r="14" fill="#8dbf8d"/><text x="225" y="39" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">B</text>
+    <circle cx="225" cy="145" r="14" fill="#c98a7c"/><text x="225" y="149" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">D</text>
+    <line x1="47" y1="42" x2="103" y2="75" stroke="#7c9ec9" stroke-width="2"/>
+    <line x1="157" y1="75" x2="213" y2="42" stroke="#7c9ec9" stroke-width="2"/>
+    <text x="130" y="175" text-anchor="middle" font-size="10" fill="#9a97a3">A sends to B — bridge checks its table, forwards only toward B's segment (C, D never see it)</text>
+  </g>
+</svg>
+<div class="diagram-caption">A hub is "dumb" — it repeats to everyone. A bridge is address-aware — it looks up the destination MAC and only forwards out the port that actually leads there.</div>
+</div>
+  <li><strong>Bridge</strong> — regenerates signal (physical layer) AND checks MAC addresses (data link layer) for filtering. Maintains a table for forwarding decisions.
+    <ul>
+      <li><strong>Transparent bridge</strong> — stations are unaware it exists; must (1) forward frames, (2) auto-learn its table, (3) prevent loops.</li>
+      <li><strong>Learning bridge</strong> — dynamically builds its address→port table by inspecting source addresses of incoming frames (destination address used for the forwarding decision itself).</li>
+    </ul>
+  </li>
+  <li><strong>Switch</strong> — an intelligent multiport bridge; uses MAC addresses + packet switching; supports unicast/multicast/broadcast; full-duplex; supports error checking.</li>
+  <li><strong>Router</strong> — a 3-layer device; regenerates signal, checks physical (MAC) address, AND checks network-layer (IP) address. Connects LANs, WANs, or LANs+WANs into an <strong>internetwork</strong>.</li>
+  <li><strong>Gateway</strong> — operates across all 5 (TCP/IP) or 7 (OSI) layers; reads and interprets application messages; connects two internetworks using <em>different</em> models; can provide security by filtering unwanted application-layer messages.</li>
+</ul>
+
+<h4>Router vs Repeater vs Bridge 🔥</h4>
+<table>
+<thead><tr><th>Aspect</th><th>Repeater / Bridge</th><th>Router</th></tr></thead>
+<tbody>
+<tr><td>Scope</td><td>Connects segments of the <em>same</em> LAN</td><td>Connects <em>independent</em> LANs/WANs into an internetwork</td></tr>
+<tr><td>Addressing</td><td>Physical address only</td><td>Has both physical &amp; logical (IP) address per interface</td></tr>
+<tr><td>Address on forward</td><td>Bridge does NOT change the physical address</td><td>Router DOES change physical (source &amp; dest) address when forwarding</td></tr>
+<tr><td>Packet handling</td><td>Acts on frames matching its own addresses</td><td>Acts only on packets whose destination matches its interface</td></tr>
+</tbody>
+</table>
+
+<div class="callout warn"><span class="co-label">Common Mistake</span>
+A frequent exam trap: students say bridges and routers both "forward based on address" without distinguishing that a <strong>bridge forwards using the unchanged MAC address</strong>, while a <strong>router rewrites the MAC address at each hop</strong> (based on IP routing) while keeping the IP address intact end-to-end.
+</div>
+
+<div class="callout example"><span class="co-label">Example — Bridge vs Router Forwarding</span>
+Host X sends a frame to Host Y across 3 hops. A <strong>bridge</strong> at each hop just checks the destination MAC address and forwards the exact same frame unchanged — X's and Y's MAC addresses stay in the frame the whole way. A <strong>router</strong> at each hop strips the old MAC header, looks at the destination <em>IP</em> address to decide the next hop, and builds a brand-new MAC header (its own outgoing interface MAC as source, the next router/host's MAC as destination) — while the source/destination <strong>IP addresses never change</strong> end-to-end.
+</div>
+</div>
+</details>
+
+</div>
+</details>
+
+</section>
+
+</main>
+
+<footer>
+  Computer Networks (101003 / CS500B) — Study Notes generated from course syllabus &amp; slides · Good luck on the exam! 🎓
+</footer>
+
+<script>
+  function expandAllSections(){
+    document.querySelectorAll('main details').forEach(function(d){ d.open = true; });
+  }
+  function collapseAllSections(){
+    document.querySelectorAll('main details').forEach(function(d){ d.open = false; });
+  }
+</script>
+
+</body>
+</html>

@@ -53,6 +53,15 @@
       "author_link" : "https://jidu.dev",
       "date" : "2026-07-22"
     }
+  ],
+  "computer networks" :[{
+      "title" : "computer networks module 1 and 2",
+      "description" : "intro computer networks and data link layer",
+      "file" : "simulations/cse/computer_networks/Computer_Networks_Study.html",
+      "author" : "Jidu",
+      "author_link" : "https://jidu.dev",
+      "date" : "2026-07-24"
+    }
   ]
   },
   "ECE": {},
