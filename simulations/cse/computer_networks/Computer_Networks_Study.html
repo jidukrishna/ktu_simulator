@@ -668,7 +668,47 @@ The <strong>OSI (Open Systems Interconnection)</strong> model is a proposal by I
 "<strong>A</strong>ll <strong>P</strong>eople <strong>S</strong>eem <strong>T</strong>o <strong>N</strong>eed <strong>D</strong>ata <strong>P</strong>rocessing" (top to bottom: App, Pres, Session, Transport, Network, DataLink, Physical).
 </div>
 
-<h4>Layer Details Worth Remembering 🔥</h4>
+<h4>Detailed Breakdown of Each Layer 🔥🔥</h4>
+
+<div class="callout def"><span class="co-label">Layer 1 — Physical Layer</span>
+<strong>Definition:</strong> Coordinates the functions required to transmit a raw bit stream over a physical medium.<br>
+<strong>Responsibilities:</strong> Physical characteristics of interfaces &amp; medium; representation of bits (encoding scheme used); data rate (transmission rate, i.e. bits per second); synchronization of bits between sender &amp; receiver clocks; line configuration (point-to-point vs multipoint link); physical topology (mesh/star/bus/ring); transmission mode (simplex/half-duplex/full-duplex).<br>
+<strong>Deals purely with:</strong> voltages, connectors, cabling, timing — no concept of "meaning" in the data at all.
+</div>
+
+<div class="callout def"><span class="co-label">Layer 2 — Data Link Layer</span>
+<strong>Definition:</strong> Transforms the raw, error-prone physical layer into a reliable link; responsible for <strong>node-to-node (hop-to-hop) delivery</strong>.<br>
+<strong>Responsibilities:</strong> <strong>Framing</strong> — divides the bit stream into manageable frames; <strong>Physical (MAC) addressing</strong> — adds sender/receiver hardware address to each frame; <strong>Flow control</strong> — prevents a fast sender from overwhelming a slow receiver; <strong>Error control</strong> — detects and retransmits/discards damaged or lost frames; <strong>Access control</strong> — determines which device has control of the link at any given time when multiple devices share it.<br>
+<strong>Split into 2 sublayers:</strong> LLC (Logical Link Control, protocol-independent) and MAC (Medium Access Control, handles the shared-medium access problem).
+</div>
+
+<div class="callout def"><span class="co-label">Layer 3 — Network Layer</span>
+<strong>Definition:</strong> Responsible for the <strong>source-to-destination delivery</strong> of a packet, possibly across multiple, heterogeneous networks (whereas the data link layer only handles delivery between two <em>directly connected</em> nodes).<br>
+<strong>Responsibilities:</strong> <strong>Logical addressing</strong> — adds a sender/receiver IP address to the packet header, needed because moving across network boundaries requires a universal addressing system beyond just local hardware addresses; <strong>Routing</strong> — connecting/routing devices (routers) move packets to their final destination, choosing paths across the internetwork.
+</div>
+
+<div class="callout def"><span class="co-label">Layer 4 — Transport Layer</span>
+<strong>Definition:</strong> Responsible for <strong>process-to-process (end-to-end) delivery</strong> of the <em>entire message</em> — the first layer that talks directly, logically, to its peer on the destination machine rather than hop-by-hop.<br>
+<strong>Responsibilities:</strong> <strong>Service-point (port) addressing</strong> — the header includes a port address so the message reaches the correct <em>process</em> on the destination host, not just the correct host; <strong>Segmentation and reassembly</strong> — a message is split into transmittable segments, each numbered, allowing correct reassembly at the destination and detection of lost segments; <strong>Connection control</strong> — either connection-oriented (a virtual connection is established first) or connectionless (each segment travels independently); <strong>Flow control</strong> — end-to-end, not just hop-to-hop like layer 2; <strong>Error control</strong> — end-to-end, ensuring the whole message arrives error-free.
+</div>
+
+<div class="callout def"><span class="co-label">Layer 5 — Session Layer</span>
+<strong>Definition:</strong> Acts as the "dialog controller" — establishes, maintains, and synchronizes interaction between communicating systems.<br>
+<strong>Responsibilities:</strong> <strong>Dialog control</strong> — allows two systems to enter into a dialog, permitting communication to happen either in half-duplex or full-duplex mode, and manages whose "turn" it is to transmit; <strong>Synchronization</strong> — adds checkpoints ("sync points") into a long stream of data, so that if a crash occurs, only the data after the last checkpoint needs to be resent, rather than the entire stream.
+</div>
+
+<div class="callout def"><span class="co-label">Layer 6 — Presentation Layer</span>
+<strong>Definition:</strong> Concerned with the <strong>syntax and semantics</strong> of the information exchanged between two systems — essentially, it's the network's "translator."<br>
+<strong>Responsibilities:</strong> <strong>Translation</strong> — converts data from the sender's local format into a common, agreed-upon format for transmission, then back into the receiver's local format; <strong>Encryption/Decryption</strong> — transforms data to ensure privacy, protecting sensitive information from unauthorized access during transmission; <strong>Compression/Decompression</strong> — reduces the number of bits to be transmitted, important for compressing multimedia data like audio/video/text.
+</div>
+
+<div class="callout def"><span class="co-label">Layer 7 — Application Layer</span>
+<strong>Definition:</strong> Enables the user (human or software) to access the network — the layer closest to the end user, providing user interfaces and support for services.<br>
+<strong>Responsibilities/Services:</strong> <strong>Network virtual terminal</strong> — a software emulation of a remote terminal, allowing a user to log onto a remote host; <strong>File transfer, access, and management (FTAM)</strong> — allows a user to access, retrieve and manage files on a remote host; <strong>Mail services</strong> — provides the basis for email forwarding and storage; <strong>Directory services</strong> — provides distributed database sources for global information about various objects and services.<br>
+<strong>Common protocols:</strong> HTTP, FTP, SMTP, DNS, TELNET.
+</div>
+
+<h4>Layer Details Worth Remembering — Quick Recap 🔥</h4>
 <ul>
   <li><strong>Physical:</strong> volts per bit, bit duration, simplex/duplex, connector pins — all mechanical/electrical/timing aspects.</li>
   <li><strong>Data Link:</strong> breaks input into frames; processes acknowledgement frames; creates/recognizes frame boundaries using special bit patterns.</li>
@@ -699,6 +739,30 @@ The <strong>OSI (Open Systems Interconnection)</strong> model is a proposal by I
 
 <div class="callout example"><span class="co-label">Example</span>
 TCP guarantees ordered, error-free delivery — ideal for file downloads. UDP is connectionless and faster but unreliable — used for live video/voice calls where late data is worse than lost data.
+</div>
+
+<h4>Detailed Breakdown of Each TCP/IP Layer 🔥</h4>
+
+<div class="callout def"><span class="co-label">Host-to-Network Layer (Network Access / Link Layer)</span>
+<strong>Definition:</strong> The lowest layer of the model, combining the functionality of the OSI Physical + Data Link layers. It is intentionally left <strong>vague and unspecified</strong> by the TCP/IP model itself — the host simply needs to connect to the network using <em>some</em> protocol so it can send IP packets over it.<br>
+<strong>Why unspecified:</strong> This flexibility is a strength — it lets TCP/IP run over virtually any underlying hardware: Ethernet, Wi-Fi, fiber, satellite links, etc, without redesigning the model.
+</div>
+
+<div class="callout def"><span class="co-label">Internet Layer</span>
+<strong>Definition:</strong> The layer that holds the entire architecture together — defines an official packet format and protocol called <strong>IP (Internet Protocol)</strong>. Its job is to deliver IP packets to wherever they are supposed to go.<br>
+<strong>Key property:</strong> <strong>Connectionless</strong> — packets are routed independently of one another and may arrive at the destination in a <em>different order</em> than they were sent; it is the job of higher layers to rearrange them if in-order delivery is needed.<br>
+<strong>Analogy:</strong> Deliberately analogous to the (connectionless) postal system — closely resembling packet-switching networks.
+</div>
+
+<div class="callout def"><span class="co-label">Transport Layer</span>
+<strong>Definition:</strong> Designed to let peer entities on the source and destination hosts carry on a conversation, the same as in the OSI transport layer. Two end-to-end transport protocols are defined:<br>
+• <strong>TCP (Transmission Control Protocol)</strong> — reliable, connection-oriented; allows a byte stream from one machine to be delivered without error to any other machine; fragments the incoming stream into discrete messages, passes each to the internet layer, and reassembles received messages at the other end; also handles flow control.<br>
+• <strong>UDP (User Datagram Protocol)</strong> — unreliable, connectionless; intended for applications that don't want TCP's sequencing/flow control and wish to provide their own — widely used for one-shot, client-server request-response style queries and applications where prompt delivery matters more than accurate delivery (real-time speech/video transmission).
+</div>
+
+<div class="callout def"><span class="co-label">Application Layer</span>
+<strong>Definition:</strong> Sits directly on top of the transport layer — the TCP/IP model has <strong>no session or presentation layer</strong> at all (unlike OSI), since these weren't found necessary in practice. It contains all the higher-level protocols.<br>
+<strong>Protocols included:</strong> <strong>TELNET</strong> (virtual terminal — remote login), <strong>FTP</strong> (File Transfer Protocol), <strong>SMTP</strong> (Simple Mail Transfer Protocol — email), <strong>DNS</strong> (Domain Name System — maps host names to network addresses), <strong>HTTP</strong> (retrieving pages on the World Wide Web), and many others developed over time.
 </div>
 
 <h4>Addressing at Different Layers 🔥</h4>
@@ -827,6 +891,21 @@ Both models use the concept of a protocol stack and layering, and both were desi
 <strong>Data communication</strong> is the exchange of data between two devices via a transmission medium. Effectiveness depends on 4 characteristics: <strong>Delivery, Accuracy, Timeliness, Jitter</strong>.
 </div>
 
+<h4>The 4 Fundamental Characteristics of Effective Data Communication 🔥</h4>
+<table>
+<thead><tr><th>Characteristic</th><th>Definition &amp; Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Delivery</strong></td><td>The system must deliver data to the <em>correct</em> destination. Data must be received by the intended device or user only — not misdirected to any other. This is a matter of correct addressing and correct routing through the network.</td></tr>
+<tr><td><strong>Accuracy</strong></td><td>The system must deliver the data <em>accurately</em> — without alteration. Data that has been altered in transit and not correctly detected/corrected is unusable. This is the entire motivation behind error detection and error correction techniques (parity, checksum, CRC, Hamming codes).</td></tr>
+<tr><td><strong>Timeliness</strong></td><td>The system must deliver data in a <em>timely</em> manner. Data delivered late is useless. For time-sensitive applications like audio and video, timely delivery means delivering data <strong>as it is produced</strong>, in the same order, without significant delay — this is called <strong>real-time transmission</strong>. Late audio/video packets cause stuttering or dropouts.</td></tr>
+<tr><td><strong>Jitter</strong></td><td>Jitter refers to the <em>variation</em> in packet arrival time. Even if all packets are individually delivered on time, uneven gaps between consecutive packet arrivals (packet delay variance) degrade the quality of real-time audio/video, since the receiving application expects data to arrive at a smooth, regular rate.</td></tr>
+</tbody>
+</table>
+
+<div class="callout note"><span class="co-label">Note — Delivery vs Accuracy vs Timeliness vs Jitter</span>
+Think of a live video call: <strong>Delivery</strong> = the video reaches the right person. <strong>Accuracy</strong> = the video isn't corrupted/garbled. <strong>Timeliness</strong> = the video arrives quickly enough to feel "live," not minutes later. <strong>Jitter</strong> = the video doesn't stutter because frames arrive at wildly inconsistent intervals, even if each one is individually "on time."
+</div>
+
 <h4>Components of a Data Communication System</h4>
 
 <div class="diagram-wrap">
@@ -890,18 +969,54 @@ Both models use the concept of a protocol stack and layering, and both were desi
 </tbody>
 </table>
 
-<h4>Analog vs Digital</h4>
+<h4>Data Communication at the Physical Layer 🔥</h4>
+<p>The physical layer is concerned with moving <strong>data</strong>, in the form of <strong>signals</strong>, across a transmission medium. Data can be represented either as analog or digital quantities, and signals that carry them can likewise be analog or digital.</p>
+
+<div class="callout def"><span class="co-label">Definition — Analog vs Digital Data</span>
+<strong>Analog data</strong> takes on continuous values (e.g. the human voice, sound, temperature — smoothly varying quantities). <strong>Digital data</strong> takes on discrete, limited values (e.g. text stored as 0s and 1s in a computer).
+</div>
+
+<div class="callout def"><span class="co-label">Definition — Analog vs Digital Signal</span>
+An <strong>analog signal</strong> can have an infinite number of values in a continuous range, changing smoothly rather than in discrete steps. A <strong>digital signal</strong> can only take on a limited number of defined values — most commonly just two levels, representing binary 0 and 1.
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 520 160" xmlns="http://www.w3.org/2000/svg">
+  <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Analog Signal — continuous wave</text>
+  <line x1="20" y1="90" x2="240" y2="90" stroke="#2e2c35"/>
+  <path d="M20,90 C40,40 60,40 80,90 C100,140 120,140 140,90 C160,40 180,40 200,90 C215,120 225,120 240,90" fill="none" stroke="#7c9ec9" stroke-width="2.2"/>
+  <text x="130" y="130" text-anchor="middle" font-size="10" fill="#9a97a3">infinite intermediate values — smooth curve</text>
+
+  <g transform="translate(280,0)">
+    <text x="130" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Digital Signal — discrete levels</text>
+    <line x1="20" y1="90" x2="240" y2="90" stroke="#2e2c35"/>
+    <path d="M20,110 L20,60 L70,60 L70,110 L70,60 L120,60 L120,110 L170,110 L170,60 L220,60 L220,110 L240,110" fill="none" stroke="#8dbf8d" stroke-width="2.2"/>
+    <text x="130" y="130" text-anchor="middle" font-size="10" fill="#9a97a3">only 2 fixed levels — sharp transitions</text>
+  </g>
+</svg>
+</div>
+
+<h4>Periodic vs Nonperiodic Signals</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+A signal is <strong>periodic</strong> if it completes a pattern (a "cycle") within a measurable time frame called a <strong>period</strong>, and repeats that identical pattern over subsequent periods of the same length. A signal is <strong>nonperiodic</strong> (or aperiodic) if it changes without exhibiting any such repeating pattern.
+</div>
 <ul>
-  <li><strong>Analog data/signal</strong> — continuous, infinitely many intensity levels over time.</li>
-  <li><strong>Digital data/signal</strong> — discrete states, limited defined values (commonly 1 and 0).</li>
-  <li>Signals can be <strong>periodic</strong> (repeats a pattern — a "cycle") or <strong>nonperiodic</strong> (no repeating pattern).</li>
+  <li>In data communications, we commonly use <strong>periodic analog signals</strong> (built from sine waves) and <strong>nonperiodic digital signals</strong> (since real data streams — text, files — don't naturally repeat).</li>
+  <li>A <strong>sine wave</strong> is the most fundamental form of a periodic analog signal, characterized by 3 parameters: <strong>peak amplitude</strong> (signal strength/height), <strong>frequency</strong> (rate of change per second), and <strong>phase</strong> (position of the waveform relative to time 0).</li>
 </ul>
 
 <pre><code>Wave speed = frequency × wavelength
         v = f × λ
 
 Higher frequency → shorter wavelength (at constant speed)
-Lower frequency  → longer wavelength</code></pre>
+Lower frequency  → longer wavelength
+
+Period and frequency are reciprocals of each other:
+        T = 1/f          f = 1/T</code></pre>
+
+<div class="callout example"><span class="co-label">Example</span>
+The power we use at home has a frequency of 50 Hz (in most of the world including India). The period of this sine wave is <code>T = 1/f = 1/50 = 0.02 s = 20 ms</code> — the voltage completes one full cycle every 20 milliseconds.
+</div>
 </div>
 </details>
 
@@ -1201,17 +1316,37 @@ Wireless channels suffer more errors than guided media — interference (mitigat
 <p>Signal encoding techniques fall into 4 categories: Digital data→Digital signal, Digital data→Analog signal, Analog data→Digital signal, Analog data→Analog signal. Focus here: <strong>Digital-to-Digital</strong> (line coding).</p>
 
 <h4>Data Element vs Signal Element</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+A <strong>data element</strong> is the smallest unit of information — in digital communication, this is simply a single <em>bit</em> (what we <em>need</em> to send). A <strong>signal element</strong> is the shortest unit (constant in amplitude/frequency/phase) of a digital signal — it carries data elements, i.e. it's what we <em>actually</em> transmit. Data elements are what we have to send; signal elements are what we can actually send onto the medium.
+</div>
 <ul>
-  <li><strong>Data element</strong> — smallest unit of information = the <em>bit</em> (what we need to send).</li>
-  <li><strong>Signal element</strong> — shortest unit of a digital signal (what we can actually send/carry).</li>
-  <li><strong>r</strong> = ratio of data elements carried per signal element.</li>
+  <li><strong>r</strong> = ratio of data elements carried per signal element = <code>r = (number of data elements) / (number of signal elements)</code>.</li>
+  <li>The goal in signal encoding is to carry the maximum number of data elements using the minimum number of signal elements — i.e. maximize r — since sending fewer signal elements to carry the same data lowers required bandwidth.</li>
 </ul>
 
+<table>
+<thead><tr><th>Case</th><th>Meaning</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>r = 1</strong></td><td>One data element needs exactly one signal element to be carried</td><td>NRZ-L, NRZ-I — each bit is represented by exactly one signal level/transition</td></tr>
+<tr><td><strong>r &lt; 1</strong></td><td>One data element needs <em>more than one</em> signal element (extra signal elements needed for synchronization)</td><td>Manchester encoding: r = 1/2 — every bit requires <strong>2</strong> signal elements (the mid-bit transition), so only half a data element is carried per signal element</td></tr>
+<tr><td><strong>r &gt; 1</strong></td><td>A single signal element carries <em>more than one</em> data element (multilevel schemes)</td><td>A signal with 4 possible levels can represent 2 bits per signal element — e.g. 2B1Q encoding: r = 2 (2 bits carried per 1 quaternary signal element)</td></tr>
+</tbody>
+</table>
+
+<div class="callout example"><span class="co-label">Example — r = 1/2 (Manchester)</span>
+Manchester encoding needs 2 signal transitions to represent just 1 data bit (the mandatory mid-bit transition for self-clocking, plus possibly a boundary transition). So <code>r = 1 data element / 2 signal elements = 1/2</code>. This is precisely why Manchester needs roughly double the bandwidth of a simple NRZ scheme for the same bit rate.
+</div>
+
+<div class="callout example"><span class="co-label">Example — r = 2 (Multilevel)</span>
+2B1Q ("2 Binary, 1 Quaternary") encodes 2 data bits using a single signal element chosen from 4 possible voltage levels. Since 1 signal element now carries 2 data elements, <code>r = 2/1 = 2</code>. This lets the signal rate stay lower than the data rate — useful for squeezing more bits through a limited-bandwidth line.
+</div>
+
 <h4>Data Rate vs Signal Rate</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Data rate (N)</strong>, also called the <strong>bit rate</strong>, is the number of data elements (bits) sent in 1 second — measured in bits per second (bps). <strong>Signal rate (S)</strong>, also called the <strong>pulse rate, modulation rate, or baud rate</strong>, is the number of signal elements sent in 1 second — measured in <strong>bauds</strong>.
+</div>
 <ul>
-  <li><strong>Data rate (N)</strong> — bits sent per second (bps) = bit rate.</li>
-  <li><strong>Signal rate (S)</strong> — signal elements sent per second, measured in <strong>bauds</strong> = baud/modulation rate.</li>
-  <li>Goal: increase data rate while reducing baud rate.</li>
+  <li>Goal: increase data rate while reducing baud rate — i.e. carry as much information as possible using as few signal changes as possible, since each signal change/transition consumes bandwidth.</li>
 </ul>
 
 <pre><code>Relationship between data rate (N) and signal rate (S):
@@ -1290,10 +1425,13 @@ r = 1 (one data element per signal element), bit rate N = 100 kbps, average c = 
 <p>Performance metrics measure a network's <strong>Quality of Service (QoS)</strong> as perceived by the user: <strong>Bandwidth, Throughput, Latency (Delay), Bandwidth-Delay Product, Jitter.</strong></p>
 
 <h4>1. Bandwidth</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Bandwidth</strong> is a term that describes the range of frequencies within a composite signal, or the range of frequencies that a communication channel can carry. Loosely, it is a measure of a network's <em>capacity</em> — how much data the "pipe" can theoretically carry.
+</div>
 <ul>
-  <li><strong>Bandwidth in Hertz</strong> — range of frequencies in a composite signal/channel: <code>Bandwidth = upper frequency − lower frequency</code></li>
-  <li><strong>Bandwidth in bits per second</strong> — the number of bits/sec a channel can transmit (a "speed" measure)</li>
-  <li>"Bandwidth" = Capacity; "Speed" = Transfer rate. Data rate is <strong>directly proportional</strong> to bandwidth (Hz).</li>
+  <li><strong>Bandwidth in Hertz</strong> — range of frequencies in a composite signal/channel: <code>Bandwidth = upper frequency − lower frequency</code>. This meaning is used when discussing the range that a wire, air medium, or optical fiber can pass through it without excessive attenuation.</li>
+  <li><strong>Bandwidth in bits per second</strong> — the number of bits/sec a channel, link, or network can transmit — the more commonly used meaning when discussing computer networks and their "speed."</li>
+  <li>"Bandwidth" = Capacity; "Speed" = Transfer rate. Data rate is <strong>directly proportional</strong> to bandwidth (Hz) — a wider frequency band lets you push more bits through per second, which is why the two senses of "bandwidth" are so closely linked even though one is measured in Hz and the other in bps.</li>
 </ul>
 
 <div class="callout example"><span class="co-label">Solved Example — Bandwidth</span>
@@ -1302,9 +1440,12 @@ A composite signal has frequencies 100–5000 Hz (5 sine waves: 100,300,500,700,
 </div>
 
 <h4>2. Throughput</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Throughput</strong> is a measure of how fast data can actually pass through a network/device — the number of bits that flow through a point in the network in a given period of time. It tells us how "busy" or how efficiently the link is actually being used, as opposed to how much it could theoretically carry.
+</div>
 <ul>
   <li>Number of bits <em>successfully</em> transmitted per unit time — how fast data can <em>actually</em> be sent.</li>
-  <li>Bandwidth = <em>potential</em> measurement; Throughput = <em>actual</em> measurement (always ≤ bandwidth, limited by SNR &amp; hardware).</li>
+  <li>Bandwidth = <em>potential</em> measurement (an upper limit imposed by the medium); Throughput = <em>actual</em> measurement (always ≤ bandwidth, limited by SNR, congestion, hardware, and protocol overhead).</li>
 </ul>
 <pre><code>Throughput = (frames × bits per frame) / time
 
@@ -1313,17 +1454,20 @@ Throughput = (12,000 × 10,000) / 60 = 2,000,000 bps = 2 Mbps
 (≈ one-fifth of the 10 Mbps bandwidth)</code></pre>
 
 <h4>3. Latency (Delay) 🔥</h4>
-<p>Time for an entire message to completely arrive at the destination — from first bit sent to last bit delivered.</p>
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Latency</strong> (or delay) defines how long it takes for an entire message to completely arrive at the destination, starting from the time the first bit is sent out from the source to the time the last bit is delivered at the destination. It is essentially the time to successfully send a packet across a network, and can be measured in different ways — round-trip, one-way, etc. It's also known as the "ping rate" and is measured in milliseconds (ms).
+</div>
+<p>Latency is affected by any component along the path — workstations, WAN links, routers, LAN segments, servers — and for large networks may ultimately be limited by the speed of light itself.</p>
 <pre><code>Latency = Propagation Time + Transmission Time + Queuing Time + Processing Delay
 
 Propagation Time  = Distance / Propagation Speed
 Transmission Time = Message size / Bandwidth</code></pre>
 <ul>
-  <li><strong>Propagation delay</strong> — time for one bit to travel from source to destination.</li>
-  <li><strong>Transmission delay</strong> — time for the entire message to be pushed onto the link.</li>
-  <li><strong>Queuing time</strong> — time a frame waits at an intermediate device (router); increases with network load.</li>
-  <li><strong>Processing delay</strong> — time for a router to determine where to forward a packet.</li>
-  <li>Low-Latency networks = small delays; High-Latency networks = long delays → causes bottlenecks.</li>
+  <li><strong>Propagation delay</strong> — the time required for one bit to travel from source to destination; calculated as the ratio between the link length (distance) and the propagation speed over the medium. The propagation speed of electromagnetic signals depends on the medium and the frequency of the signal — in a vacuum, light travels at 3×10⁸ m/s; it's slower in air, and much slower in cable.</li>
+  <li><strong>Transmission delay</strong> — in communications we don't send just 1 bit, we send an entire message. The first bit may take a time equal to the propagation time to reach its destination; the last bit takes the same propagation time too, but there is additionally a gap between when the first bit <em>leaves</em> the sender and when the last bit <em>arrives</em> at the receiver — this gap is the transmission time, and it depends on the message size and the channel's bandwidth.</li>
+  <li><strong>Queuing time</strong> — time a frame waits at an intermediate device (router) before it can be processed; this is not a fixed factor and increases with network load/congestion.</li>
+  <li><strong>Processing delay</strong> — time for a router (or any intermediate device) to determine where to forward a packet.</li>
+  <li>Networks with small delays are called <strong>Low-Latency Networks</strong>; those with long delays are <strong>High-Latency Networks</strong>. High latency creates bottlenecks — it stops the data from taking full advantage of the network's available bandwidth.</li>
 </ul>
 
 <div class="callout example"><span class="co-label">Solved Example — Propagation Time</span>
@@ -1370,11 +1514,14 @@ BDP = 5 × 5 = 25 bits can fill the link at any given time</code></pre>
 </div>
 
 <h4>5. Jitter</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+<strong>Jitter</strong> is another performance issue related to delay. In technical terms, jitter is a <strong>"packet delay variance"</strong> — it occurs when different packets of data face different (inconsistent) delays in a network, and the receiver application is time-sensitive (e.g. audio or video data). It is defined as an interference in the normal, expected order of arriving data packets, and is measured in milliseconds (ms).
+</div>
 <ul>
   <li>Jitter = "packet delay variance" — occurs when different packets face different delays and the receiving application is time-sensitive (audio/video).</li>
   <li>Measured in milliseconds (ms).</li>
-  <li>Can cause flickering in video displays.</li>
-  <li><strong>Jitter buffer</strong> mitigates jitter by buffering packets before feeding them out at a steady rate (e.g. YouTube buffering before playback).</li>
+  <li>Can cause flickering in video displays, or stuttering/glitches in audio.</li>
+  <li><strong>Jitter buffer</strong> mitigates jitter by buffering packets before feeding them out at a steady rate (e.g. YouTube buffering before playback). The destination system usually receives packets from this buffer rather than directly from the source. Another mitigation approach, when multiple paths exist, is to selectively route traffic along the most stable path, or the path that comes closest to the targeted packet delivery rate.</li>
 </ul>
 
 <div class="callout example"><span class="co-label">Example</span>
@@ -1439,6 +1586,30 @@ Don't confuse <strong>Bandwidth</strong> (potential/capacity) with <strong>Throu
   <li>Flow control — preventing fast senders from swamping slow receivers</li>
 </ol>
 
+<div class="callout def"><span class="co-label">Frame Management</span>
+<strong>Frame management</strong> is the process by which the data link layer takes packets handed down from the network layer and encapsulates them into <strong>frames</strong> for transmission — attaching a header (control/addressing info) and a trailer (error-checking info) around the payload. It also covers the reverse process at the receiver: recognizing frame boundaries within the incoming bit stream, stripping the header/trailer, and handing the recovered packet back up to the network layer. This is exactly the problem solved by the 4 <strong>framing methods</strong> discussed below (byte count, byte stuffing, bit stuffing, physical layer coding violations).
+</div>
+
+<div class="callout def"><span class="co-label">Error Control</span>
+<strong>Error control</strong> refers to the mechanisms used to detect and correct errors that occur during frame transmission (bits flipped due to noise, attenuation, interference). It is largely handled through <strong>error detection codes</strong> (parity, checksum, CRC — flag that an error happened, trigger retransmission) and <strong>error correction codes</strong> (Hamming code — pinpoint and fix the corrupted bit without needing retransmission). Error control also encompasses <strong>ARQ (Automatic Repeat reQuest)</strong> — the combination of acknowledgements and timeouts used to guarantee that a damaged or lost frame is eventually retransmitted successfully.
+</div>
+
+<div class="callout def"><span class="co-label">Flow Control</span>
+<strong>Flow control</strong> refers to a set of procedures that restrict the amount of data a sender can send before waiting for an acknowledgement — preventing a fast transmitter from overwhelming the buffer capacity of a slower receiver. Without flow control, a receiver could be flooded with more frames than it can process or store, causing frames to be dropped even though nothing was corrupted in transit. Flow control is implemented via <strong>protocols</strong> like Stop-and-Wait (send one frame, wait for ACK) and <strong>Sliding Window</strong> (send several frames within an agreed "window" before needing an ACK).
+</div>
+
+<p>Broadly, there are <strong>two approaches</strong> to flow control:</p>
+<table>
+<thead><tr><th>Approach</th><th>Explanation</th></tr></thead>
+<tbody>
+<tr><td><strong>Feedback-based flow control</strong></td><td>The receiver sends back information to the sender, giving it permission to send more data — or at least telling the sender how the receiver is doing (how full its buffer is, whether it can keep up). This is the classic model used at the <strong>data link layer</strong> — ACKs, "ready" signals, and window updates are all examples of this feedback.</td></tr>
+<tr><td><strong>Rate-based flow control</strong></td><td>The protocol has a <strong>built-in mechanism</strong> that limits the rate at which senders may transmit data, without needing any feedback from the receiver. This is more typical of a <strong>transport layer</strong> mechanism, where the sending rate is capped by protocol rules rather than continuous receiver feedback.</td></tr>
+</tbody>
+</table>
+<div class="callout note"><span class="co-label">Note</span>
+Regardless of which approach is used, the protocol always contains <strong>well-defined rules</strong> about exactly <em>when</em> a sender may transmit its next frame — this is precisely what Stop-and-Wait, Go-Back-N, and Selective Repeat each define differently.
+</div>
+
 <h4>Services Provided to the Network Layer 🔥</h4>
 <table>
 <thead><tr><th>Service</th><th>Description</th><th>Best Used For</th></tr></thead>
@@ -1480,6 +1651,37 @@ A VoIP call over Wi-Fi uses <strong>unacknowledged connectionless</strong> servi
   <li>A header field specifies the number of bytes/characters in the frame.</li>
   <li><strong>Disadvantage:</strong> if the count is garbled by a transmission error, the destination loses synchronization — and retransmission requests don't help since the destination doesn't know how many bytes to skip. <strong>Rarely used.</strong></li>
 </ul>
+
+<div class="callout example"><span class="co-label">Example — How the Count Field Works (and Fails)</span>
+Consider 4 frames sent back-to-back with counts <strong>5, 5, 8, 8</strong> (the count field is the first byte of each frame, telling the receiver how many bytes make up that frame).
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" fill="#9a97a3">Byte-count framing — a single flipped bit derails every frame after it</text>
+
+  <text x="10" y="45" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#8dbf8d">Sent:</text>
+  <rect x="60" y="30" width="30" height="24" fill="#8dbf8d"/><text x="75" y="46" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">5</text>
+  <rect x="90" y="30" width="80" height="24" fill="#1e1c22" stroke="#8dbf8d"/><text x="130" y="46" text-anchor="middle" font-size="9.5" fill="#e6e4ea">4 bytes data</text>
+  <rect x="175" y="30" width="30" height="24" fill="#8dbf8d"/><text x="190" y="46" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">5</text>
+  <rect x="205" y="30" width="80" height="24" fill="#1e1c22" stroke="#8dbf8d"/><text x="245" y="46" text-anchor="middle" font-size="9.5" fill="#e6e4ea">4 bytes data</text>
+  <rect x="290" y="30" width="30" height="24" fill="#8dbf8d"/><text x="305" y="46" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">8</text>
+  <rect x="320" y="30" width="120" height="24" fill="#1e1c22" stroke="#8dbf8d"/><text x="380" y="46" text-anchor="middle" font-size="9.5" fill="#e6e4ea">7 bytes data</text>
+
+  <text x="10" y="95" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#c98a7c">Received:</text>
+  <rect x="60" y="80" width="30" height="24" fill="#8dbf8d"/><text x="75" y="96" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">5</text>
+  <rect x="90" y="80" width="80" height="24" fill="#1e1c22" stroke="#8dbf8d"/><text x="130" y="96" text-anchor="middle" font-size="9.5" fill="#e6e4ea">4 bytes data</text>
+  <rect x="175" y="80" width="30" height="24" fill="#c98a7c"/><text x="190" y="96" text-anchor="middle" font-size="10" fill="#0f0e11" font-weight="700">7</text>
+  <text x="190" y="72" text-anchor="middle" font-size="9" fill="#c98a7c">✕ flipped!</text>
+  <rect x="205" y="80" width="105" height="24" fill="#c98a7c" opacity="0.5"/><text x="257" y="96" text-anchor="middle" font-size="9.5" fill="#0f0e11">wrong 7 bytes ✕</text>
+  <rect x="310" y="80" width="30" height="24" fill="#c98a7c" opacity="0.7"/><text x="325" y="96" text-anchor="middle" font-size="10" fill="#0f0e11">?</text>
+  <text x="380" y="96" text-anchor="middle" font-size="10" fill="#9a97a3">...everything after is now misread</text>
+
+  <text x="280" y="140" text-anchor="middle" font-size="10.5" fill="#9a97a3">The second frame's count "5" flips to "7" during transmission.</text>
+  <text x="280" y="156" text-anchor="middle" font-size="10.5" fill="#9a97a3">The receiver now reads 7 bytes as that frame's data — swallowing 2 bytes that</text>
+  <text x="280" y="172" text-anchor="middle" font-size="10.5" fill="#9a97a3">actually belonged to the <em>next</em> frame's count + data, desyncing everything after.</text>
+</svg>
+</div>
 
 <h4>2. Flag Bytes with Byte (Character) Stuffing</h4>
 <ul>
@@ -1759,6 +1961,44 @@ For a 1000-bit block with 10⁻⁶ error rate: <strong>Error correction</strong>
   <li><strong>Timeout</strong> — if no ACK arrives in a reasonable time, the sender retransmits.</li>
 </ul>
 
+<h4>Flow Control Protocols for a Noiseless (Ideal) Channel 🔥</h4>
+<p>Before dealing with real, noisy/unreliable channels, it helps to study 2 simplified protocols that assume a <strong>perfect, error-free channel</strong> — no frames are ever lost, damaged, or duplicated. These are unrealistic but build up the core ideas step by step.</p>
+
+<div class="callout def"><span class="co-label">Protocol 1 — The Simplest Protocol (Utopian)</span>
+Assumes an <strong>ideal channel</strong> in <em>both</em> directions — no errors and unlimited receiver buffer/processing speed. The sender simply pumps out frames as fast as it can, with <strong>no flow control and no error control</strong> whatsoever. The receiver has nothing to do but accept every frame instantly. This protocol only exists as a teaching baseline — real receivers can never process infinitely fast.
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 140" xmlns="http://www.w3.org/2000/svg">
+  <text x="100" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Sender</text>
+  <text x="400" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Receiver</text>
+  <line x1="100" y1="22" x2="100" y2="120" stroke="#2e2c35"/>
+  <line x1="400" y1="22" x2="400" y2="120" stroke="#2e2c35"/>
+  <line x1="100" y1="35" x2="400" y2="45" stroke="#8dbf8d" stroke-width="1.6"/><text x="105" y="32" font-size="10" fill="#8dbf8d">frame</text>
+  <line x1="100" y1="55" x2="400" y2="65" stroke="#8dbf8d" stroke-width="1.6"/><text x="105" y="52" font-size="10" fill="#8dbf8d">frame</text>
+  <line x1="100" y1="75" x2="400" y2="85" stroke="#8dbf8d" stroke-width="1.6"/><text x="105" y="72" font-size="10" fill="#8dbf8d">frame</text>
+  <line x1="100" y1="95" x2="400" y2="105" stroke="#8dbf8d" stroke-width="1.6"/><text x="105" y="92" font-size="10" fill="#8dbf8d">frame</text>
+  <text x="250" y="130" text-anchor="middle" font-size="10" fill="#9a97a3">No ACKs, no waiting — sender just keeps transmitting back-to-back</text>
+</svg>
+</div>
+
+<div class="callout def"><span class="co-label">Protocol 2 — Stop-and-Wait for a Noiseless Channel</span>
+Still assumes an <strong>error-free</strong> channel, but now the receiver has <strong>finite buffer/processing speed</strong> — it can no longer accept frames arbitrarily fast. This introduces <strong>flow control</strong>: the sender must send one frame, then wait for a signal from the receiver ("I'm ready, send the next one") before sending the next — this is where the term "Stop-and-Wait" comes from. Since the channel is assumed noiseless, no sequence numbers or timers are needed yet — that comes with ARQ.
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 480 150" xmlns="http://www.w3.org/2000/svg">
+  <text x="100" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Sender</text>
+  <text x="400" y="15" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">Receiver</text>
+  <line x1="100" y1="22" x2="100" y2="135" stroke="#2e2c35"/>
+  <line x1="400" y1="22" x2="400" y2="135" stroke="#2e2c35"/>
+  <line x1="100" y1="35" x2="400" y2="55" stroke="#7c9ec9" stroke-width="1.6"/><text x="105" y="32" font-size="10" fill="#7c9ec9">frame 0</text>
+  <line x1="400" y1="65" x2="100" y2="85" stroke="#8dbf8d" stroke-width="1.6"/><text x="330" y="62" font-size="10" fill="#8dbf8d">"ready" signal</text>
+  <line x1="100" y1="95" x2="400" y2="115" stroke="#7c9ec9" stroke-width="1.6"/><text x="105" y="92" font-size="10" fill="#7c9ec9">frame 1</text>
+  <text x="250" y="145" text-anchor="middle" font-size="10" fill="#9a97a3">Sender idles between frames — waits for the receiver's go-ahead each time</text>
+</svg>
+</div>
+
 <h4>Stop-and-Wait Protocol 🔥</h4>
 <ul>
   <li>Sender sends one frame, then waits for an ACK before sending the next.</li>
@@ -1772,14 +2012,107 @@ Without sequence numbers, a retransmitted frame after a lost ACK looks identical
 Stop-and-Wait is bandwidth-inefficient — the sender is idle after every frame, waiting for an ACK. <strong>Piggybacking</strong> (combining an ACK with an outgoing data frame in bidirectional links) helps, but the real fix is <strong>Sliding Window</strong>.
 </div>
 
+<h4>Stop-and-Wait ARQ — the 4 Operating Scenarios 🔥🔥</h4>
+<p>Because a real channel can be noisy, Stop-and-Wait ARQ must be able to correctly handle 4 distinct scenarios. All 4 are classic exam diagram questions.</p>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c4a35a">1. Normal Operation</text>
+  <text x="110" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Sender</text>
+  <text x="450" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Receiver</text>
+  <line x1="110" y1="38" x2="110" y2="165" stroke="#2e2c35"/>
+  <line x1="450" y1="38" x2="450" y2="165" stroke="#2e2c35"/>
+  <line x1="110" y1="50" x2="450" y2="70" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="47" font-size="10" fill="#7c9ec9">Frame 0</text>
+  <line x1="450" y1="80" x2="110" y2="100" stroke="#8dbf8d" stroke-width="1.6"/><text x="380" y="77" font-size="10" fill="#8dbf8d">ACK 0</text>
+  <line x1="110" y1="112" x2="450" y2="132" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="109" font-size="10" fill="#7c9ec9">Frame 1</text>
+  <line x1="450" y1="142" x2="110" y2="160" stroke="#8dbf8d" stroke-width="1.6"/><text x="380" y="139" font-size="10" fill="#8dbf8d">ACK 1</text>
+  <text x="280" y="176" text-anchor="middle" font-size="9.5" fill="#9a97a3">Each frame is ACKed before the next is sent — sequence numbers just alternate 0,1,0,1…</text>
+</svg>
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 180" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c98a7c">2. Lost (or Damaged) Frame</text>
+  <text x="110" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Sender</text>
+  <text x="450" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Receiver</text>
+  <line x1="110" y1="38" x2="110" y2="165" stroke="#2e2c35"/>
+  <line x1="450" y1="38" x2="450" y2="165" stroke="#2e2c35"/>
+  <line x1="110" y1="50" x2="450" y2="70" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="47" font-size="10" fill="#7c9ec9">Frame 0</text>
+  <line x1="450" y1="80" x2="110" y2="100" stroke="#8dbf8d" stroke-width="1.6"/><text x="380" y="77" font-size="10" fill="#8dbf8d">ACK 0</text>
+  <line x1="110" y1="112" x2="280" y2="122" stroke="#c98a7c" stroke-width="1.6" stroke-dasharray="4,3"/><text x="115" y="109" font-size="10" fill="#c98a7c">Frame 1 (lost)</text>
+  <text x="270" y="118" font-size="13" fill="#c98a7c" font-weight="700">✕</text>
+  <line x1="110" y1="132" x2="110" y2="150" stroke="#c4a35a" stroke-dasharray="2,2"/><text x="60" y="145" font-size="9.5" fill="#c4a35a">timeout!</text>
+  <line x1="110" y1="150" x2="450" y2="165" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="147" font-size="10" fill="#7c9ec9">Frame 1 (resent)</text>
+  <text x="280" y="176" text-anchor="middle" font-size="9.5" fill="#9a97a3">No ACK arrives before the timer expires → sender assumes the frame was lost and resends it</text>
+</svg>
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c98a7c">3. Lost (or Damaged) ACK</text>
+  <text x="110" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Sender</text>
+  <text x="450" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Receiver</text>
+  <line x1="110" y1="38" x2="110" y2="175" stroke="#2e2c35"/>
+  <line x1="450" y1="38" x2="450" y2="175" stroke="#2e2c35"/>
+  <line x1="110" y1="50" x2="450" y2="70" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="47" font-size="10" fill="#7c9ec9">Frame 0</text>
+  <text x="450" y="82" font-size="9.5" fill="#8dbf8d" text-anchor="end">accepted, delivered ✓</text>
+  <line x1="450" y1="90" x2="280" y2="105" stroke="#c98a7c" stroke-width="1.6" stroke-dasharray="4,3"/><text x="380" y="87" font-size="10" fill="#c98a7c">ACK 0 (lost)</text>
+  <text x="290" y="102" font-size="13" fill="#c98a7c" font-weight="700">✕</text>
+  <line x1="110" y1="113" x2="110" y2="130" stroke="#c4a35a" stroke-dasharray="2,2"/><text x="60" y="125" font-size="9.5" fill="#c4a35a">timeout!</text>
+  <line x1="110" y1="130" x2="450" y2="148" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="127" font-size="10" fill="#7c9ec9">Frame 0 (resent, dup!)</text>
+  <text x="450" y="160" font-size="9.5" fill="#c4a35a" text-anchor="end">seq# 0 = duplicate → discarded, re-ACKed</text>
+  <line x1="450" y1="164" x2="110" y2="180" stroke="#8dbf8d" stroke-width="1.6"/><text x="380" y="177" font-size="10" fill="#8dbf8d">ACK 0</text>
+</svg>
+<div class="diagram-caption">Frame 0 actually arrived fine, but its ACK never made it back. The sender's timeout fires and it resends Frame 0. The receiver recognizes the <strong>duplicate sequence number (0)</strong>, silently discards the copy, but re-sends the ACK — this is exactly why sequence numbers exist.</div>
+</div>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="16" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700" fill="#c98a7c">4. Delayed ACK / Delayed Duplicate Frame</text>
+  <text x="110" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Sender</text>
+  <text x="450" y="32" text-anchor="middle" font-family="Segoe UI,sans-serif" font-size="10.5" fill="#9a97a3">Receiver</text>
+  <line x1="110" y1="38" x2="110" y2="180" stroke="#2e2c35"/>
+  <line x1="450" y1="38" x2="450" y2="180" stroke="#2e2c35"/>
+  <line x1="110" y1="50" x2="450" y2="65" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="47" font-size="10" fill="#7c9ec9">Frame 0</text>
+  <line x1="450" y1="75" x2="280" y2="140" stroke="#c4a35a" stroke-width="1.6" stroke-dasharray="3,2"/><text x="380" y="72" font-size="10" fill="#c4a35a">ACK 0 (delayed in network)</text>
+  <line x1="110" y1="85" x2="110" y2="102" stroke="#c4a35a" stroke-dasharray="2,2"/><text x="60" y="97" font-size="9.5" fill="#c4a35a">timeout!</text>
+  <line x1="110" y1="102" x2="450" y2="118" stroke="#7c9ec9" stroke-width="1.6"/><text x="115" y="99" font-size="10" fill="#7c9ec9">Frame 0 (resent)</text>
+  <text x="450" y="130" font-size="9.5" fill="#8dbf8d" text-anchor="end">seq# 0 = duplicate → discarded</text>
+  <line x1="110" y1="142" x2="110" y2="142" stroke="none"/>
+  <text x="280" y="158" text-anchor="middle" font-size="9.5" fill="#9a97a3">The original ACK 0 finally arrives late — sender just ignores this extra/duplicate ACK</text>
+  <line x1="450" y1="150" x2="110" y2="168" stroke="#8dbf8d" stroke-width="1.6"/><text x="380" y="147" font-size="10" fill="#8dbf8d">ACK 0 (re-sent)</text>
+</svg>
+<div class="diagram-caption">The ACK was never lost — just slow. The premature timeout causes an unnecessary retransmission, but sequence numbers ensure the duplicate frame is discarded and no data corruption occurs; only a small bandwidth waste.</div>
+</div>
+
 <h4>Sliding Window Protocols — Core Idea 🔥</h4>
+<div class="callout def"><span class="co-label">Definition</span>
+The <strong>sliding window</strong> is a flow-control &amp; reliability technique in which the sender is permitted to transmit <em>several</em> frames — up to a fixed number called the <strong>window size</strong> — before it must stop and wait for acknowledgements, instead of stopping after every single frame like Stop-and-Wait. Both sender and receiver maintain a "window": a range of sequence numbers they are currently allowed to send (sender) or accept (receiver). As frames are sent and acknowledged, this window <strong>slides forward</strong> along the sequence-number space — hence the name.
+</div>
 <ul>
-  <li>Applies <strong>pipelining</strong> — sender can transmit multiple frames before needing an ACK.</li>
-  <li><strong>Sender's window</strong> = set of sequence numbers it's permitted to send (unacknowledged/outstanding frames).</li>
+  <li>Applies <strong>pipelining</strong> — sender can transmit multiple frames before needing an ACK, keeping the link continuously busy instead of idling after each frame (this is exactly what fixes Stop-and-Wait's bandwidth-inefficiency problem).</li>
+  <li><strong>Sender's window</strong> = set of sequence numbers it's permitted to send (unacknowledged/outstanding frames it has sent but not yet had confirmed).</li>
   <li><strong>Receiver's window</strong> = set of sequence numbers it's willing to accept.</li>
-  <li>Sequence numbers use <em>m</em> header bits → range 0 to 2ᵐ−1.</li>
-  <li>Window slides forward as ACKs arrive (lower edge) and new frames are sent (upper edge).</li>
+  <li>Sequence numbers use <em>m</em> header bits → range 0 to 2ᵐ−1, and wrap around (modulo 2ᵐ) once they reach the top.</li>
+  <li>Window slides forward as ACKs arrive (lower edge advances) and new frames are sent (upper edge advances) — the window size caps how many frames can be "in flight" (sent but unacknowledged) at once.</li>
+  <li>Two concrete implementations exist, differing in exactly how they recover from errors: <strong>Go-Back-N ARQ</strong> and <strong>Selective Repeat ARQ</strong> (below).</li>
 </ul>
+
+<h4>All Conditions a Sliding Window Protocol Must Handle 🔥🔥</h4>
+<p>Just like Stop-and-Wait ARQ needed to correctly handle 4 scenarios, any working sliding-window protocol must have well-defined rules for <em>every</em> one of these conditions — this is the complete list examiners expect:</p>
+<table>
+<thead><tr><th>Condition</th><th>What the protocol must do</th></tr></thead>
+<tbody>
+<tr><td><strong>Normal operation</strong></td><td>Frames flow continuously within the window; receiver sends (cumulative) ACKs as frames arrive in order; window slides forward smoothly on both ends.</td></tr>
+<tr><td><strong>Frame is lost in transit</strong></td><td>The frame never reaches the receiver. Go-Back-N: receiver silently discards every subsequent out-of-order frame until the missing one is resent. Selective Repeat: receiver buffers the later frames and NAKs the specific missing one.</td></tr>
+<tr><td><strong>Frame arrives damaged (corrupted)</strong></td><td>Detected via the frame's error-check field (CRC/checksum) — treated identically to a lost frame: the receiver simply doesn't acknowledge a bad frame; it waits for a good retransmission.</td></tr>
+<tr><td><strong>ACK is lost</strong></td><td>Since ACKs in sliding window are typically <strong>cumulative</strong> (ACK n acknowledges everything up to n), a single lost ACK is often "healed" automatically by the next ACK that does arrive — this is a major advantage over Stop-and-Wait, where every lost ACK forces a retransmission.</td></tr>
+<tr><td><strong>Timeout expires with no ACK</strong></td><td>Sender assumes the oldest outstanding frame (or, in Selective Repeat, the specific unacknowledged frame) was lost, and retransmits per the protocol's specific rule (all of them for Go-Back-N; just the one for Selective Repeat).</td></tr>
+<tr><td><strong>Frames arrive out of order</strong></td><td>Go-Back-N's receiver window size of 1 means it <em>cannot</em> accept out-of-order frames at all — they're discarded. Selective Repeat's receiver window &gt; 1 means it <em>can</em> buffer and later reorder them.</td></tr>
+<tr><td><strong>Duplicate frame/ACK arrives</strong></td><td>Sequence numbers let both sender and receiver recognize and silently discard duplicates caused by premature timeouts or delayed messages, exactly as in Stop-and-Wait.</td></tr>
+<tr><td><strong>Window full (sender)</strong></td><td>Once the sender's window is exhausted (as many unacknowledged frames outstanding as the window size allows), it <strong>must stop</strong> sending new frames — this is the actual flow-control mechanism at work — until an ACK slides the window forward again.</td></tr>
+</tbody>
+</table>
 
 <h4>Go-Back-N ARQ</h4>
 
