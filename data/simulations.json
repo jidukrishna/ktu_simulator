@@ -16,6 +16,14 @@
         "author": "Jidu",
         "author_link": "https://jidu.dev",
         "date": "2026-04-20"
+      },
+      {
+        "title": "Turing machine simulation",
+        "description": "Simulation for turing machine.",
+        "file": "simulations/cse/toc/turing_machine.html",
+        "author": "Jidu",
+        "author_link": "https://jidu.dev",
+        "date": "2026-04-20"
       }
     ],
     "Operating Systems": [
