@@ -47,10 +47,18 @@ a:hover{text-decoration:underline;}
   flex-wrap:wrap;
   padding:12px 0;
 }
+.nav-top-row{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;
+}
 .brand{
   font-weight:700;color:var(--gold);margin-right:16px;
   font-size:1.05rem;white-space:nowrap;
   letter-spacing:0.02em;
+}
+.nav-links{
+  display:flex;align-items:center;gap:6px;
+  flex-wrap:wrap;
 }
 .nav-link{
   color:var(--text-dim);font-size:0.88rem;
@@ -65,6 +73,13 @@ a:hover{text-decoration:underline;}
 }
 .nav-link.mcq-link{color:var(--blue);}
 .nav-link.mcq-link:hover{color:var(--blue);background:rgba(124,158,201,0.1);}
+.nav-toggle{
+  display:flex;
+  width:40px;height:40px;border-radius:10px;
+  border:1px solid var(--border);background:var(--card);
+  color:var(--text);font-size:1.2rem;cursor:pointer;
+  align-items:center;justify-content:center;
+}
 .progress-bar{
   position:fixed;top:0;left:0;height:3px;
   background:linear-gradient(90deg,var(--gold),var(--blue));
@@ -313,9 +328,38 @@ svg text{font-family:var(--sans);}
 .back-top.show{opacity:1;pointer-events:auto;}
 
 /* ===== RESPONSIVE ===== */
+@media (min-width:721px){
+  .nav-links{
+    display:none;
+  }
+  .nav-inner.is-open .nav-links{display:flex;}
+}
+
 @media (max-width:720px){
+  .topnav{padding:0 12px;}
+  .nav-inner{
+    padding:10px 0 8px;
+    gap:0;
+  }
+  .nav-top-row{
+    align-items:center;
+  }
+  .brand{margin-right:0;}
+  .nav-links{
+    display:none;
+    width:100%;
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    padding-top:8px;
+  }
+  .nav-inner.is-open .nav-links{display:flex;}
+  .nav-link{
+    font-size:0.82rem;padding:9px 12px;
+    width:100%;text-align:left;border-color:var(--border);
+  }
+  .nav-link:hover{background:rgba(196,163,90,0.08);}
   .grid2{grid-template-columns:1fr;}
-  .nav-link{font-size:0.8rem;padding:6px 9px;}
   .hero{padding:40px 16px 20px;}
   .topic-head h3{font-size:0.98rem;}
   table{font-size:0.82rem;}
@@ -328,20 +372,25 @@ svg text{font-family:var(--sans);}
 <div class="progress-bar" id="progressBar"></div>
 
 <nav class="topnav">
-  <div class="nav-inner">
-    <span class="brand">WP &middot; M3/M4</span>
-    <a class="nav-link" href="#module3">Module 3</a>
-    <a class="nav-link" href="#module4">Module 4</a>
-    <a class="nav-link" href="#mvc">MVC</a>
-    <a class="nav-link" href="#react-basics">React Basics</a>
-    <a class="nav-link" href="#hooks-router">Hooks/Router</a>
-    <a class="nav-link" href="#lifecycle">Lifecycle</a>
-    <a class="nav-link" href="#nodejs">Node.js</a>
-    <a class="nav-link" href="#eventloop">Event Loop</a>
-    <a class="nav-link" href="#expressjs">Express.js</a>
-    <a class="nav-link" href="#auth">Auth</a>
-    <a class="nav-link mcq-link" href="#mcq-nav-panel">📝 Inline MCQs</a>
-    <a class="nav-link mcq-link" href="mcq_practice.html">🎯 Full MCQ Test →</a>
+  <div class="nav-inner" id="navInner">
+    <div class="nav-top-row">
+      <span class="brand">WP &middot; M3/M4</span>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link" href="#module3">Module 3</a>
+      <a class="nav-link" href="#module4">Module 4</a>
+      <a class="nav-link" href="#mvc">MVC</a>
+      <a class="nav-link" href="#react-basics">React Basics</a>
+      <a class="nav-link" href="#hooks-router">Hooks/Router</a>
+      <a class="nav-link" href="#lifecycle">Lifecycle</a>
+      <a class="nav-link" href="#nodejs">Node.js</a>
+      <a class="nav-link" href="#eventloop">Event Loop</a>
+      <a class="nav-link" href="#expressjs">Express.js</a>
+      <a class="nav-link" href="#auth">Auth</a>
+      <a class="nav-link mcq-link" href="#mcq-nav-panel">📝 Inline MCQs</a>
+      <a class="nav-link mcq-link" href="mcq_practice.html">🎯 Full MCQ Test →</a>
+    </div>
   </div>
 </nav>
 
@@ -3220,6 +3269,46 @@ function collapseAll(){
 function expandAll(){
   document.querySelectorAll('.topic').forEach(t => t.classList.remove('collapsed'));
   document.querySelectorAll('.module').forEach(m => m.classList.remove('collapsed'));
+}
+
+// Responsive nav toggle
+const navInner = document.getElementById('navInner');
+const navToggle = document.getElementById('navToggle');
+
+function syncNavState() {
+  if (!navToggle || !navInner) return;
+  const isDesktop = window.innerWidth > 720;
+  const isOpen = navInner.classList.contains('is-open');
+
+  if (isDesktop && !isOpen) {
+    navToggle.setAttribute('aria-expanded', 'false');
+    navToggle.textContent = '☰';
+    return;
+  }
+
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+  navToggle.textContent = isOpen ? '✕' : '☰';
+}
+
+if (navToggle && navInner) {
+  navToggle.addEventListener('click', function(){
+    const isOpen = navInner.classList.toggle('is-open');
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+    navToggle.textContent = isOpen ? '✕' : '☰';
+  });
+
+  navInner.querySelectorAll('.nav-link').forEach(function(link){
+    link.addEventListener('click', function(){
+      if (window.innerWidth <= 720) {
+        navInner.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = '☰';
+      }
+    });
+  });
+
+  window.addEventListener('resize', syncNavState);
+  syncNavState();
 }
 
 // MCQ interactivity: click an option to reveal correct/incorrect + explanation
