@@ -51,6 +51,14 @@
       "author" : "Jidu",
       "author_link" : "https://jidu.dev",
       "date" : "2026-07-21"
+    },
+    {
+      "title" : "Web Programming module 3 and 4",
+      "description" : "intro react, nodejs, expressjs, mongodb",
+      "file" : "simulations/cse/web_program/study_notes.html",
+      "author" : "Jidu",
+      "author_link" : "https://jidu.dev",
+      "date" : "2026-09-07"
     }
   ],
       "dbms" :[{

@@ -1,0 +1,3262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Programming — Module 3 & 4 Study Notes</title>
+<style>
+:root{
+  --bg:#0f0e11;
+  --card:#1e1c22;
+  --border:#2e2c35;
+  --gold:#c4a35a;
+  --blue:#7c9ec9;
+  --green:#8dbf8d;
+  --red:#c98a7c;
+  --text:#e9e7ec;
+  --text-dim:#a9a6b0;
+  --text-faint:#78757e;
+  --mono:'JetBrains Mono','Fira Code',Consolas,'Courier New',monospace;
+  --sans:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  font-size:16px;
+}
+a{color:var(--blue);text-decoration:none;}
+a:hover{text-decoration:underline;}
+::selection{background:var(--gold);color:#0f0e11;}
+
+/* ===== NAV ===== */
+.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,14,17,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+}
+.nav-inner{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;gap:6px;
+  flex-wrap:wrap;
+  padding:12px 0;
+}
+.brand{
+  font-weight:700;color:var(--gold);margin-right:16px;
+  font-size:1.05rem;white-space:nowrap;
+  letter-spacing:0.02em;
+}
+.nav-link{
+  color:var(--text-dim);font-size:0.88rem;
+  padding:7px 12px;border-radius:7px;
+  border:1px solid transparent;
+  transition:all .15s ease;
+  white-space:nowrap;
+}
+.nav-link:hover{
+  color:var(--gold);background:rgba(196,163,90,0.08);
+  border-color:var(--border);text-decoration:none;
+}
+.nav-link.mcq-link{color:var(--blue);}
+.nav-link.mcq-link:hover{color:var(--blue);background:rgba(124,158,201,0.1);}
+.progress-bar{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--blue));
+  z-index:200;width:0%;transition:width .1s ease;
+}
+
+/* ===== HERO ===== */
+.hero{
+  max-width:1180px;margin:0 auto;
+  padding:56px 20px 30px;
+}
+.hero h1{
+  font-size:clamp(1.7rem,4vw,2.6rem);
+  margin:0 0 10px;
+  color:#f3f1ee;
+  letter-spacing:-0.01em;
+}
+.hero p{color:var(--text-dim);max-width:640px;font-size:1.02rem;margin:0 0 20px;}
+.hero-tags{display:flex;gap:10px;flex-wrap:wrap;}
+.collapse-controls{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding:0 20px 18px;max-width:1180px;margin:0 auto;
+}
+.collapse-btn{
+  background:var(--card);border:1px solid var(--border);color:var(--text-dim);
+  padding:8px 16px;border-radius:20px;font-size:0.84rem;cursor:pointer;
+  transition:all .15s ease;
+}
+.collapse-btn:hover{border-color:var(--gold);color:var(--gold);}
+.tag{
+  border:1px solid var(--border);padding:5px 12px;border-radius:20px;
+  font-size:0.8rem;color:var(--text-dim);
+}
+.tag.fire{border-color:var(--red);color:var(--red);}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1180px;margin:0 auto;padding:0 20px 80px;}
+
+/* ===== MODULE SECTION ===== */
+.module{margin-top:46px;}
+.module-header{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+  padding:18px 22px;
+  background:linear-gradient(135deg,rgba(196,163,90,0.08),rgba(30,28,34,0.4));
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:22px;
+}
+.module-header h2{
+  margin:0;font-size:1.4rem;color:var(--gold);
+  display:flex;align-items:center;gap:10px;
+}
+.module-header .hrs{
+  font-size:0.78rem;color:var(--text-faint);font-weight:400;
+  border:1px solid var(--border);padding:3px 10px;border-radius:20px;
+}
+.module-toggle{
+  font-size:1.3rem;color:var(--text-dim);
+  transition:transform .25s ease;
+}
+.module.collapsed .module-toggle{transform:rotate(-90deg);}
+.module.collapsed .topics-wrap{display:none;}
+
+/* ===== TOPIC CARD ===== */
+.topic{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  margin-bottom:18px;
+  overflow:hidden;
+}
+.topic-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;cursor:pointer;user-select:none;
+  gap:12px;
+}
+.topic-head:hover{background:rgba(255,255,255,0.02);}
+.topic-head h3{
+  margin:0;font-size:1.08rem;color:var(--text);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.fire-badge{
+  font-size:0.72rem;background:rgba(201,138,124,0.15);
+  color:var(--red);border:1px solid rgba(201,138,124,0.4);
+  padding:2px 8px;border-radius:20px;font-weight:600;
+  white-space:nowrap;
+}
+.topic-toggle{color:var(--text-faint);transition:transform .25s ease;font-size:1.1rem;flex-shrink:0;}
+.topic.collapsed .topic-toggle{transform:rotate(-90deg);}
+.topic.collapsed .topic-body{display:none;}
+.topic-body{
+  padding:4px 22px 22px;
+  border-top:1px solid var(--border);
+}
+.topic-body > *:first-child{margin-top:18px;}
+
+/* ===== TEXT ELEMENTS ===== */
+.topic-body h4{color:var(--blue);font-size:0.98rem;margin:22px 0 8px;}
+.topic-body p{color:var(--text-dim);margin:8px 0;}
+.topic-body ul,.topic-body ol{color:var(--text-dim);padding-left:22px;margin:8px 0;}
+.topic-body li{margin:5px 0;}
+.topic-body li::marker{color:var(--gold);}
+.topic-body strong{color:var(--text);}
+
+/* ===== CALLOUTS ===== */
+.callout{
+  border-radius:10px;padding:14px 16px;margin:16px 0;
+  border-left:4px solid;font-size:0.94rem;
+}
+.callout-title{
+  font-weight:700;font-size:0.78rem;letter-spacing:0.03em;
+  margin-bottom:6px;display:flex;align-items:center;gap:6px;
+}
+.callout p, .callout li{margin:4px 0;color:var(--text-dim);}
+.callout.definition{background:rgba(196,163,90,0.08);border-color:var(--gold);}
+.callout.definition .callout-title{color:var(--gold);}
+.callout.warning{background:rgba(201,138,124,0.08);border-color:var(--red);}
+.callout.warning .callout-title{color:var(--red);}
+.callout.note{background:rgba(124,158,201,0.08);border-color:var(--blue);}
+.callout.note .callout-title{color:var(--blue);}
+.callout.example{background:rgba(141,191,141,0.08);border-color:var(--green);}
+.callout.example .callout-title{color:var(--green);}
+
+/* ===== CODE ===== */
+pre{
+  background:#141317;border:1px solid var(--border);
+  border-radius:8px;padding:14px 16px;overflow-x:auto;
+  margin:14px 0;font-size:0.85rem;
+}
+code{font-family:var(--mono);}
+p code, li code, h4 code, td code{
+  background:rgba(196,163,90,0.12);color:var(--gold);
+  padding:1px 6px;border-radius:4px;font-size:0.85em;
+}
+pre code{color:#d9d7de;background:none;padding:0;}
+.code-label{
+  font-size:0.72rem;color:var(--text-faint);text-transform:uppercase;
+  letter-spacing:0.05em;margin:14px 0 -6px;
+}
+.formula{
+  background:#141317;border:1px dashed var(--gold);
+  border-radius:8px;padding:12px 16px;margin:14px 0;
+  font-family:var(--mono);color:var(--gold);font-size:0.9rem;
+  overflow-x:auto;
+}
+
+/* ===== TABLES ===== */
+.table-wrap{overflow-x:auto;margin:16px 0;}
+table{width:100%;border-collapse:collapse;font-size:0.9rem;min-width:420px;}
+th,td{
+  text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);
+  color:var(--text-dim);
+}
+th{color:var(--gold);font-weight:600;background:rgba(196,163,90,0.06);font-size:0.82rem;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* ===== GRID (pros/cons, comparisons) ===== */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.grid-box{
+  border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+  background:rgba(255,255,255,0.015);
+}
+.grid-box h5{margin:0 0 8px;font-size:0.85rem;letter-spacing:0.02em;}
+.grid-box.pro h5{color:var(--green);}
+.grid-box.con h5{color:var(--red);}
+.grid-box ul{margin:0;padding-left:18px;font-size:0.88rem;}
+
+/* ===== DIAGRAM FLOW ===== */
+.diagram{
+  background:#141317;border:1px solid var(--border);border-radius:10px;
+  padding:20px;margin:16px 0;
+}
+.diagram-title{font-size:0.75rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px;}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;}
+.flow-box{
+  border:1.5px solid var(--gold);color:var(--gold);
+  padding:10px 16px;border-radius:8px;font-size:0.85rem;font-weight:600;
+  background:rgba(196,163,90,0.06);text-align:center;min-width:90px;
+}
+.flow-box.blue{border-color:var(--blue);color:var(--blue);background:rgba(124,158,201,0.06);}
+.flow-box.green{border-color:var(--green);color:var(--green);background:rgba(141,191,141,0.06);}
+.flow-box.red{border-color:var(--red);color:var(--red);background:rgba(201,138,124,0.06);}
+.flow-arrow{color:var(--text-faint);font-size:1.2rem;}
+.flow-col{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.flow-vert-arrow{color:var(--text-faint);font-size:1.1rem;}
+svg text{font-family:var(--sans);}
+
+/* ===== MCQ ===== */
+.mcq-block{
+  border:1px solid var(--border);border-radius:10px;
+  padding:16px 18px;margin:14px 0;background:rgba(124,158,201,0.03);
+}
+.mcq-q{font-weight:600;color:var(--text);margin-bottom:10px;font-size:0.94rem;}
+.mcq-options{list-style:none;padding:0;margin:0 0 10px;}
+.mcq-options li{
+  padding:8px 12px;border:1px solid var(--border);border-radius:7px;
+  margin:6px 0;font-size:0.88rem;color:var(--text-dim);cursor:pointer;
+  transition:all .15s ease;
+}
+.mcq-options li:hover{border-color:var(--blue);}
+.mcq-options li.correct{border-color:var(--green);background:rgba(141,191,141,0.1);color:var(--green);}
+.mcq-options li.wrong{border-color:var(--red);background:rgba(201,138,124,0.1);color:var(--red);}
+.mcq-answer{
+  display:none;font-size:0.85rem;color:var(--text-dim);
+  background:rgba(255,255,255,0.02);border-left:3px solid var(--gold);
+  padding:8px 12px;border-radius:6px;margin-top:8px;
+}
+.mcq-answer.show{display:block;}
+.mcq-tag{
+  font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;
+  letter-spacing:0.04em;margin-bottom:4px;display:block;
+}
+
+/* ===== MCQ NAV PANEL ===== */
+.mcq-navpanel{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:20px 22px;margin:30px 0;
+}
+.mcq-navpanel h3{color:var(--gold);margin-top:0;font-size:1.1rem;}
+.mcq-navgrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:8px;margin-top:12px;
+}
+.mcq-navgrid a{
+  border:1px solid var(--border);border-radius:7px;padding:8px 12px;
+  font-size:0.82rem;color:var(--text-dim);text-align:left;
+}
+.mcq-navgrid a:hover{border-color:var(--blue);color:var(--blue);text-decoration:none;}
+
+/* ===== FOOTER ===== */
+.footer{
+  text-align:center;color:var(--text-faint);font-size:0.82rem;
+  padding:40px 20px;border-top:1px solid var(--border);margin-top:40px;
+}
+
+/* ===== back to top ===== */
+.back-top{
+  position:fixed;bottom:22px;right:22px;
+  width:44px;height:44px;border-radius:50%;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.2rem;opacity:0;pointer-events:none;
+  transition:opacity .2s ease;z-index:150;
+}
+.back-top.show{opacity:1;pointer-events:auto;}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:720px){
+  .grid2{grid-template-columns:1fr;}
+  .nav-link{font-size:0.8rem;padding:6px 9px;}
+  .hero{padding:40px 16px 20px;}
+  .topic-head h3{font-size:0.98rem;}
+  table{font-size:0.82rem;}
+  .flow{flex-direction:column;}
+  .flow-arrow{transform:rotate(90deg);}
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <span class="brand">WP &middot; M3/M4</span>
+    <a class="nav-link" href="#module3">Module 3</a>
+    <a class="nav-link" href="#module4">Module 4</a>
+    <a class="nav-link" href="#mvc">MVC</a>
+    <a class="nav-link" href="#react-basics">React Basics</a>
+    <a class="nav-link" href="#hooks-router">Hooks/Router</a>
+    <a class="nav-link" href="#lifecycle">Lifecycle</a>
+    <a class="nav-link" href="#nodejs">Node.js</a>
+    <a class="nav-link" href="#eventloop">Event Loop</a>
+    <a class="nav-link" href="#expressjs">Express.js</a>
+    <a class="nav-link" href="#auth">Auth</a>
+    <a class="nav-link mcq-link" href="#mcq-nav-panel">📝 Inline MCQs</a>
+    <a class="nav-link mcq-link" href="mcq_practice.html">🎯 Full MCQ Test →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Client-Side & Server-Side Web Development</h1>
+  <p>Complete exam-ready study notes for <strong>Module 3: Client-Side Framework (React)</strong> and <strong>Module 4: Server-Side Web Development (Node.js / Express.js)</strong>. Every card is collapsible — click any topic header to expand or collapse it.</p>
+  <div class="hero-tags">
+    <span class="tag">14 Hours Total</span>
+    <span class="tag">20 Topics</span>
+    <span class="tag fire">🔥 = High Exam Probability</span>
+  </div>
+</div>
+
+<div class="collapse-controls">
+  <button class="collapse-btn" onclick="collapseAll()">▸ Collapse All</button>
+  <button class="collapse-btn" onclick="expandAll()">▾ Expand All</button>
+</div>
+
+<div class="container">
+<section class="module" id="module3">
+  <div class="module-header" onclick="toggleModule(this)">
+    <h2>📦 Module 3: Client-Side Framework <span class="hrs">7 Hours</span></h2>
+    <span class="module-toggle">▾</span>
+  </div>
+  <div class="topics-wrap">
+
+  <!-- TOPIC: MVC -->
+  <div class="topic" id="mvc">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>1. Model-View-Controller (MVC) Pattern <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <p>When building a web application, developers need a structured approach so the code doesn't turn into a tangled mess. This structure is called <strong>software architecture</strong>, and the most widely used architecture in modern web development is <strong>MVC</strong>.</p>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>MVC (Model–View–Controller) is a software design pattern that divides an application into three interconnected components so that internal representations of information are separated from how information is presented to the user.</p>
+      </div>
+
+      <h4>The Three Components</h4>
+      <ul>
+        <li><strong>Model</strong> — Manages the application's data and business logic. Handles CRUD (Create, Read, Update, Delete) operations, stores/retrieves data, and sends it to the Controller. Mainly used by backend developers and DB analysts.</li>
+        <li><strong>View</strong> — Handles the presentation layer (the UI the user actually sees). Built with HTML/CSS/JS/React/Angular.</li>
+        <li><strong>Controller</strong> — The middleman between Model and View. Processes user input and updates the Model or View as needed.</li>
+      </ul>
+
+      <div class="diagram">
+        <div class="diagram-title">MVC Data Flow</div>
+        <div class="flow">
+          <div class="flow-box">User</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">View (UI)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">Controller</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box">Model</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">Database</div>
+        </div>
+        <div style="text-align:center;margin-top:10px;color:var(--text-faint);font-size:0.8rem;">Data returns the same path in reverse: Database → Model → Controller → View → User</div>
+      </div>
+
+      <h4>Step-by-Step Workflow</h4>
+      <ol>
+        <li>User interacts with the View (UI).</li>
+        <li>Controller receives user input and interprets it.</li>
+        <li>Controller sends instructions to the Model.</li>
+        <li>Model fetches or updates data in the Database.</li>
+        <li>Model returns the data to the Controller.</li>
+        <li>Controller passes data to the View.</li>
+        <li>View displays the data to the User.</li>
+      </ol>
+
+      <div class="callout example">
+        <div class="callout-title">🟢 EXAMPLE SCENARIO</div>
+        <p>A client requests <code>www.productlist.com</code>. The request goes to the <strong>Controller</strong>, which asks the <strong>Model</strong> for data. The Model fetches raw data from the database (e.g. <code>product: Laptop, price: 2000</code>). The Controller sends this to the <strong>View</strong>, which renders it using HTML/CSS into a styled page the user sees.</p>
+      </div>
+
+      <h4>Advantages of MVC</h4>
+      <ul>
+        <li><strong>Scalable</strong> — easy to expand and maintain.</li>
+        <li><strong>Organized</strong> — separates the app into Model, View, Controller.</li>
+        <li><strong>Collaborative</strong> — frontend and backend developers can work independently.</li>
+        <li><strong>Reusability</strong> — components can be reused across projects.</li>
+      </ul>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p>Popular real-world frameworks/stacks following MVC: <strong>MERN</strong> (MongoDB, Express, React, Node.js), <strong>MEAN</strong>, and <strong>Laravel</strong>.</p>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Students often confuse the direction of data flow — remember, the <strong>View never talks directly to the Model</strong>. The Controller is always the middleman.</p>
+      </div>
+
+      <h4>Quick Reference MCQs</h4>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. In the MVC pattern, which component is responsible for CRUD operations on the database?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>View</li>
+          <li>Controller</li>
+          <li>Model</li>
+          <li>Router</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Model.</strong> The Model manages data storage, retrieval, and manipulation (CRUD) and sends data to the Controller.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which stack is a classic real-world example of the MVC architecture?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>LAMP</li>
+          <li>MERN (MongoDB, Express, React, Node.js)</li>
+          <li>JAMstack</li>
+          <li>None of these</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: MERN.</strong> MERN, MEAN, and Laravel all follow the MVC architecture.</div>
+      </div>
+
+    </div>
+  </div>
+  <!-- TOPIC: Container/Presentational -->
+  <div class="topic" id="container-presentational">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>2. Presentational & Container Components Pattern</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>This pattern separates the <strong>application layer</strong> (logic) from the <strong>view layer</strong> (UI) in a React app. It's one of the earliest and most fundamental React architecture patterns.</p>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>Presentational components</strong> focus on <em>how things look</em> — pure UI, styling, and markup. <strong>Container components</strong> focus on <em>how things work</em> — data fetching, state, and business logic — and pass data down to presentational components via props.</p>
+      </div>
+
+      <div class="grid2">
+        <div class="grid-box pro">
+          <h5>Presentational Components</h5>
+          <ul>
+            <li>Receive data only via props</li>
+            <li>Usually stateless / function components</li>
+            <li>Don't know where data comes from</li>
+            <li>Contain only HTML/JSX and styling</li>
+          </ul>
+        </div>
+        <div class="grid-box con">
+          <h5>Container Components</h5>
+          <ul>
+            <li>Fetch data / connect to state management</li>
+            <li>Pass data down via props</li>
+            <li>Often class components or hooks-based</li>
+            <li>No DOM markup of their own</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Presentational Component</div>
+      <pre><code>// presentational component
+const Users = props =&gt;
+  (&lt;ul&gt;
+    {props.users.map(user =&gt;
+      (&lt;li&gt;{user.name}&lt;/li&gt;))
+    }
+  &lt;/ul&gt;)</code></pre>
+      <p><strong>Explanation:</strong> <code>Users</code> takes a <code>users</code> array via props and just renders it as a list — it has zero idea where that data came from.</p>
+
+      <div class="code-label">Container Component</div>
+      <pre><code>// container component
+class UsersContainer extends React.Component {
+  constructor() {
+    super();
+    this.state = { users: [] };
+  }
+  componentDidMount() {
+    axios.get('/users').then(res =&gt; this.setState({ users: res.data }));
+  }
+  render() {
+    return &lt;Users users={this.state.users} /&gt;;
+  }
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>UsersContainer</code> fetches data from an API in <code>componentDidMount()</code>, stores it in state, and passes it down to the "dumb" <code>Users</code> presentational component.</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p>This pattern is largely superseded today by <strong>Hooks + Custom Hooks</strong>, which let you extract the "container" logic without a wrapper component — but it still appears in exams and legacy codebases.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which type of component is typically stateless and only contains HTML/JSX and styling?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>Presentational Component</li>
+          <li>Container Component</li>
+          <li>Higher-Order Component</li>
+          <li>Custom Hook</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Presentational Component.</strong> It focuses purely on UI/look, receiving data via props.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: HOC -->
+  <div class="topic" id="hoc">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>3. Higher-Order Components (HOC) Pattern <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A <strong>Higher-Order Component</strong> is a function that takes an existing component as input and returns a <em>new</em> component with extra features — a technique for reusing component logic without duplicating code.</p>
+      </div>
+
+      <div class="callout example">
+        <div class="callout-title">🟢 REAL-WORLD ANALOGY</div>
+        <p>Think of a coffee shop: you have plain coffee (the original component). You pass it through a "flavor machine" (the HOC). The machine adds vanilla or caramel (extra features) and gives you back a new, enhanced coffee (the enhanced component).</p>
+      </div>
+
+      <div class="formula">HOC signature:  hocFunction(WrappedComponent) => EnhancedComponent</div>
+
+      <div class="diagram">
+        <div class="diagram-title">How a Higher-Order Component Wraps a Component</div>
+        <div class="flow">
+          <div class="flow-box">OriginalComponent</div>
+          <span class="flow-arrow">→ passed into →</span>
+          <div class="flow-box gold" style="border-color:var(--gold);color:var(--gold);">withAuth( )<br><span style="font-size:0.7rem;font-weight:400;">the HOC function</span></div>
+          <span class="flow-arrow">→ returns →</span>
+          <div class="flow-box green">EnhancedComponent<br><span style="font-size:0.7rem;font-weight:400;">(original + extra logic)</span></div>
+        </div>
+      </div>
+
+      <h4>Why use HOCs?</h4>
+      <ul>
+        <li>Reuse logic across multiple components (e.g. authentication checks, logging, data fetching) without copy-pasting.</li>
+        <li>Keep components focused on a single responsibility.</li>
+      </ul>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>An HOC does <strong>not modify</strong> the input component — it <strong>wraps</strong> it and returns a brand-new component. Mutating the original component breaks the pattern's composability.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. What does a Higher-Order Component return?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>A plain JavaScript object</li>
+          <li>The same component, mutated</li>
+          <li>A new component with added functionality</li>
+          <li>A JSX string</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: A new component with added functionality.</strong> HOCs are functions: <code>Component =&gt; EnhancedComponent</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Custom Hooks -->
+  <div class="topic" id="custom-hooks">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>4. Custom Hooks Pattern <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout example">
+        <div class="callout-title">🟢 IMAGINE BUILDING WITH LEGO</div>
+        <p><strong>Components</strong> = LEGO blocks (used to build a house, car, robot). <strong>Hooks</strong> = special tools that help you build smarter. <strong>Custom Hooks</strong> = tools <em>you</em> make yourself to solve a recurring problem — e.g. a <code>useCounter</code> hook that any LEGO door can attach to, instead of rebuilding counting logic every time.</p>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A Custom Hook is a JavaScript function whose name starts with <code>use</code> and that can call other hooks. It lets you extract component logic into a reusable function.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Where Custom Hooks Sit in a Component</div>
+        <div class="flow">
+          <div class="flow-box">Users Component (UI)</div>
+          <span class="flow-arrow">→ calls →</span>
+          <div class="flow-box green">useFetch(url)<br><span style="font-size:0.7rem;font-weight:400;">Custom Hook (logic layer)</span></div>
+          <span class="flow-arrow">→ internally uses →</span>
+          <div class="flow-box blue">useState + useEffect<br><span style="font-size:0.7rem;font-weight:400;">React's built-in hooks</span></div>
+          <span class="flow-arrow">→ returns →</span>
+          <div class="flow-box red">{ data, loading }</div>
+        </div>
+      </div>
+
+      <h4>How Custom Hooks fit into React Architecture</h4>
+      <div class="grid2">
+        <div class="grid-box pro">
+          <h5>UI Layer (Components)</h5>
+          <ul>
+            <li>Focused on rendering UI</li>
+            <li>Uses props & state</li>
+            <li>Stays "dumb" — just takes data and displays it</li>
+          </ul>
+        </div>
+        <div class="grid-box con">
+          <h5>Logic Layer (Custom Hooks)</h5>
+          <ul>
+            <li>Encapsulates stateful / side-effect logic</li>
+            <li>Handles fetching, subscriptions, timers, auth, forms</li>
+            <li>Reusable logic pluggable into any component</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="code-label">Custom Hook: useFetch</div>
+      <pre><code>import { useState, useEffect } from "react";
+
+// Custom Hook
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setData(data);
+        setLoading(false);
+      });
+  }, [url]);
+
+  return { data, loading };
+}</code></pre>
+
+      <div class="code-label">Using the Custom Hook</div>
+      <pre><code>function Users() {
+  const { data: users, loading } =
+    useFetch("https://jsonplaceholder.typicode.com/users");
+
+  if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+  return (
+    &lt;ul&gt;
+      {users.map(user =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}
+export default Users;</code></pre>
+      <p><strong>Explanation:</strong> <code>useFetch</code> encapsulates the fetch-and-loading logic. Any component can now reuse it just by calling <code>useFetch(url)</code> — no copy-pasted <code>useEffect</code> blocks.</p>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Organization</div>
+        <p><code>House (Component) → uses Door (Component) → uses useCounter (Custom Hook)</code>. Components = what you see. Custom Hooks = your own reusable recipes.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. What naming convention must a Custom Hook follow in React?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>It must end in "Hook"</li>
+          <li>Its name must start with "use"</li>
+          <li>It must be a class</li>
+          <li>No convention required</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: name must start with "use".</strong> This lets React's linter and other hooks recognize it correctly, e.g. <code>useFetch</code>, <code>useCounter</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Context API -->
+  <div class="topic" id="context-api">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>5. Context API Pattern <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>The Context API lets you share data across the component tree <strong>without manually passing props at every level</strong> — a problem known as <strong>"prop drilling"</strong>. It's ideal for global data like auth status, theme, or language.</p>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION — Prop Drilling</div>
+        <p>Prop drilling occurs when data must be passed through multiple layers of components before reaching the component that actually needs it — even though the intermediate components don't use that data themselves. This slows development and makes the app harder to maintain.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Prop Drilling vs Context API</div>
+        <div class="flow" style="margin-bottom:16px;">
+          <div class="flow-col">
+            <div class="flow-box red">App</div>
+            <span class="flow-vert-arrow">↓ props</span>
+            <div class="flow-box red">Layout</div>
+            <span class="flow-vert-arrow">↓ props</span>
+            <div class="flow-box red">Sidebar</div>
+            <span class="flow-vert-arrow">↓ props</span>
+            <div class="flow-box red">Profile (uses data)</div>
+          </div>
+          <span class="flow-arrow" style="align-self:center;">vs</span>
+          <div class="flow-col">
+            <div class="flow-box green">Context.Provider (App)</div>
+            <span class="flow-vert-arrow">⇣ direct access</span>
+            <div class="flow-box green">Profile (useContext)</div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--text-faint);font-size:0.8rem;">Context API skips the middle components entirely.</div>
+      </div>
+
+      <h4>Working (Provider & Consumer)</h4>
+      <ul>
+        <li>Create context with <code>React.createContext()</code>.</li>
+        <li><strong>Provider</strong> — acts as parent, passes state down to children.</li>
+        <li><strong>Consumer</strong> (or the <code>useContext</code> hook) — uses the state that was passed.</li>
+      </ul>
+
+      <h4>Steps to Implement</h4>
+      <ol>
+        <li>Create a React app: <code>npx create-react-app context-api-demo</code></li>
+        <li><code>cd context-api-demo</code></li>
+        <li>Create <code>Context.js</code> (defines the context) and <code>WelcomePage.js</code> (consumes it).</li>
+      </ol>
+
+      <div class="code-label">Context.js</div>
+      <pre><code>import React, { createContext } from 'react';
+export const UserContext = createContext();
+
+const UserProvider = ({ children }) => {
+  const user = { name: 'John Doe', id: 1 };
+  return (
+    &lt;UserContext.Provider value={user}&gt;
+      {children}
+    &lt;/UserContext.Provider&gt;
+  );
+};
+export default UserProvider;</code></pre>
+
+      <div class="code-label">WelcomePage.js</div>
+      <pre><code>import React, { useContext } from 'react';
+import { UserContext } from './Context';
+
+const WelcomePage = () => {
+  const user = useContext(UserContext);
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Welcome User:&lt;/h1&gt;
+      &lt;p&gt;Name: {user.name} id: {user.id}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+};
+export default WelcomePage;</code></pre>
+
+      <div class="code-label">index.js — wrap App with Provider</div>
+      <pre><code>import ReactDOM from 'react-dom';
+import UserProvider from './Context';
+import App from './App';
+
+ReactDOM.render(
+  &lt;UserProvider&gt;
+    &lt;React.StrictMode&gt;
+      &lt;App /&gt;
+    &lt;/React.StrictMode&gt;
+  &lt;/UserProvider&gt;,
+  document.getElementById('root')
+);</code></pre>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>If you forget to wrap your component tree in the <code>&lt;Provider&gt;</code>, or pass no value, consuming components will render blank / receive <code>undefined</code>.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. What problem does the Context API primarily solve?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>Slow rendering</li>
+          <li>Prop drilling</li>
+          <li>CSS conflicts</li>
+          <li>Server-side rendering</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Prop drilling.</strong> Context lets global data reach deeply nested components directly.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which method creates a new Context object in React?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>React.createContext()</li>
+          <li>React.newContext()</li>
+          <li>useContext.create()</li>
+          <li>Context.new()</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: React.createContext().</strong></div>
+      </div>
+    </div>
+  </div>
+  <!-- TOPIC: React Basics -->
+  <div class="topic" id="react-basics">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>6. React Basics: Components, Props, State, JSX <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <p>ReactJS is a component-based JavaScript library used to build dynamic, interactive user interfaces — created by Facebook engineer Jordan Walke. It simplifies building single-page applications (SPAs) with a focus on performance and maintainability.</p>
+
+      <h4>How does React work? (Virtual DOM)</h4>
+      <p>React creates an in-memory <strong>Virtual DOM</strong> rather than directly manipulating the browser's real DOM. It performs changes on this virtual copy first, then applies only the minimal necessary updates to the real DOM.</p>
+
+      <div class="diagram">
+        <div class="diagram-title">Virtual DOM Update Cycle</div>
+        <div class="flow">
+          <div class="flow-box">State Changes</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">Component Re-renders → New Virtual DOM</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">React Diffs (Reconciliation)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">Only changed parts patched to Real DOM</div>
+        </div>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION — Reconciliation</div>
+        <p>Reconciliation is the process where React compares the new Virtual DOM with the previous one, finds the smallest set of changes, and applies only those to the real browser DOM — this is what makes React fast.</p>
+      </div>
+
+      <h4>1. Components</h4>
+      <p>A component is a small, reusable, independent piece of UI (a button, form, or entire page) built as a JavaScript function or class. Components accept inputs (<strong>props</strong>) and return elements describing what should appear on screen.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>A component's name <strong>MUST start with an uppercase letter</strong> (e.g. <code>Car</code>, not <code>car</code>) — otherwise React treats it as a plain HTML tag.</p>
+      </div>
+
+      <div class="code-label">"Hello, World!" in React</div>
+      <pre><code>import React from 'react';
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Hello, World!&lt;/h1&gt;
+    &lt;/div&gt;
+  );
+}
+export default App;</code></pre>
+      <p><strong>Line-by-line:</strong> <code>import React</code> brings in the library needed to create components/JSX. <code>function App()</code> defines a functional component. <code>return(...)</code> returns JSX describing the UI. <code>export default App</code> makes it usable elsewhere.</p>
+
+      <h4>Functional vs Class Components</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>Functional Component</th><th>Class Component</th></tr>
+          <tr><td>Definition</td><td>A plain JS function returning JSX</td><td>ES6 class that <code>extends React.Component</code></td></tr>
+          <tr><td>State (pre-Hooks)</td><td>No state (until Hooks)</td><td><code>this.state</code></td></tr>
+          <tr><td>State (modern)</td><td><code>useState()</code> hook</td><td><code>this.state</code> + <code>this.setState()</code></td></tr>
+          <tr><td>Lifecycle</td><td><code>useEffect()</code> hook</td><td><code>componentDidMount()</code> etc.</td></tr>
+          <tr><td>Required method</td><td>none (just return JSX)</td><td><code>render()</code> is mandatory</td></tr>
+          <tr><td>Syntax length</td><td>Shorter, simpler</td><td>Longer, more boilerplate</td></tr>
+          <tr><td>Performance</td><td>Slightly faster (fewer abstractions)</td><td>Slightly slower (more internal logic)</td></tr>
+          <tr><td>Current preference</td><td>✅ Preferred (modern React)</td><td>Legacy / older codebases</td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">Class Component</div>
+      <pre><code>class Car extends React.Component {
+  render() {
+    return &lt;h2&gt;Hi, I am a Car!&lt;/h2&gt;;
+  }
+}</code></pre>
+
+      <div class="code-label">Functional Component</div>
+      <pre><code>function Car() {
+  return &lt;h2&gt;Hi, I am a Car!&lt;/h2&gt;;
+}</code></pre>
+
+      <h4>Rendering a Component</h4>
+      <pre><code>const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(&lt;Car /&gt;);</code></pre>
+      <p>Rendering means displaying the component in the browser. You use it like a normal HTML tag: <code>&lt;Car /&gt;</code>.</p>
+
+      <h4>Components inside Components</h4>
+      <pre><code>function Car() { return &lt;h2&gt;I am a Car!&lt;/h2&gt;; }
+
+function Garage() {
+  return (
+    &lt;&gt;
+      &lt;h1&gt;Who lives in my Garage?&lt;/h1&gt;
+      &lt;Car /&gt;
+    &lt;/&gt;
+  );
+}
+root.render(&lt;Garage /&gt;);</code></pre>
+
+      <h4>Props (Properties)</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>Props are <strong>read-only</strong> inputs passed from a parent component to a child component — like function arguments in JS or attributes in HTML. Props are <strong>immutable</strong> (a child cannot change its own props) and enable communication between components.</p>
+      </div>
+      <pre><code>function Car(props) {
+  return &lt;h2&gt;I am a {props.color} Car!&lt;/h2&gt;;
+}
+root.render(&lt;Car color="red" /&gt;);</code></pre>
+      <p><strong>Explanation:</strong> <code>color="red"</code> is passed as an attribute; inside the component it's accessible as <code>props.color</code>.</p>
+
+      <h4>State</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>State is <strong>dynamic, mutable data</strong> owned by a component. Unlike props, a component <em>can</em> change its own state. When state changes, the component automatically re-renders.</p>
+      </div>
+      <pre><code>import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;&gt;
+      &lt;p&gt;You clicked {count} times&lt;/p&gt;
+      &lt;button onClick={() => setCount(count + 1)}&gt;Click me&lt;/button&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>useState(0)</code> returns an array: the current value (<code>count</code>) and a setter function (<code>setCount</code>). Calling <code>setCount</code> updates state and triggers a re-render.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>Props</th><th>State</th></tr>
+          <tr><td>Mutability</td><td>Immutable (read-only)</td><td>Mutable, can change over time</td></tr>
+          <tr><td>Owned by</td><td>Parent (passed to child)</td><td>The component itself</td></tr>
+          <tr><td>Purpose</td><td>Pass data / configure component</td><td>Track dynamic, internal data</td></tr>
+          <tr><td>Triggers re-render?</td><td>Yes, when parent re-renders with new props</td><td>Yes, when setter is called</td></tr>
+        </table>
+      </div>
+
+      <h4>JSX (JavaScript XML)</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>JSX lets you write HTML-like syntax directly inside JavaScript. JSX converts HTML tags into React elements without needing manual <code>createElement()</code> / <code>appendChild()</code> calls.</p>
+      </div>
+
+      <h4>Components in Separate Files</h4>
+      <p>React encourages splitting components into files for reusability.</p>
+      <div class="code-label">Car.js</div>
+      <pre><code>function Car() {
+  return &lt;h2&gt;Hi, I am a Car!&lt;/h2&gt;;
+}
+export default Car;</code></pre>
+      <div class="code-label">App.js</div>
+      <pre><code>import Car from './Car.js';
+root.render(&lt;Car /&gt;);</code></pre>
+
+      <h4>Key Features of React</h4>
+      <ul>
+        <li><strong>Virtual DOM</strong> — lightweight DOM copy, faster rendering.</li>
+        <li><strong>Component-Based</strong> — reusable, maintainable, scalable UI.</li>
+        <li><strong>JSX</strong> — HTML-like syntax in JS.</li>
+        <li><strong>One-Way Data Binding</strong> — data flows parent → child via props.</li>
+        <li><strong>State Management</strong> — <code>useState</code> or <code>this.state</code>.</li>
+        <li><strong>Hooks</strong> — <code>useState</code>, <code>useEffect</code>, <code>useContext</code>, etc.</li>
+        <li><strong>React Router</strong> — SPA navigation without full page reloads.</li>
+      </ul>
+
+      <h4>Installing React (Windows)</h4>
+      <ol>
+        <li>Install <strong>Node.js</strong> (includes npm).</li>
+        <li>Verify with <code>node -v</code> and <code>npm -v</code>.</li>
+        <li>Create app: <code>npx create-react-app reactfirst</code> (lowercase name — npm forbids capitals).</li>
+        <li><code>cd reactfirst</code></li>
+        <li><code>npm start</code></li>
+      </ol>
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p>Key project files: <code>public/index.html</code> (single HTML file the app mounts into), <code>src/index.js</code> (JS entry point), <code>src/App.js</code> (root component).</p>
+      </div>
+
+      <h4>Why Functional Components Are Preferred</h4>
+      <div class="grid2">
+        <div class="grid-box pro">
+          <h5>Advantages of Functional Components</h5>
+          <ul>
+            <li>Simplicity — easier to read/write</li>
+            <li>Performance — no <code>this</code> keyword overhead</li>
+            <li>Testability — stateless, no lifecycle methods to mock</li>
+            <li>Reusability — easy to share across projects</li>
+          </ul>
+        </div>
+        <div class="grid-box con">
+          <h5>Class Component Structure</h5>
+          <ul>
+            <li>Class Declaration: <code>extends React.Component</code></li>
+            <li>Constructor: <code>super(props)</code> + <code>this.state = {...}</code></li>
+            <li><code>render()</code> — mandatory, returns JSX</li>
+            <li>Event handlers use <code>this.setState()</code></li>
+          </ul>
+        </div>
+      </div>
+      <pre><code>class MyComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
+  increment = () => {
+    this.setState({ count: this.state.count + 1 });
+  };
+  render() {
+    return &lt;div&gt;Current count: {this.state.count}&lt;/div&gt;;
+  }
+}</code></pre>
+
+      <h4>HTML vs React — Quick Comparison</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>HTML</th><th>React</th></tr>
+          <tr><td>What it is</td><td>Markup language — structure & content</td><td>JavaScript library for building UIs</td></tr>
+          <tr><td>Best for</td><td>Simple, static websites</td><td>Highly interactive, dynamic SPAs</td></tr>
+          <tr><td>Reusability</td><td>Low — copy/paste markup</td><td>High — reusable components</td></tr>
+          <tr><td>State handling</td><td>None built-in</td><td>Built-in (useState/this.state)</td></tr>
+        </table>
+      </div>
+
+      <h4>Quick Reference MCQs</h4>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. Why does React use a Virtual DOM instead of updating the real DOM directly?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Because the real DOM cannot be modified</li>
+          <li>To store user data permanently</li>
+          <li>To calculate the minimal set of changes and update the real DOM efficiently</li>
+          <li>Virtual DOM is required by JavaScript</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: To calculate minimal changes efficiently.</strong> This process is called reconciliation.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which hook is used to manage state in a functional component?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>useEffect</li>
+          <li>useState</li>
+          <li>useContext</li>
+          <li>this.state</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: useState.</strong> It returns a value and a setter function: <code>const [x, setX] = useState(initial)</code>.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 3</span>
+        <div class="mcq-q">Q. Are React props mutable or immutable?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>Mutable — child can change them freely</li>
+          <li>Immutable — read-only, cannot be changed by the child</li>
+          <li>They don't exist in modern React</li>
+          <li>Mutable only in class components</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Immutable.</strong> Props flow one-way, parent → child, and are read-only within the child.</div>
+      </div>
+
+    </div>
+  </div>
+  <!-- TOPIC: Router & Hooks -->
+  <div class="topic" id="hooks-router">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>7. React Router & Hooks: useState, useEffect <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>Hooks let functional components use features (state, lifecycle) that used to require class components.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Hook</th><th>Purpose</th></tr>
+          <tr><td><code>useState</code></td><td>Manages local state</td></tr>
+          <tr><td><code>useEffect</code></td><td>Performs side effects (API calls, subscriptions, timers)</td></tr>
+          <tr><td><code>useContext</code></td><td>Accesses context values</td></tr>
+          <tr><td><code>useMemo</code></td><td>Memoizes (caches) computed values</td></tr>
+          <tr><td><code>useCallback</code></td><td>Memoizes functions</td></tr>
+          <tr><td><code>useRef</code></td><td>Persists values across renders without re-rendering</td></tr>
+        </table>
+      </div>
+
+      <h4>useState() — Storing State</h4>
+      <div class="formula">const [state, setState] = useState(initialValue);</div>
+      <pre><code>function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;button onClick={() => setCount(count + 1)}&gt;
+      Clicked {count} times
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+      <h4>useEffect() — Initialization, Cleanup, Side-Effects</h4>
+      <div class="formula">useEffect(() => {
+  // effect code
+  return () => {
+    // cleanup code (optional)
+  };
+}, [dependencies]);</div>
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Dependency Array</div>
+        <p><code>[]</code> → runs once after first render. <code>[dep]</code> → runs whenever <code>dep</code> changes. No array at all → runs after <em>every</em> render.</p>
+      </div>
+
+      <div class="code-label">Example: Fetch data when route param changes</div>
+      <pre><code>import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
+function UserProfile() {
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    fetch(`https://api.example.com/users/${id}`)
+      .then(res => res.json())
+      .then(data => setUser(data));
+  }, [id]);
+
+  if (!user) return &lt;p&gt;Loading...&lt;/p&gt;;
+  return &lt;h1&gt;{user.name}&lt;/h1&gt;;
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>useParams()</code> (from React Router) reads the dynamic <code>:id</code> segment from the URL. <code>useEffect</code> re-fetches the user whenever <code>id</code> changes, and the component shows a loading state until data arrives.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Forgetting the dependency array (or listing the wrong dependencies) causes <strong>infinite re-render loops</strong> or stale data bugs — a very common exam trick question.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. What happens if you pass an empty dependency array <code>[]</code> to useEffect?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>It runs on every render</li>
+          <li>It runs only once, after the first render</li>
+          <li>It never runs</li>
+          <li>It throws an error</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Runs only once</strong> — mimicking <code>componentDidMount</code>.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which React Router hook extracts dynamic segments from the current URL?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>useParams()</li>
+          <li>useState()</li>
+          <li>useReducer()</li>
+          <li>useNavigate() only</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: useParams().</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Lifecycle -->
+  <div class="topic" id="lifecycle">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>8. React Component Lifecycle <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>The React lifecycle refers to the different phases a component goes through during its time in a React application — from creation, through updates, to removal.</p>
+
+      <div class="diagram">
+        <div class="diagram-title">Three Lifecycle Phases — Full Method Order</div>
+        <div class="flow">
+          <div class="flow-col">
+            <div class="flow-box green">Mounting</div>
+            <div style="font-size:0.78rem;color:var(--text-faint);text-align:center;">Initialization<br>(set props & state in constructor)</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box green">render()</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box green">componentDidMount()</div>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-col">
+            <div class="flow-box blue">Updating</div>
+            <div style="font-size:0.78rem;color:var(--text-faint);text-align:center;">For Props: getDerivedStateFromProps()<br>For State: setState()</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box blue">shouldComponentUpdate()</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box blue">getSnapshotBeforeUpdate()</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box blue">render() → componentDidUpdate()</div>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-col">
+            <div class="flow-box red">Unmounting</div>
+            <span class="flow-vert-arrow">↓</span>
+            <div class="flow-box red">componentWillUnmount()</div>
+          </div>
+        </div>
+      </div>
+
+      <h4>1. Mounting — creating & inserting into the DOM</h4>
+      <ol>
+        <li><code>constructor()</code> — initializes state, binds methods. Runs before mounting.</li>
+        <li><code>getDerivedStateFromProps(props, state)</code> — updates state based on props. Runs before every render.</li>
+        <li><code>render()</code> — renders JSX and updates the DOM.</li>
+        <li><code>componentDidMount()</code> — invoked right after the component is mounted (once, after first render). Great place for API calls.</li>
+      </ol>
+
+      <div class="code-label">constructor() — sets up initial state</div>
+      <pre><code>class Header extends React.Component {
+  constructor(props) {
+    super(props);           // must call super(props) first — inherits from React.Component
+    this.state = { favoritecolor: "red" };
+  }
+  render() {
+    return &lt;h1&gt;My Favorite Color is {this.state.favoritecolor}&lt;/h1&gt;;
+  }
+}
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(&lt;Header /&gt;);</code></pre>
+      <p><strong>Explanation:</strong> <code>constructor()</code> is called before anything else, when the component is initiated — the natural place to set up initial state. Always call <code>super(props)</code> first; it initiates the parent's constructor and lets the component inherit methods from <code>React.Component</code>.</p>
+
+      <div class="code-label">render() — outputs the HTML</div>
+      <pre><code>class Header extends React.Component {
+  render() {
+    return (
+      &lt;h1&gt;This is the content of the Header component&lt;/h1&gt;
+    );
+  }
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>render()</code> is the only <strong>required</strong> method in a class component — it actually outputs HTML to the DOM.</p>
+
+      <div class="code-label">componentDidMount() — runs after first render</div>
+      <pre><code>class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { favoritecolor: "red" };
+  }
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({ favoritecolor: "yellow" });
+    }, 1000);
+  }
+  render() {
+    return &lt;h1&gt;My Favorite Color is {this.state.favoritecolor}&lt;/h1&gt;;
+  }
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>componentDidMount()</code> runs once the component is already placed in the DOM — the correct place for statements that require the component to exist on the page (like starting a timer or an API call). Here, one second after mounting (color starts as "red"), the timer fires and updates state to "yellow", which triggers a re-render (the Updating phase).</p>
+
+      <h4>2. Updating — re-rendering due to state/prop changes</h4>
+      <p>A component updates whenever its state or props change. React calls five built-in methods, in this order, when updating — only <code>render()</code> is required; the rest are optional:</p>
+      <ol>
+        <li><code>getDerivedStateFromProps()</code></li>
+        <li><code>shouldComponentUpdate()</code></li>
+        <li><code>render()</code></li>
+        <li><code>getSnapshotBeforeUpdate()</code></li>
+        <li><code>componentDidUpdate()</code></li>
+      </ol>
+
+      <div class="code-label">shouldComponentUpdate() — controls whether React re-renders</div>
+      <pre><code>class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { favoritecolor: "red" };
+  }
+  shouldComponentUpdate() {
+    return false; // tells React to SKIP re-rendering
+  }
+  changeColor = () => {
+    this.setState({ favoritecolor: "blue" });
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;My Favorite Color is {this.state.favoritecolor}&lt;/h1&gt;
+        &lt;button type="button" onClick={this.changeColor}&gt;Change color&lt;/button&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>shouldComponentUpdate()</code> lets you return a boolean deciding whether React should continue rendering. The default is <code>true</code>. Here it always returns <code>false</code>, so clicking the button updates state internally but the UI never visually re-renders — a common performance-tuning (and exam trick) method.</p>
+
+      <div class="code-label">componentDidUpdate() — runs after an update completes</div>
+      <pre><code>class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { favoritecolor: "red" };
+  }
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({ favoritecolor: "yellow" });
+    }, 1000);
+  }
+  componentDidUpdate() {
+    document.getElementById("mydiv").innerHTML =
+      "The updated favorite is " + this.state.favoritecolor;
+  }
+  render() {
+    return (
+      &lt;div&gt;
+        &lt;h1&gt;My Favorite Color is {this.state.favoritecolor}&lt;/h1&gt;
+        &lt;div id="mydiv"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    );
+  }
+}</code></pre>
+      <p><strong>Explanation:</strong> On mount, the color renders as "red". After 1 second, <code>componentDidMount</code>'s timer changes it to "yellow" — this state change triggers an update, and <code>componentDidUpdate()</code> then runs, updating a separate DOM element to reflect the new value.</p>
+
+      <h4>3. Unmounting — removal from the DOM</h4>
+      <p>React has only <strong>one</strong> built-in method for this phase:</p>
+      <div class="code-label">componentWillUnmount() — cleanup before removal</div>
+      <pre><code>componentWillUnmount() {
+  // e.g. clear timers, cancel subscriptions, remove event listeners
+  clearInterval(this.timerID);
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>componentWillUnmount()</code> is called right when the component is about to be removed from the DOM — the final lifecycle phase, and the correct place to clean up timers, subscriptions, and listeners to avoid memory leaks.</p>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>componentDidMount()</strong> = "I've just appeared." <strong>componentDidUpdate()</strong> = "Something about me changed." <strong>componentWillUnmount()</strong> = "I'm about to disappear — clean up after me."</p>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Hooks Equivalent</div>
+        <p>In functional components, <code>useEffect(() => {...}, [])</code> ≈ <code>componentDidMount</code>; <code>useEffect(() => {...}, [dep])</code> ≈ <code>componentDidUpdate</code>; the cleanup function returned from <code>useEffect</code> ≈ <code>componentWillUnmount</code>.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. Which lifecycle method is invoked right after a component is first rendered to the DOM?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>componentWillUnmount()</li>
+          <li>shouldComponentUpdate()</li>
+          <li>componentDidMount()</li>
+          <li>render()</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: componentDidMount().</strong> Called once, immediately after the first render.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which lifecycle phase is the correct place to clean up timers/subscriptions?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Mounting</li>
+          <li>Updating</li>
+          <li>Unmounting (componentWillUnmount)</li>
+          <li>Rendering</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Unmounting — componentWillUnmount().</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Conditional Rendering -->
+  <div class="topic" id="conditional-rendering">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>9. Conditional Rendering</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>Conditional rendering shows different elements/components based on conditions — making the UI dynamic and responsive to data.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Method</th><th>Syntax Example</th><th>Best Use Case</th></tr>
+          <tr><td>if statement</td><td><code>if (isUser) return &lt;Profile /&gt;;</code></td><td>Simple condition</td></tr>
+          <tr><td>Ternary operator</td><td><code>isAdmin ? &lt;Admin/&gt; : &lt;User/&gt;</code></td><td>Dual options</td></tr>
+          <tr><td>Logical AND (&&)</td><td><code>isVisible && &lt;Message/&gt;</code></td><td>Render if true, nothing otherwise</td></tr>
+          <tr><td>switch statement</td><td><code>switch(view){case 'home': return &lt;Home/&gt;}</code></td><td>Multiple UI views</td></tr>
+          <tr><td>Inline function</td><td><code>const render = () => {...}</code></td><td>Complex conditions</td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">if / Ternary / && / switch — Examples</div>
+      <pre><code>// if statement
+if (isLoggedIn) {
+  return &lt;Dashboard /&gt;;
+}
+return &lt;Login /&gt;;
+
+// Ternary operator
+{isAdmin ? &lt;AdminPanel /&gt; : &lt;UserPanel /&gt;}
+
+// Logical AND
+{showMessage && &lt;p&gt;Welcome back!&lt;/p&gt;}
+
+// switch statement
+switch (status) {
+  case 'loading': return &lt;Loading /&gt;;
+  case 'error': return &lt;Error /&gt;;
+  default: return &lt;Content /&gt;;
+}
+
+// Inline function
+const renderUser = () => {
+  if (user) return &lt;h1&gt;{user.name}&lt;/h1&gt;;
+  return &lt;p&gt;Guest&lt;/p&gt;;
+};
+return &lt;div&gt;{renderUser()}&lt;/div&gt;;</code></pre>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p><code>{count && &lt;p&gt;{count} items&lt;/p&gt;}</code> — if <code>count</code> is <code>0</code>, React renders the literal number <strong>0</strong> on screen (since <code>0</code> is falsy but not <code>false</code>/<code>null</code>). Use <code>{count &gt; 0 && ...}</code> instead.</p>
+      </div>
+
+      <h4>📌 Real-World Examples</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Condition</th><th>UI Shown</th></tr>
+          <tr><td>User logged in</td><td>Show Dashboard</td></tr>
+          <tr><td>Data loading</td><td>Show Spinner</td></tr>
+          <tr><td>No results found</td><td>Show "No data" message</td></tr>
+          <tr><td>Admin user</td><td>Show AdminPanel</td></tr>
+        </table>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which conditional rendering approach is best for choosing between exactly two UI outcomes inline?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>switch statement</li>
+          <li>Ternary operator</li>
+          <li>for loop</li>
+          <li>useEffect</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Ternary operator</strong> — <code>condition ? A : B</code> is the idiomatic dual-option choice.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: PWA -->
+  <div class="topic" id="pwa">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>10. Introduction to Progressive Web Apps (PWA)</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A <strong>Progressive Web App (PWA)</strong> is a web application that uses modern web capabilities to deliver an experience similar to a native mobile app. It runs in a browser but can be installed, work offline, and send push notifications — just like a native app.</p>
+      </div>
+
+      <h4>Features of PWAs</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Feature</th><th>Description</th></tr>
+          <tr><td>Responsive</td><td>Works on all screen sizes — desktop, tablet, mobile</td></tr>
+          <tr><td>Fast</td><td>Loads quickly, even on slow networks</td></tr>
+          <tr><td>Offline support</td><td>Works without internet using Service Workers</td></tr>
+          <tr><td>Installable</td><td>Can be added to home screen / desktop</td></tr>
+          <tr><td>Push Notifications</td><td>Engages users with alerts even when closed</td></tr>
+          <tr><td>Secure (HTTPS)</td><td>All PWAs must be served over HTTPS</td></tr>
+          <tr><td>Auto-updated</td><td>Always fresh with background updates</td></tr>
+        </table>
+      </div>
+
+      <h4>Benefits of PWAs</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Benefit</th><th>Explanation</th></tr>
+          <tr><td>No App Store needed</td><td>Install directly from the browser</td></tr>
+          <tr><td>Low memory usage</td><td>Lightweight compared to native apps</td></tr>
+          <tr><td>Improved performance</td><td>Faster and more reliable</td></tr>
+          <tr><td>Business-friendly</td><td>Increases user engagement and retention</td></tr>
+          <tr><td>Cross-platform</td><td>One codebase for all devices</td></tr>
+          <tr><td>Cost-effective</td><td>Cheaper to maintain than native apps</td></tr>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p>The two technical pillars that enable PWAs are the <strong>Service Worker</strong> (a background script enabling offline caching & push notifications) and the <strong>Web App Manifest</strong> (a JSON file describing the app's name, icons, and how it should be installed).</p>
+      </div>
+
+      <h4>Basic Setup — Turning a Simple React Project into a PWA</h4>
+      <ol>
+        <li>Create the React app with the PWA template: <code>npx create-react-app my-pwa --template cra-template-pwa</code></li>
+        <li>This scaffolds a <code>service-worker.js</code> and a <code>manifest.json</code> inside <code>public/</code> automatically.</li>
+        <li>In <code>src/index.js</code>, switch the service worker registration from <code>unregister()</code> to <code>register()</code>:</li>
+      </ol>
+      <pre><code>// src/index.js
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
+// Change this line:
+// serviceWorkerRegistration.unregister();
+// to:
+serviceWorkerRegistration.register();</code></pre>
+      <div class="code-label">public/manifest.json — describes the installable app</div>
+      <pre><code>{
+  "short_name": "MyApp",
+  "name": "My Progressive Web App",
+  "icons": [
+    { "src": "favicon.ico", "sizes": "64x64", "type": "image/x-icon" }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>manifest.json</code> tells the browser how the app should appear when installed (icon, name, theme colors, whether it opens in its own window via <code>"display": "standalone"</code>). Registering the <code>service-worker.js</code> is what actually enables offline caching for the "Simple React Project".</p>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which technology enables a PWA to work offline?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Cookies</li>
+          <li>Local Storage only</li>
+          <li>Service Workers</li>
+          <li>Session ID</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Service Workers.</strong> They intercept network requests and serve cached content when offline.</div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /topics-wrap module3 -->
+</section>
+<section class="module" id="module4">
+  <div class="module-header" onclick="toggleModule(this)">
+    <h2>🖥️ Module 4: Server-Side Web Development <span class="hrs">7 Hours</span></h2>
+    <span class="module-toggle">▾</span>
+  </div>
+  <div class="topics-wrap">
+
+  <!-- TOPIC: Node Intro -->
+  <div class="topic" id="nodejs">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>1. Node.js Introduction <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>Node.js</strong> is a free, open-source JavaScript <strong>runtime</strong> that runs on Windows, Mac, and Linux. It lets you execute JavaScript code <em>outside</em> a web browser, enabling server-side development with JavaScript. It is built on Chrome's <strong>V8 JavaScript engine</strong> and designed for building scalable network applications.</p>
+      </div>
+
+      <h4>Why Node.js?</h4>
+      <p>Node.js excels at handling many simultaneous connections with minimal overhead thanks to its <strong>non-blocking, event-driven architecture</strong> — ideal for I/O-heavy workloads:</p>
+      <ul>
+        <li>Real-time apps (chat, gaming, collaboration tools)</li>
+        <li>APIs and microservices</li>
+        <li>Data streaming applications</li>
+        <li>Command-line tools</li>
+        <li>Server-side web applications</li>
+      </ul>
+
+      <h4>What Can Node.js Do?</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Capability</th><th>Description</th></tr>
+          <tr><td>Web Servers</td><td>Create fast, scalable network applications</td></tr>
+          <tr><td>File Operations</td><td>Read, write, and manage files on the server</td></tr>
+          <tr><td>Database Interaction</td><td>Work with MongoDB, MySQL, and more</td></tr>
+          <tr><td>APIs</td><td>Build RESTful services and GraphQL APIs</td></tr>
+          <tr><td>Real-time</td><td>Handle WebSockets for live applications</td></tr>
+          <tr><td>CLI Tools</td><td>Create command-line applications</td></tr>
+        </table>
+      </div>
+
+      <h4>Node.js Files</h4>
+      <p>Node.js files usually have a <code>.js</code> extension, are written in JavaScript, and are started with the <code>node</code> command:</p>
+      <div class="formula">node app.js</div>
+
+      <div class="code-label">Example: Reading a File with fs</div>
+      <pre><code>// Load the filesystem module
+const fs = require('fs');
+
+// Read file asynchronously
+fs.readFile('myfirst.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading file: ' + err);
+    return;
+  }
+  console.log('File content: ' + data);
+});
+console.log('Reading file... (this runs first!)');</code></pre>
+      <p><strong>Explanation:</strong> Because <code>fs.readFile</code> is asynchronous, the <code>console.log('Reading file...')</code> line actually executes <em>before</em> the file content is printed — this is the essence of Node's non-blocking model.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Assuming code runs top-to-bottom strictly. In async Node.js code, callback results can arrive <em>after</em> later synchronous lines have already executed — a classic exam trick.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. Node.js is built on which JavaScript engine?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>SpiderMonkey</li>
+          <li>V8 (Chrome's engine)</li>
+          <li>Chakra</li>
+          <li>JavaScriptCore</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: V8.</strong> V8 is Google Chrome's open-source JS engine, which Node.js uses to execute JS outside the browser.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which architecture makes Node.js efficient for I/O-heavy workloads?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Multi-threaded blocking</li>
+          <li>Synchronous only</li>
+          <li>Non-blocking, event-driven</li>
+          <li>Compiled binary execution</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Non-blocking, event-driven.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Modules -->
+  <div class="topic" id="modules">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>2. Node.js Modules (CommonJS vs ES6)</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A <strong>module</strong> is a self-contained block of code that can be exported and imported into different parts of an application. Modules help organize, structure, and reuse code in large projects.</p>
+      </div>
+
+      <h4>Types of Modules in Node.js</h4>
+      <div class="diagram">
+        <div class="diagram-title">Three Categories of Node.js Modules</div>
+        <div class="flow">
+          <div class="flow-box blue">Built-in Modules<br><span style="font-size:0.7rem;font-weight:400;">fs, http, path, os...</span></div>
+          <div class="flow-box green">Local / Custom Modules<br><span style="font-size:0.7rem;font-weight:400;">files you write yourself</span></div>
+          <div class="flow-box red">Third-party Modules<br><span style="font-size:0.7rem;font-weight:400;">installed via npm</span></div>
+        </div>
+      </div>
+      <ol>
+        <li><strong>Built-in Modules</strong> — provided by Node.js itself (fs, http, path, os, etc.)</li>
+        <li><strong>Local / Custom Modules</strong> — user-defined modules you create yourself</li>
+        <li><strong>Third-party Modules</strong> — installed via npm (express, lodash, etc.)</li>
+      </ol>
+
+      <h4>Core Built-in Modules</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Module</th><th>Purpose</th></tr>
+          <tr><td><code>fs</code></td><td>File system operations</td></tr>
+          <tr><td><code>http</code></td><td>HTTP server and client</td></tr>
+          <tr><td><code>path</code></td><td>File path utilities</td></tr>
+          <tr><td><code>os</code></td><td>Operating system utilities</td></tr>
+          <tr><td><code>events</code></td><td>Event handling</td></tr>
+          <tr><td><code>util</code></td><td>Utility functions</td></tr>
+          <tr><td><code>stream</code></td><td>Stream handling</td></tr>
+          <tr><td><code>crypto</code></td><td>Cryptographic functions</td></tr>
+          <tr><td><code>url</code></td><td>URL parsing</td></tr>
+          <tr><td><code>querystring</code></td><td>URL query string handling</td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">Using a Built-in Module</div>
+      <pre><code>const http = require('http');
+
+http.createServer((req, res) => {
+  res.writeHead(200, {'Content-Type': 'text/html'});
+  res.end('Hello World!');
+}).listen(8080);</code></pre>
+
+      <h4>Exporting / Importing (Custom Modules)</h4>
+      <p>Any file with a <code>.js</code> extension in Node.js is treated as a module.</p>
+      <div class="code-label">math.js (ES6 Module syntax)</div>
+      <pre><code>// math.js
+export function add(a, b) {
+  return a + b;
+}
+export const PI = 3.1415;</code></pre>
+      <div class="code-label">Importing it</div>
+      <pre><code>import { add, PI } from './math.js';
+console.log(add(2, 3)); // 5</code></pre>
+
+      <h4>CommonJS vs ES6 Modules</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Feature</th><th>CommonJS (CJS)</th><th>ES6 Modules (ESM)</th></tr>
+          <tr><td>Import syntax</td><td><code>require('module')</code></td><td><code>import x from 'module'</code></td></tr>
+          <tr><td>Export syntax</td><td><code>module.exports = x</code></td><td><code>export default x</code> / <code>export {x}</code></td></tr>
+          <tr><td>Loading</td><td>Synchronous</td><td>Asynchronous / static</td></tr>
+          <tr><td>Default in Node</td><td>Yes (traditionally)</td><td>Needs <code>"type": "module"</code> in package.json</td></tr>
+        </table>
+      </div>
+
+      <h4>Installing a Third-Party Module</h4>
+      <div class="formula">npm install &lt;name-of-package&gt;
+npm install capitalize</div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which of these is NOT a category of Node.js modules?</div>
+        <ul class="mcq-options" data-answer="3">
+          <li>Built-in Modules</li>
+          <li>Local/Custom Modules</li>
+          <li>Third-party Modules</li>
+          <li>Virtual Modules</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Virtual Modules</strong> is not a real category — the three real categories are Built-in, Local, and Third-party.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: NPM -->
+  <div class="topic" id="npm">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>3. NPM (Node Package Manager)</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>NPM</strong> is a package manager for Node.js modules — used to manage pre-built pieces of code that extend your application's functionality. NPM is installed automatically with Node.js. Packages are stored in the <code>node_modules</code> folder.</p>
+      </div>
+
+      <h4>Popular NPM Packages</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Package</th><th>Description</th></tr>
+          <tr><td><strong>Express</strong></td><td>A fast, minimal web framework for building APIs and web applications</td></tr>
+          <tr><td><strong>Mongoose</strong></td><td>A MongoDB object modeling tool for Node.js</td></tr>
+          <tr><td><strong>Lodash</strong></td><td>A utility library for consistency, customization, performance</td></tr>
+          <tr><td><strong>Axios</strong></td><td>A promise-based HTTP client for making HTTP requests</td></tr>
+          <tr><td><strong>Dotenv</strong></td><td>Loads environment variables from a <code>.env</code> file</td></tr>
+          <tr><td><strong>Nodemon</strong></td><td>Automatically restarts the server on file changes (dev tool)</td></tr>
+          <tr><td><strong>Jest</strong></td><td>A JavaScript testing framework</td></tr>
+          <tr><td><strong>Socket.io</strong></td><td>Real-time, bidirectional communication between client & server</td></tr>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p><code>npm init</code> creates a <code>package.json</code> file (the project's manifest). <code>npm install &lt;pkg&gt;</code> downloads a package into <code>node_modules</code> and adds it to <code>package.json</code> dependencies.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which npm package is used purely for development to auto-restart the server on file changes?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>Nodemon</li>
+          <li>Express</li>
+          <li>Axios</li>
+          <li>Mongoose</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Nodemon.</strong></div>
+      </div>
+    </div>
+  </div>
+  <!-- TOPIC: Async Programming -->
+  <div class="topic" id="async">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>4. Asynchronous Programming in Node.js <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>Node.js uses <strong>asynchronous (non-blocking)</strong> programming — it can keep working while waiting for tasks like reading files or querying a database, instead of freezing until each task finishes. This lets Node.js handle many things at once, making it fast and efficient despite being single-threaded.</p>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Sync vs Async</div>
+        <p><strong>Synchronous</strong> code blocks execution until an operation finishes (e.g. <code>fs.readFileSync</code>). <strong>Asynchronous</strong> code uses callbacks, Promises, or async/await to continue running other code while waiting (e.g. <code>fs.readFile</code>).</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Synchronous vs Asynchronous Execution Timeline</div>
+        <div class="flow" style="flex-direction:column;gap:14px;">
+          <div style="width:100%;">
+            <div style="font-size:0.78rem;color:var(--red);margin-bottom:6px;">Synchronous (blocking) — each task waits for the previous one</div>
+            <div class="flow" style="justify-content:flex-start;">
+              <div class="flow-box red">Task 1</div><span class="flow-arrow">→</span>
+              <div class="flow-box red">Task 2 (waits)</div><span class="flow-arrow">→</span>
+              <div class="flow-box red">Task 3 (waits)</div>
+            </div>
+          </div>
+          <div style="width:100%;">
+            <div style="font-size:0.78rem;color:var(--green);margin-bottom:6px;">Asynchronous (non-blocking) — tasks run concurrently, callbacks fire when ready</div>
+            <div class="flow" style="justify-content:flex-start;">
+              <div class="flow-box green">Task 1 starts</div>
+              <div class="flow-box green">Task 2 starts</div>
+              <div class="flow-box green">Task 3 starts</div>
+              <span class="flow-arrow">→</span>
+              <div class="flow-box blue">callbacks fire as each completes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. What is the main benefit of Node.js's asynchronous model?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>It makes code run in a different language</li>
+          <li>It allows handling many operations concurrently without blocking</li>
+          <li>It removes the need for a server</li>
+          <li>It makes all code run instantly with zero delay</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Handles many operations concurrently without blocking</strong> the single JS thread.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: File System -->
+  <div class="topic" id="filesystem">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>5. File System (fs) Operations <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>The <strong>fs module</strong> is a core Node.js module that lets you interact with the file system. It provides both <strong>synchronous</strong> and <strong>asynchronous</strong> methods.</p>
+
+      <div class="diagram">
+        <div class="diagram-title">fs Module — What It Can Do</div>
+        <div class="flow">
+          <div class="flow-box blue">Read<br><span style="font-size:0.7rem;font-weight:400;">fs.readFile()</span></div>
+          <div class="flow-box green">Write<br><span style="font-size:0.7rem;font-weight:400;">fs.writeFile()</span></div>
+          <div class="flow-box gold" style="border-color:var(--gold);color:var(--gold);">Append<br><span style="font-size:0.7rem;font-weight:400;">fs.appendFile()</span></div>
+          <div class="flow-box red">Delete<br><span style="font-size:0.7rem;font-weight:400;">fs.unlink()</span></div>
+        </div>
+        <div style="text-align:center;margin-top:10px;color:var(--text-faint);font-size:0.8rem;">All operations act on files/directories sitting on the server's disk.</div>
+      </div>
+
+      <h4>Key Features</h4>
+      <ul>
+        <li><strong>Reading/Writing</strong> — text and binary data</li>
+        <li><strong>File Manipulation</strong> — create, delete, rename, move files/directories</li>
+        <li><strong>File Statistics</strong> — size, creation date, permissions</li>
+        <li><strong>Stream Handling</strong> — efficiently handle large files</li>
+      </ul>
+
+      <div class="formula">const fs = require('fs');</div>
+
+      <h4>Sync vs Async fs Methods</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Operation</th><th>Asynchronous</th><th>Synchronous</th></tr>
+          <tr><td>Read file</td><td><code>fs.readFile()</code></td><td><code>fs.readFileSync()</code></td></tr>
+          <tr><td>Write file</td><td><code>fs.writeFile()</code></td><td><code>fs.writeFileSync()</code></td></tr>
+          <tr><td>Append file</td><td><code>fs.appendFile()</code></td><td><code>fs.appendFileSync()</code></td></tr>
+          <tr><td>Read directory</td><td><code>fs.readdir()</code></td><td><code>fs.readdirSync()</code></td></tr>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>Synchronous Methods</th><th>Asynchronous Methods</th></tr>
+          <tr><td>Also called</td><td>Blocking functions</td><td>Non-blocking functions</td></tr>
+          <tr><td>Execution</td><td>Blocks the program until the file operation finishes processing</td><td>Does not block program execution</td></tr>
+          <tr><td>Last argument</td><td>Takes a File Descriptor as the last argument</td><td>Takes a callback function as the last argument</td></tr>
+          <tr><td>Examples</td><td><code>fs.readFileSync()</code>, <code>fs.appendFileSync()</code>, <code>fs.writeFileSync()</code></td><td><code>fs.readFile()</code>, <code>fs.appendFile()</code>, <code>fs.writeFile()</code>, <code>fs.stat()</code></td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">Asynchronous Read</div>
+      <pre><code>const fs = require('fs');
+fs.readFile('example.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading file:', err);
+    return;
+  }
+  console.log('File content:', data);
+});</code></pre>
+
+      <div class="code-label">Synchronous Read</div>
+      <pre><code>const fs = require('fs');
+try {
+  const data = fs.readFileSync('example.txt', 'utf8');
+  console.log('File content:', data);
+} catch (err) {
+  console.error('Error reading file:', err);
+}</code></pre>
+
+      <div class="code-label">Asynchronous Write</div>
+      <pre><code>const fs = require('fs');
+const content = 'Hello, Node.js!';
+fs.writeFile('example.txt', content, 'utf8', (err) => {
+  if (err) {
+    console.error('Error writing file:', err);
+    return;
+  }
+  console.log('File written successfully!');
+});</code></pre>
+      <p><strong>Explanation:</strong> If the file <code>example.txt</code> doesn't exist, <code>writeFile</code> creates it. Errors are handled inside the callback since this is async.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Using <code>fs.readFileSync</code>/<code>writeFileSync</code> inside a high-traffic server route <strong>blocks the entire event loop</strong> for every other client while the file operation completes — a serious performance bug. Prefer async versions on servers.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which method blocks execution until the file read completes?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>fs.readFile()</li>
+          <li>fs.readFileSync()</li>
+          <li>fs.watch()</li>
+          <li>fs.createReadStream()</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: fs.readFileSync().</strong> The "Sync" suffix indicates blocking behavior.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Event Loop -->
+  <div class="topic" id="eventloop">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>6. The Event Loop <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>The <strong>Event Loop</strong> is the mechanism that allows Node.js to handle asynchronous tasks efficiently without blocking execution, even though Node.js runs on a <strong>single thread</strong>. It executes synchronous JS first, then processes async operations, delegating heavy I/O tasks to the <strong>libuv</strong> library.</p>
+      </div>
+
+      <h4>Why is it Important?</h4>
+      <ul>
+        <li>Allows non-blocking execution despite being single-threaded.</li>
+        <li>Handles I/O-bound tasks efficiently.</li>
+        <li>Makes Node.js suitable for scalable applications like web servers.</li>
+      </ul>
+
+      <div class="code-label">Classic Event Loop Example</div>
+      <pre><code>console.log("This is the first statement");
+
+setTimeout(function() {
+  console.log("This is the second statement");
+}, 1000);
+
+console.log("This is the third statement");
+
+// Output order:
+// This is the first statement
+// This is the third statement
+// (after 1000ms) This is the second statement</code></pre>
+      <p><strong>Explanation:</strong> Synchronous statements 1 and 3 run immediately. <code>setTimeout</code> is delegated and its callback only runs after the timer expires and the call stack is empty.</p>
+
+      <div class="diagram">
+        <div class="diagram-title">Node.js Request Handling Architecture</div>
+        <div class="flow">
+          <div class="flow-box">Client Requests</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">Event Queue</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">Event Loop</div>
+        </div>
+        <div style="text-align:center;margin:14px 0;color:var(--text-faint);font-size:0.8rem;">simple/non-blocking task → executed immediately &nbsp;|&nbsp; I/O/blocking task ↓</div>
+        <div class="flow">
+          <div class="flow-box red">Thread Pool (libuv, default 4 threads)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box">Operation Completed</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">back to Event Queue → callback executed → Response to Client</div>
+        </div>
+      </div>
+
+      <h4>Phases of the Event Loop</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>Phase</th><th>What it Does</th></tr>
+          <tr><td>1</td><td>Timers</td><td>Executes callbacks scheduled by <code>setTimeout()</code> / <code>setInterval()</code></td></tr>
+          <tr><td>2</td><td>Pending Callbacks</td><td>Executes I/O callbacks deferred from the previous loop cycle</td></tr>
+          <tr><td>3</td><td>Idle, Prepare</td><td>Internal use only</td></tr>
+          <tr><td>4</td><td>Poll (main phase)</td><td>Executes most tasks — I/O, file reading, HTTP requests</td></tr>
+          <tr><td>5</td><td>Check</td><td>Processes <code>setImmediate()</code> callbacks</td></tr>
+          <tr><td>6</td><td>Close Callbacks</td><td>Executes callbacks for closed sockets/streams/emitters</td></tr>
+        </table>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Highest Priority</div>
+        <p><code>process.nextTick()</code> and resolved <strong>Promise</strong> callbacks have the highest priority — they run after every phase, before the loop moves to the next phase. <code>process.nextTick()</code> always runs before Promise callbacks.</p>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Exam trap: students often think <code>setTimeout(fn, 0)</code> runs "immediately". It actually still waits for the current call stack and microtask queue (nextTick/Promises) to clear first.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. Which library does Node.js use to delegate heavy I/O tasks off the main thread?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>V8</li>
+          <li>Express</li>
+          <li>libuv</li>
+          <li>Babel</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: libuv.</strong> It provides the Thread Pool (default size 4) for blocking operations.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Between process.nextTick() and a resolved Promise callback, which runs first?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>process.nextTick()</li>
+          <li>Promise callback</li>
+          <li>They run at exactly the same time</li>
+          <li>Neither — both run after setTimeout</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: process.nextTick() runs first,</strong> then Promise callbacks — both before the loop proceeds to the next phase.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 3</span>
+        <div class="mcq-q">Q. Which Event Loop phase handles most I/O, file reading, and HTTP request callbacks?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Timers phase</li>
+          <li>Close Callbacks phase</li>
+          <li>Poll phase</li>
+          <li>Check phase</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Poll phase</strong> — the main phase for I/O.</div>
+      </div>
+    </div>
+  </div>
+  <!-- TOPIC: Express Setup & Routing -->
+  <div class="topic" id="expressjs">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>7. Express.js: Setup & Routing <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>Express.js</strong> is a minimal and flexible Node.js web application framework that provides features for building web and mobile applications easily — simplifying routing, middleware, and HTTP utilities.</p>
+      </div>
+      <ul>
+        <li>✔ Built on Node.js for fast, scalable server-side development.</li>
+        <li>✔ Simplifies routing and middleware handling.</li>
+        <li>✔ Provides a lightweight, flexible structure.</li>
+      </ul>
+
+      <h4>Steps to Create an Express App</h4>
+      <ol>
+        <li><code>npm init</code> — initialize a Node.js application</li>
+        <li><code>npm install express</code> — install Express</li>
+        <li>Create <code>app.js</code> (or <code>server.js</code>) — main entry point</li>
+        <li><code>node app.js</code> — run the file</li>
+      </ol>
+
+      <div class="code-label">Basic Express Server</div>
+      <pre><code>const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Express.js Tutorial');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on http://localhost:3000');
+});</code></pre>
+      <p><strong>Explanation:</strong> <code>express()</code> creates an app instance. <code>app.get('/', handler)</code> registers a route for GET requests to the root URL. <code>app.listen(3000, cb)</code> starts the server on port 3000.</p>
+
+      <h4>Routing — Formula</h4>
+      <div class="diagram">
+        <div class="diagram-title">How a Request Finds Its Route</div>
+        <div class="flow">
+          <div class="flow-box">Client Request<br><span style="font-size:0.7rem;font-weight:400;">GET /users/42</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">Express Router<br><span style="font-size:0.7rem;font-weight:400;">matches method + path</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">Matched Handler<br><span style="font-size:0.7rem;font-weight:400;">app.get('/users/:id', fn)</span></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">Response Sent</div>
+        </div>
+      </div>
+      <div class="formula">app.METHOD(PATH, HANDLER);
+// app: Express app instance
+// METHOD: GET, POST, PUT, DELETE, etc.
+// PATH: the endpoint/route
+// HANDLER: function(req, res) executed for that route</div>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION — Routing</div>
+        <p>Routing subdivides a web application into multiple mini-applications, each with its own functionality, and maps HTTP requests (GET, POST, PUT, DELETE...) to specific handler functions using a routing table.</p>
+      </div>
+
+      <h4>Basic Routes</h4>
+      <pre><code>app.get('/home', (req, res) => {
+  res.send('Welcome to the Home Page!');
+});
+app.post('/submit', (req, res) => {
+  res.send('Form Submitted Successfully!');
+});</code></pre>
+
+      <h4>Route Parameters</h4>
+      <pre><code>app.get('/users/:userId', (req, res) => {
+  res.send(`User ID: ${req.params.userId}`);
+});
+// /users/42  ->  "User ID: 42"</code></pre>
+      <pre><code>// Optional parameter
+app.get('/products/:productId?', (req, res) => {
+  res.send(`Product ID: ${req.params.productId || 'No product selected'}`);
+});
+// /products/123  ->  "Product ID: 123"
+// /products/     ->  "No product selected"
+
+// Multiple parameters
+app.get('/posts/:category/:postId', (req, res) => {
+  res.send(`Category: ${req.params.category}, Post ID: ${req.params.postId}`);
+});
+// /posts/tech/456 -> "Category: tech, Post ID: 456"</code></pre>
+
+      <h4>Route Handlers &amp; next()</h4>
+      <pre><code>app.get('/example', (req, res, next) => {
+  console.log('First handler executed');
+  next(); // passes control to the next handler
+}, (req, res) => {
+  res.send('Response from second handler');
+});</code></pre>
+
+      <h4>Route Chaining with .route()</h4>
+      <pre><code>app.route('/user')
+  .get((req, res) => res.send('Get User'))
+  .post((req, res) => res.send('Create User'))
+  .put((req, res) => res.send('Update User'))
+  .delete((req, res) => res.send('Delete User'));</code></pre>
+      <p><strong>Explanation:</strong> <code>.route('/user')</code> lets you define handlers for multiple HTTP methods on the <em>same</em> path without repeating the path string.</p>
+
+      <h4>Express Router (Modular Routing)</h4>
+      <pre><code>const express = require('express');
+const Router = express.Router();
+
+Router.route('/')
+  .all((req, res, next) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    next();
+  })
+  .get((req, res) => {
+    res.end('GET response');
+  })
+  .post((req, res) => {
+    res.end('POST response');
+  });
+
+module.exports = Router;</code></pre>
+      <p><strong>Explanation:</strong> <code>.all()</code> applies to every HTTP method on that path (great for shared logic like headers), while <code>.get()</code>/<code>.post()</code> etc. handle specific methods.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Forgetting to call <code>next()</code> inside a middleware or chained handler <strong>hangs the request</strong> — the client waits forever because control never reaches the next function or the response is never sent.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. In the route <code>app.get('/users/:userId', ...)</code>, how do you access the value of <code>userId</code> inside the handler?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>req.query.userId</li>
+          <li>req.params.userId</li>
+          <li>req.body.userId</li>
+          <li>req.userId</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: req.params.userId.</strong> Route params (<code>:name</code>) are accessed via <code>req.params</code>.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. What does <code>.route('/user').get(...).post(...)</code> allow you to do?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>Chain multiple HTTP method handlers for the same path</li>
+          <li>Create two different servers</li>
+          <li>Automatically parse JSON</li>
+          <li>Redirect all requests</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Chain multiple HTTP method handlers for the same path,</strong> avoiding repeated path strings.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Middleware -->
+  <div class="topic" id="middleware">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>8. Middleware in Express <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>Middleware</strong> functions process requests <em>before</em> they reach the final route handler. They can modify the <code>req</code>/<code>res</code> objects, end the request-response cycle, or call <code>next()</code> to pass control onward. Middleware runs in the order it's defined.</p>
+      </div>
+
+      <h4>How Middleware Works</h4>
+      <ol>
+        <li><strong>Client sends request</strong> (e.g. <code>GET /users</code>)</li>
+        <li><strong>Middleware layer</strong> — request passes through each middleware in order; each can access/modify req &amp; res, run logging/auth/validation, then call <code>next()</code></li>
+        <li><strong>Server generates response</strong> after all middleware and the route handler run</li>
+        <li><strong>Response sent to client</strong></li>
+      </ol>
+
+      <div class="diagram">
+        <div class="diagram-title">Middleware Chain</div>
+        <div class="flow">
+          <div class="flow-box">Request</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">Middleware 1 (logger)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">Middleware 2 (auth)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">Route Handler</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">Response</div>
+        </div>
+        <div style="text-align:center;margin-top:10px;color:var(--text-faint);font-size:0.8rem;">Each middleware calls next() to pass control forward. The last function sends the response.</div>
+      </div>
+
+      <h4>Types of Middleware</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Type</th><th>Scope</th><th>Example</th></tr>
+          <tr><td>Application-level</td><td>Entire app — every route</td><td><code>app.use(express.json())</code></td></tr>
+          <tr><td>Router-level</td><td>Only routes on a specific router</td><td><code>router.use(fn)</code></td></tr>
+          <tr><td>Error-handling</td><td>Catches errors (4 params: err,req,res,next)</td><td><code>app.use((err,req,res,next)=>{...})</code></td></tr>
+          <tr><td>Built-in</td><td>Ships with Express</td><td><code>express.static()</code>, <code>express.json()</code></td></tr>
+          <tr><td>Third-party</td><td>Installed via npm</td><td><code>morgan</code>, <code>body-parser</code></td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">1. Application-level Middleware</div>
+      <pre><code>app.use(express.json()); // Parses JSON data for every incoming request
+app.use((req, res, next) => {
+  console.log('Request received:', req.method, req.url);
+  next();
+});</code></pre>
+
+      <div class="code-label">2. Router-level Middleware</div>
+      <pre><code>const router = express.Router();
+router.use((req, res, next) => {
+  console.log('Router-specific middleware');
+  next();
+});
+router.get('/dashboard', (req, res) => {
+  res.send('Dashboard Page');
+});
+app.use('/user', router); // middleware applies only under "/user"</code></pre>
+
+      <div class="code-label">3. Error-handling Middleware (4 params!)</div>
+      <pre><code>app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
+});</code></pre>
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Error-handling middleware <strong>must</strong> have exactly <strong>4 parameters</strong> (<code>err, req, res, next</code>) — with only 3, Express treats it as regular middleware and it will never catch errors. It must also be defined <strong>last</strong>, after all other routes/middleware.</p>
+      </div>
+
+      <div class="code-label">4. Built-in Middleware</div>
+      <pre><code>app.use(express.static('public')); // serves files from "public" folder
+app.use(express.json());           // parses JSON payloads</code></pre>
+
+      <div class="code-label">5. Third-party Middleware</div>
+      <pre><code>const morgan = require('morgan');
+app.use(morgan('dev')); // Logs HTTP requests using the "dev" format
+
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true })); // parses URL-encoded bodies</code></pre>
+
+      <h4>Full Middleware Chaining Example</h4>
+      <pre><code>const express = require('express');
+const app = express();
+
+// Middleware 1: Log request method and URL
+app.use((req, res, next) => {
+  console.log(`${req.method} request to ${req.url}`);
+  next();
+});
+
+// Middleware 2: Add a custom header
+app.use((req, res, next) => {
+  res.setHeader('X-Custom-Header', 'Middleware Chaining Example');
+  next();
+});
+
+// Route handler
+app.get('/', (req, res) => {
+  res.send('Hello, World!');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});</code></pre>
+
+      <h4>Advantages of Middleware</h4>
+      <div class="grid2">
+        <div class="grid-box pro">
+          <h5>Benefits</h5>
+          <ul>
+            <li>Modularity — breaks tasks into manageable functions</li>
+            <li>Reusability across routes/apps</li>
+            <li>Maintainability — logical organization</li>
+            <li>Centralized error handling</li>
+            <li>Performance (caching, compression, security)</li>
+          </ul>
+        </div>
+        <div class="grid-box con">
+          <h5>The next() function</h5>
+          <ul>
+            <li>Calls the next middleware in the chain</li>
+            <li>Without it, request "hangs" — no response sent</li>
+            <li>Modified req/res are available to later middleware</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. How many parameters must error-handling middleware have?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>2</li>
+          <li>3</li>
+          <li>4 (err, req, res, next)</li>
+          <li>1</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: 4 — (err, req, res, next).</strong> This signature is how Express identifies it as error-handling middleware.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Which built-in middleware serves static files like images and CSS?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>express.json()</li>
+          <li>express.static()</li>
+          <li>express.Router()</li>
+          <li>express.urlencoded()</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: express.static().</strong> e.g. <code>app.use(express.static('public'))</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Forms -->
+  <div class="topic" id="forms">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>9. Handling Forms with Express.js</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>Using server-side programming in Node.js, we can create forms where filled parameters get stored in a database (e.g. MongoDB).</p>
+
+      <h4>1. Setup Express</h4>
+      <div class="formula">npm init -y
+npm install express</div>
+
+      <h4>2. Basic Server with Body Parsing</h4>
+      <pre><code>const express = require('express');
+const app = express();
+const PORT = 3000;
+
+// Middleware to parse form data (urlencoded)
+app.use(express.urlencoded({ extended: true }));
+// Middleware to parse JSON (for APIs)
+app.use(express.json());
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});</code></pre>
+
+      <h4>3. HTML Form (Frontend)</h4>
+      <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Form Example&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;User Registration&lt;/h2&gt;
+  &lt;form action="/submit-form" method="POST"&gt;
+    &lt;label&gt;Name:&lt;/label&gt;
+    &lt;input type="text" name="name" required&gt;&lt;br&gt;&lt;br&gt;
+    &lt;label&gt;Email:&lt;/label&gt;
+    &lt;input type="email" name="email" required&gt;&lt;br&gt;&lt;br&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/body&gt;&lt;/html&gt;</code></pre>
+
+      <h4>4. Serving the Form</h4>
+      <pre><code>const path = require('path');
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'form.html'));
+});</code></pre>
+
+      <h4>5. Handling the Submission</h4>
+      <pre><code>app.post('/submit-form', (req, res) => {
+  const { name, email } = req.body; // extract form data
+  res.send(`Form submitted!&lt;br&gt;Name: ${name}&lt;br&gt;Email: ${email}`);
+});</code></pre>
+      <p><strong>Explanation:</strong> Because <code>express.urlencoded()</code> middleware was set up, the form's POST body is automatically parsed into <code>req.body</code>, giving direct access to <code>name</code> and <code>email</code>.</p>
+
+      <h4>6. Testing</h4>
+      <ol>
+        <li>Run: <code>node server.js</code></li>
+        <li>Open <code>http://localhost:3000/</code></li>
+        <li>Fill form → submit → data is displayed</li>
+      </ol>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>If you forget <code>app.use(express.urlencoded({extended:true}))</code>, <code>req.body</code> will be <code>undefined</code> for standard HTML form submissions.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. Which middleware is required to correctly parse a standard HTML form's POST data into req.body?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>express.static()</li>
+          <li>express.urlencoded({ extended: true })</li>
+          <li>express.Router()</li>
+          <li>express.listen()</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: express.urlencoded({ extended: true }).</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: Template Engines -->
+  <div class="topic" id="template-engines">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>10. Template Engines: EJS & Handlebars</h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout example">
+        <div class="callout-title">🟢 ANALOGY</div>
+        <p>Imagine sending invitation letters to 100 people. The layout is the same, but each needs a different name/address. Instead of typing 100 letters, you create <strong>one template</strong> — <code>"Hello {{name}}, you're invited..."</code> — and feed it data to generate 100 personalized letters automatically.</p>
+      </div>
+
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A <strong>Template Engine</strong> generates dynamic HTML using variables, loops, and conditions embedded inside static HTML files. It fills templates with data on the server side, then sends ordinary HTML to the client. Express supports EJS, Handlebars, Pug, and others.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Server-Side Rendering Flow</div>
+        <div class="flow">
+          <div class="flow-box">Client</div>
+          <span class="flow-arrow">→ HTTP Request →</span>
+          <div class="flow-box green">Server (Template Engine)</div>
+          <span class="flow-arrow">→ Rendered HTML →</span>
+          <div class="flow-box blue">rendered HTML file sent back</div>
+        </div>
+      </div>
+
+      <h4>How Server-Side Rendering Actually Works</h4>
+      <ol>
+        <li><strong>Request from Client</strong> — the browser sends an HTTP request to the server.</li>
+        <li><strong>Server Fetches Data</strong> — the server (e.g. Node.js/Express, Django, Flask) queries a database or other data source for the required data.</li>
+        <li><strong>Template Engine Renders HTML</strong> — the server passes that data to a template engine (EJS, Handlebars, Pug, Jinja2, etc.), which merges the HTML template (with placeholders/variables) and the server-side data into one complete HTML page.</li>
+        <li><strong>Response to Client</strong> — the server sends the fully rendered HTML back to the browser, which simply displays it — no extra templating logic runs on the client.</li>
+      </ol>
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p>In short: <strong>Data is extracted on the server → injected into the template on the server → sent as finished HTML to the client.</strong></p>
+      </div>
+
+      <h4>Features of Template Engines</h4>
+      <ul>
+        <li><strong>Code Reusability</strong> — define reusable templates, reduce duplication</li>
+        <li><strong>Separation of Concerns</strong> — presentation logic separated from application logic</li>
+        <li><strong>Dynamic Content</strong> — easily inject data-driven content</li>
+        <li><strong>Improved Productivity</strong> — focus on core functionality</li>
+      </ul>
+
+      <h4>1. EJS (Embedded JavaScript Templates)</h4>
+      <div class="formula">npm install ejs</div>
+      <pre><code>const express = require('express');
+const app = express();
+app.set('view engine', 'ejs');
+
+app.get('/', (req, res) => {
+  const data = { name: "Alice", items: ["Apple", "Banana", "Cherry"] };
+  res.render('index', data);
+});
+app.listen(3000);</code></pre>
+      <div class="code-label">views/index.ejs</div>
+      <pre><code>&lt;h1&gt;Hello &lt;%= name %&gt;!&lt;/h1&gt;
+&lt;h2&gt;Your Items:&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;% items.forEach(item => { %&gt;
+    &lt;li&gt;&lt;%= item %&gt;&lt;/li&gt;
+  &lt;% }) %&gt;
+&lt;/ul&gt;</code></pre>
+      <p><strong>Explanation:</strong> <code>&lt;%= %&gt;</code> outputs a value; <code>&lt;% %&gt;</code> runs plain JS logic (like the <code>forEach</code> loop) without printing anything.</p>
+
+      <h4>2. Handlebars (hbs)</h4>
+      <div class="formula">npm install hbs</div>
+      <pre><code>const express = require('express');
+const app = express();
+app.set('view engine', 'hbs');
+
+app.get('/', (req, res) => {
+  const data = { name: "Bob", items: ["Laptop", "Phone", "Tablet"] };
+  res.render('index', data);
+});</code></pre>
+      <div class="code-label">views/index.hbs</div>
+      <pre><code>&lt;h1&gt;Hello {{name}}!&lt;/h1&gt;
+&lt;h2&gt;Your Items:&lt;/h2&gt;
+&lt;ul&gt;
+  {{#each items}}
+    &lt;li&gt;{{this}}&lt;/li&gt;
+  {{/each}}
+&lt;/ul&gt;</code></pre>
+
+      <h4>EJS vs Handlebars</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Feature</th><th>EJS</th><th>Handlebars</th></tr>
+          <tr><td>Syntax</td><td><code>&lt;%= %&gt;</code>, <code>&lt;% %&gt;</code></td><td><code>{{ }}</code> blocks</td></tr>
+          <tr><td>Logic in templates</td><td>Allows inline JS (if, for, etc.)</td><td>Limited logic — uses helpers instead</td></tr>
+          <tr><td>Learning curve</td><td>Easy (JS-like)</td><td>Easy (HTML-like with Mustache syntax)</td></tr>
+          <tr><td>Best use case</td><td>Quick, flexible prototyping</td><td>Safer, cleaner separation — less JS in templates</td></tr>
+        </table>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ</span>
+        <div class="mcq-q">Q. In EJS syntax, what does <code>&lt;%= name %&gt;</code> do compared to <code>&lt;% code %&gt;</code>?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>Outputs the value of "name" to the HTML, while &lt;% %&gt; just runs JS logic silently</li>
+          <li>Both do exactly the same thing</li>
+          <li>&lt;%= %&gt; is used only for loops</li>
+          <li>&lt;% %&gt; is used to import files</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: &lt;%= %&gt; outputs a value; &lt;% %&gt; runs logic without printing.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC: REST API -->
+  <div class="topic" id="restapi">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>11. RESTful APIs & HTTP Methods <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>REST</strong> (Representational State Transfer) is an architectural design style for APIs that allows communication between systems over the internet. REST APIs typically exchange <strong>JSON</strong> between client and server. HTTP methods map directly to <strong>CRUD</strong> operations.</p>
+      </div>
+
+      <h4>The 5 Common HTTP Methods</h4>
+      <div class="diagram">
+        <div class="diagram-title">HTTP Methods Mapped to CRUD</div>
+        <div class="flow">
+          <div class="flow-col"><div class="flow-box green">GET</div><span style="font-size:0.72rem;color:var(--text-faint);">Read</span></div>
+          <div class="flow-col"><div class="flow-box blue">POST</div><span style="font-size:0.72rem;color:var(--text-faint);">Create</span></div>
+          <div class="flow-col"><div class="flow-box gold" style="border-color:var(--gold);color:var(--gold);">PUT</div><span style="font-size:0.72rem;color:var(--text-faint);">Replace</span></div>
+          <div class="flow-col"><div class="flow-box gold" style="border-color:var(--gold);color:var(--gold);">PATCH</div><span style="font-size:0.72rem;color:var(--text-faint);">Partial Update</span></div>
+          <div class="flow-col"><div class="flow-box red">DELETE</div><span style="font-size:0.72rem;color:var(--text-faint);">Delete</span></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Method</th><th>CRUD</th><th>Purpose</th><th>Success Code</th></tr>
+          <tr><td><strong>GET</strong></td><td>Read</td><td>Retrieve a representation of a resource</td><td>200 OK</td></tr>
+          <tr><td><strong>POST</strong></td><td>Create</td><td>Create a new (subordinate) resource</td><td>201 Created</td></tr>
+          <tr><td><strong>PUT</strong></td><td>Update/Create</td><td>Replace the <em>entire</em> resource</td><td>200 OK</td></tr>
+          <tr><td><strong>PATCH</strong></td><td>Update</td><td>Partially update specific fields only</td><td>200 OK</td></tr>
+          <tr><td><strong>DELETE</strong></td><td>Delete</td><td>Delete a resource identified by URI</td><td>200 OK</td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">GET</div>
+      <pre><code>GET /users/123
+// Fetches data for user with ID 123
+// Errors: 404 (Not Found) or 400 (Bad Request)</code></pre>
+
+      <div class="code-label">POST</div>
+      <pre><code>POST /users
+{
+  "name": "Anjali",
+  "email": "gfg@example.com"
+}
+// Creates a new user. Returns 201 Created + Location header.</code></pre>
+
+      <div class="code-label">PUT</div>
+      <pre><code>PUT /users/123
+{
+  "name": "Anjali",
+  "email": "gfg@example.com"
+}
+// Replaces the entire resource at /users/123 (creates it if absent)</code></pre>
+
+      <div class="code-label">PATCH</div>
+      <pre><code>PATCH /users/123
+{ "email": "new.email@example.com" }
+// Updates ONLY the email field, leaves rest unchanged</code></pre>
+
+      <div class="code-label">DELETE</div>
+      <pre><code>DELETE /users/123
+// Deletes the user with ID 123</code></pre>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 PUT vs PATCH — Classic Exam Question</div>
+        <p><strong>PUT</strong> replaces the <em>whole</em> resource (you must send all fields, or missing ones may be wiped/reset). <strong>PATCH</strong> updates <em>only</em> the fields you send, leaving everything else untouched.</p>
+      </div>
+
+      <h4>Full Express REST API Example</h4>
+      <pre><code>const express = require('express');
+const app = express();
+const port = 3000;
+app.use(express.json());
+
+app.get('/users', (req, res) => {
+  res.json({ message: 'Returning list of users' });
+});
+
+app.post('/users', (req, res) => {
+  const newUser = req.body;
+  res.json({ message: 'User created', user: newUser });
+});
+
+app.put('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const updatedUser = req.body;
+  res.json({ message: `User with ID ${userId} updated`, updatedUser });
+});
+
+app.delete('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  res.json({ message: `User with ID ${userId} deleted` });
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});</code></pre>
+
+      <h4>Features of REST APIs</h4>
+      <ul>
+        <li><strong>Stateless</strong> — every request must contain all info needed; no session stored server-side.</li>
+        <li><strong>Client-Server Architecture</strong> — client and server operate independently, enabling scalability.</li>
+        <li><strong>Cacheable</strong> — responses can be marked cacheable/non-cacheable.</li>
+        <li><strong>Uniform Interface</strong> — consistent URL paths, HTTP methods, status codes.</li>
+        <li><strong>Layered System</strong> — can be deployed across multiple layers for scalability/security.</li>
+      </ul>
+
+      <h4>Real-World Uses of REST APIs</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Industry</th><th>Example Use</th></tr>
+          <tr><td>Social Media</td><td>Login, sharing, posting via Facebook/Twitter/Instagram integration</td></tr>
+          <tr><td>E-Commerce</td><td>Product management, payments, orders, customer management</td></tr>
+          <tr><td>Geolocation</td><td>GPS tracking, real-time location updates</td></tr>
+          <tr><td>Weather</td><td>Fetching real-time forecasts from external sources</td></tr>
+        </table>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. Which HTTP method should you use to update ONLY the email field of a user, leaving other fields unchanged?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>PUT</li>
+          <li>POST</li>
+          <li>PATCH</li>
+          <li>GET</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: PATCH.</strong> PUT would require sending the entire resource; PATCH only needs the changed field(s).</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. What HTTP status code indicates successful resource creation via POST?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>200 OK</li>
+          <li>201 Created</li>
+          <li>404 Not Found</li>
+          <li>500 Internal Server Error</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: 201 Created,</strong> typically along with a Location header pointing to the new resource.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 3</span>
+        <div class="mcq-q">Q. "Stateless" in REST means:</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>The server remembers all past client requests</li>
+          <li>Each request must contain all information the server needs — no session state is stored server-side</li>
+          <li>The client cannot send any data</li>
+          <li>REST APIs cannot use HTTPS</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Each request must be self-contained;</strong> no server-side session state.</div>
+      </div>
+    </div>
+  </div>
+  <!-- TOPIC: Auth -->
+  <div class="topic" id="auth">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>12. User Authentication: Sessions vs JWT <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+      <p>Sessions and JSON Web Tokens (JWT) are two methods for a website to remember a logged-in user across multiple requests, since the underlying HTTP protocol is <strong>stateless</strong> (it "forgets" who you are after every interaction). The key difference is <strong>where the user's data is stored</strong>.</p>
+
+      <h4>Sessions (Stateful Authentication)</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>With session-based authentication, the <strong>server</strong> creates and stores a record of the logged-in user.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Session-Based Authentication Flow</div>
+        <div class="flow">
+          <div class="flow-box">1. Login (credentials)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">2. Server creates Session + stores it server-side</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">3. Server sends Session ID as a cookie</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">4. Browser auto-sends cookie on every request</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box">5. Server looks up session by ID</div>
+        </div>
+      </div>
+      <ol>
+        <li><strong>Log in:</strong> User submits credentials; server validates them.</li>
+        <li><strong>Create session:</strong> Server generates a unique <strong>Session ID</strong> and stores it with the user's info (user ID, access level).</li>
+        <li><strong>Send cookie:</strong> Server sends the Session ID to the browser as a <strong>cookie</strong>.</li>
+        <li><strong>Subsequent requests:</strong> Browser automatically sends the cookie back; server looks up the session data using the Session ID to verify identity.</li>
+      </ol>
+
+      <h4>JWT (Stateless Authentication)</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p>A <strong>JSON Web Token (JWT)</strong> is a secure way to send information between client and server — JSON data secured with a cryptographic signature (via <strong>HMAC</strong>, or asymmetric methods like <strong>RSA/ECDSA</strong>).</p>
+      </div>
+      <ol>
+        <li><strong>Log in:</strong> User sends credentials.</li>
+        <li><strong>Generate token:</strong> Server verifies credentials, creates a JWT containing a JSON payload (user ID, expiration, claims), digitally signed with a secret key.</li>
+        <li><strong>Return token:</strong> Server sends the JWT to the client.</li>
+        <li><strong>Subsequent requests:</strong> Client sends the JWT in the <code>Authorization: Bearer &lt;token&gt;</code> header.</li>
+        <li><strong>Verify token:</strong> Server verifies the signature using its secret/public key — <strong>no database lookup needed</strong>.</li>
+      </ol>
+
+      <div class="diagram">
+        <div class="diagram-title">JWT Authorization Flow</div>
+        <div class="flow">
+          <div class="flow-box">1. Login (credentials)</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box blue">2. Server generates & sends JWT</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box green">3. Client stores & sends JWT in Authorization header</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box red">4. Server verifies signature</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-box">5. Access granted / denied</div>
+        </div>
+      </div>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — JWT Structure</div>
+        <p>A JWT string has 3 parts separated by dots: <code>Header.Payload.Signature</code> — e.g. <code>xxxxx.yyyyy.zzzzz</code>. The <strong>Header</strong> specifies the algorithm; the <strong>Payload</strong> holds claims (user ID, expiry); the <strong>Signature</strong> verifies the token hasn't been tampered with.</p>
+      </div>
+
+      <h4>🔎 Deep Dive: Structure of a JWT</h4>
+
+      <div class="code-label">1. Header — metadata about the token</div>
+      <pre><code>{
+  "alg": "HS256",
+  "typ": "JWT"
+}</code></pre>
+      <p><code>alg</code>: the algorithm used for signing (e.g. HS256, RS256). <code>typ</code>: the token type, always "JWT". This gets Base64Url encoded, e.g. <code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</code>.</p>
+
+      <div class="code-label">2. Payload — the claims (data about the user)</div>
+      <pre><code>{
+  "userId": 123,
+  "role": "admin",
+  "exp": 1672531199
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Common Claim</th><th>Meaning</th></tr>
+          <tr><td><code>iss</code> (Issuer)</td><td>Identifies who issued the token</td></tr>
+          <tr><td><code>sub</code> (Subject)</td><td>Represents the user or entity the token is about</td></tr>
+          <tr><td><code>aud</code> (Audience)</td><td>Specifies the intended recipient</td></tr>
+          <tr><td><code>exp</code> (Expiration)</td><td>Defines when the token expires</td></tr>
+          <tr><td><code>iat</code> (Issued At)</td><td>Timestamp when the token was created</td></tr>
+          <tr><td><code>nbf</code> (Not Before)</td><td>Specifies when the token becomes valid</td></tr>
+        </table>
+      </div>
+
+      <div class="code-label">3. Signature — ensures token integrity</div>
+      <div class="formula">HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  secret
+)</div>
+      <p><strong>Explanation:</strong> The signature is generated from the encoded header + payload combined with a secret key, using the algorithm named in the header (HS256 here). If anyone tampers with the header or payload, re-computing this signature on the server will no longer match — proving the token was altered.</p>
+
+      <div class="code-label">4. Final JWT — Header.Payload.Signature joined by dots</div>
+      <pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMywicm9sZSI6ImFkbWluIiwiZXhwIjoxNjcyNTMxMTk5fQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+      <p>This is what actually gets sent in the <code>Authorization: Bearer &lt;token&gt;</code> header on every authenticated request.</p>
+
+      <h4>Sessions vs JWT — Comparison</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>Sessions</th><th>JWT</th></tr>
+          <tr><td>Storage location</td><td>Server (memory/DB) + cookie with Session ID</td><td>Client-side (localStorage/cookie/memory)</td></tr>
+          <tr><td>State</td><td>Stateful — server tracks sessions</td><td>Stateless — server verifies signature only</td></tr>
+          <tr><td>Scalability</td><td>Harder (needs shared session store across servers)</td><td>Easier — no server-side storage needed</td></tr>
+          <tr><td>Revocation</td><td>Easy — just delete the session record</td><td>Hard — token valid until expiry unless blacklisted</td></tr>
+          <tr><td>Best for</td><td>Traditional web apps</td><td>APIs & mobile apps</td></tr>
+        </table>
+      </div>
+
+      <div class="grid2">
+        <div class="grid-box pro">
+          <h5>JWT — Pros</h5>
+          <ul>
+            <li>No DB lookup needed to verify a request</li>
+            <li>Stateless — scales horizontally with ease</li>
+            <li>Works well cross-domain / for mobile apps</li>
+          </ul>
+        </div>
+        <div class="grid-box con">
+          <h5>JWT — Cons</h5>
+          <ul>
+            <li>Cannot easily invalidate a token before expiry (needs a blacklist)</li>
+            <li>Larger payload than a simple session ID cookie</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Storing JWTs in <code>localStorage</code> exposes them to XSS attacks. A more secure practice is storing JWTs in an <strong>HttpOnly cookie</strong>, which JavaScript cannot access.</p>
+      </div>
+
+      <h4>Passport.js — Authentication Middleware</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>Passport.js</strong> is authentication middleware for Node.js. It's extremely flexible and modular via "strategies" — small plug-in modules for each authentication method (local username/password, JWT, Google OAuth, Facebook, etc.), letting you add authentication to any Express app without rewriting core logic.</p>
+      </div>
+
+      <div class="code-label">Passport Local Strategy — Setup</div>
+      <pre><code>npm install passport passport-local express-session</code></pre>
+      <pre><code>const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+
+app.use(session({ secret: 'mySecretKey', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Define the local strategy
+passport.use(new LocalStrategy((username, password, done) => {
+  // Look up user in DB (pseudo-code)
+  findUser(username, (err, user) => {
+    if (err) return done(err);
+    if (!user || user.password !== password) {
+      return done(null, false, { message: 'Incorrect credentials.' });
+    }
+    return done(null, user);
+  });
+}));
+
+// Store user id in session
+passport.serializeUser((user, done) => done(null, user.id));
+// Retrieve user from id stored in session
+passport.deserializeUser((id, done) => {
+  findUserById(id, (err, user) => done(err, user));
+});</code></pre>
+
+      <div class="code-label">Login Route using Passport</div>
+      <pre><code>app.post('/login',
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('/dashboard'); // Successful authentication
+  }
+);</code></pre>
+      <p><strong>Explanation:</strong> <code>passport.authenticate('local', ...)</code> runs the strategy defined above. On success it calls <code>next()</code> into the route handler; on failure it redirects to <code>/login</code>.</p>
+
+      <h4>Building a Simple Auth System (Login/Signup)</h4>
+      <div class="code-label">Signup Route — hashing password with bcrypt</div>
+      <pre><code>const bcrypt = require('bcrypt');
+
+app.post('/signup', async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10); // 10 = salt rounds
+  // Save { username, hashedPassword } to database (pseudo-code)
+  saveUser({ username, password: hashedPassword });
+  res.send('Signup successful!');
+});</code></pre>
+
+      <div class="code-label">Login Route — verify password + issue JWT</div>
+      <pre><code>const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  const user = await findUser(username); // pseudo-code lookup
+
+  if (!user) return res.status(400).send('User not found');
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).send('Invalid credentials');
+
+  const token = jwt.sign({ id: user.id, username: user.username }, 'secretKey', { expiresIn: '1h' });
+  res.json({ message: 'Login successful', token });
+});</code></pre>
+
+      <div class="code-label">Protected Route — verifying the JWT</div>
+      <pre><code>function verifyToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // "Bearer &lt;token&gt;"
+  if (!token) return res.status(401).send('No token provided');
+
+  jwt.verify(token, 'secretKey', (err, decoded) => {
+    if (err) return res.status(403).send('Invalid token');
+    req.user = decoded;
+    next();
+  });
+}
+
+app.get('/dashboard', verifyToken, (req, res) => {
+  res.send(`Welcome ${req.user.username}!`);
+});</code></pre>
+      <p><strong>Explanation:</strong> <code>bcrypt.hash()</code> never stores plain-text passwords. <code>jwt.sign()</code> issues a signed token on successful login. <code>verifyToken</code> is custom middleware that checks the <code>Authorization</code> header before allowing access to protected routes.</p>
+
+      <div class="callout warning">
+        <div class="callout-title">🔴 COMMON MISTAKE</div>
+        <p>Never store plain-text passwords in the database, and never hardcode the JWT secret key directly in source code for production — use environment variables (<code>.env</code> + <code>dotenv</code> package).</p>
+      </div>
+
+      <h4>Quick Summary</h4>
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE</div>
+        <p><strong>Sessions</strong>: stateful, good for traditional web apps. <strong>JWT</strong>: stateless, good for APIs & mobile apps.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. In session-based auth, where is the user's session data primarily stored?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>Only in the browser's localStorage</li>
+          <li>On the server, referenced by a Session ID in a cookie</li>
+          <li>Inside the JWT payload</li>
+          <li>In the URL query string</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: On the server</strong> — the client only holds a Session ID cookie that references it.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. Why is JWT called "stateless" authentication?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>Because it never expires</li>
+          <li>Because it uses cookies exclusively</li>
+          <li>Because the server doesn't need to store session data — it just verifies the token's signature</li>
+          <li>Because it doesn't use cryptography</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: The server verifies the signature without any DB/session lookup.</strong></div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 3</span>
+        <div class="mcq-q">Q. Which npm package is commonly used to hash passwords securely before storing them?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>jsonwebtoken</li>
+          <li>bcrypt</li>
+          <li>express-session</li>
+          <li>cors</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: bcrypt.</strong> <code>jsonwebtoken</code> is for creating/verifying JWTs, not hashing passwords.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 4</span>
+        <div class="mcq-q">Q. What is Passport.js primarily used for?</div>
+        <ul class="mcq-options" data-answer="0">
+          <li>Authentication middleware for Node.js, using pluggable "strategies"</li>
+          <li>A database ORM for MongoDB</li>
+          <li>A template engine like EJS</li>
+          <li>A frontend framework like React</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Authentication middleware</strong> with pluggable strategies (local, JWT, OAuth providers, etc.).</div>
+      </div>
+    </div>
+  </div>
+  <!-- TOPIC: WebSockets & GraphQL -->
+  <div class="topic" id="realtime">
+    <div class="topic-head" onclick="toggleTopic(this)">
+      <h3>13. Real-Time & Modern APIs: WebSockets & GraphQL <span class="fire-badge">🔥 High Priority</span></h3>
+      <span class="topic-toggle">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <h4>WebSockets</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>WebSocket</strong> is a protocol providing a <strong>persistent, full-duplex connection</strong> between client and server over a single TCP connection — unlike HTTP's request→response model, WebSocket allows continuous, bidirectional communication. Used in chat apps, live notifications, stock tickers, and multiplayer games.</p>
+      </div>
+
+      <h4>How WebSocket Works</h4>
+      <ol>
+        <li><strong>Handshake:</strong> Client sends an HTTP request asking to "upgrade" to WebSocket. Server responds with HTTP status <strong>101 Switching Protocols</strong>.</li>
+        <li><strong>Persistent Connection:</strong> Once established, the connection stays open for continuous data exchange.</li>
+        <li><strong>Full-Duplex Communication:</strong> Both sides can send and receive data <em>simultaneously</em>.</li>
+        <li><strong>Data Frames:</strong> Data is sent as frames (text, binary, or control frames) for efficient transfer.</li>
+      </ol>
+
+      <div class="diagram">
+        <div class="diagram-title">HTTP vs WebSocket</div>
+        <div class="grid2" style="margin:0;">
+          <div class="grid-box">
+            <h5 style="color:var(--red);">HTTP (Request-Response)</h5>
+            <div class="flow" style="flex-direction:column;gap:6px;">
+              <div class="flow-box red" style="width:100%;">Request →</div>
+              <div class="flow-box" style="width:100%;">Response (connection closes)</div>
+              <div class="flow-box red" style="width:100%;">New Request needed for next data</div>
+            </div>
+          </div>
+          <div class="grid-box">
+            <h5 style="color:var(--green);">WebSocket (Persistent)</h5>
+            <div class="flow" style="flex-direction:column;gap:6px;">
+              <div class="flow-box green" style="width:100%;">Handshake (HTTP 101 Upgrade)</div>
+              <div class="flow-box green" style="width:100%;">⇅ Connection stays OPEN</div>
+              <div class="flow-box green" style="width:100%;">Data flows both ways, anytime</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 1</span>
+        <div class="mcq-q">Q. What HTTP status code indicates a successful WebSocket handshake upgrade?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>200 OK</li>
+          <li>101 Switching Protocols</li>
+          <li>301 Moved Permanently</li>
+          <li>426 Upgrade Required</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: 101 Switching Protocols.</strong></div>
+      </div>
+
+      <h4>GraphQL</h4>
+      <div class="callout definition">
+        <div class="callout-title">🟡 DEFINITION</div>
+        <p><strong>GraphQL</strong> is a query language for APIs (developed by Facebook) and a server-side runtime for executing queries. It's an alternative to REST that lets clients request <strong>exactly the data they need</strong> — no more, no less — through a <strong>single endpoint</strong>.</p>
+      </div>
+
+      <div class="callout example">
+        <div class="callout-title">🟢 EXAMPLE — REST vs GraphQL</div>
+        <p>To get a blog post AND its author's info via REST, you typically need <strong>two separate requests</strong> (one for the post, one for the author). In GraphQL, you request both in <strong>one single query</strong>, reducing network overhead.</p>
+      </div>
+
+      <div class="diagram">
+        <div class="diagram-title">Multiple Endpoints (REST) vs Single Endpoint (GraphQL)</div>
+        <div class="grid2" style="margin:0;">
+          <div class="grid-box">
+            <h5 style="color:var(--red);">REST — many endpoints</h5>
+            <div class="flow" style="flex-direction:column;gap:6px;">
+              <div class="flow-box red" style="width:100%;">GET /posts/1</div>
+              <div class="flow-box red" style="width:100%;">GET /users/5 &nbsp;(2nd request for author)</div>
+            </div>
+          </div>
+          <div class="grid-box">
+            <h5 style="color:var(--green);">GraphQL — one endpoint</h5>
+            <div class="flow" style="flex-direction:column;gap:6px;">
+              <div class="flow-box green" style="width:100%;">POST /graphql</div>
+              <div class="flow-box green" style="width:100%;">{ post { title author { name } } }</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-label">GraphQL Query Example</div>
+      <pre><code>{
+  user(id: 1) {
+    name
+    posts {
+      title
+    }
+  }
+}
+// One request. Returns exactly { name, posts.title } — nothing more.</code></pre>
+
+      <div class="code-label">GraphQL Schema Example</div>
+      <pre><code>type Book {
+  id: ID!
+  title: String!
+  author: String!
+  publishedYear: Int
+}
+
+type Query {
+  getBooks: [Book!]!
+  getBookById(id: ID!): Book
+}
+
+type Mutation {
+  addBook(title: String!, author: String!, publishedYear: Int): Book
+  deleteBook(id: ID!): String
+}</code></pre>
+      <p><strong>Explanation:</strong> <code>Book</code> defines the data shape. <code>Query</code> defines read operations (like GET in REST). <code>Mutation</code> defines write operations (like POST/PUT/DELETE in REST). <code>!</code> means the field is non-nullable (required).</p>
+
+      <h4>Key Concepts</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Concept</th><th>Meaning</th></tr>
+          <tr><td>Schema</td><td>Defines the structure of the API — types, queries, mutations</td></tr>
+          <tr><td>Query</td><td>A client request to read data (like asking a DB)</td></tr>
+          <tr><td>Mutation</td><td>A request to modify data (like POST/PUT in REST)</td></tr>
+        </table>
+      </div>
+
+      <h4>REST vs GraphQL — Comparison</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Aspect</th><th>REST</th><th>GraphQL</th></tr>
+          <tr><td>Endpoints</td><td>Multiple endpoints (one per resource)</td><td>Single endpoint for all data</td></tr>
+          <tr><td>Data fetching</td><td>Fixed shape — risk of over/under-fetching</td><td>Client specifies exactly what it needs</td></tr>
+          <tr><td>Typing</td><td>No built-in type system</td><td>Strongly typed schema (self-documenting)</td></tr>
+          <tr><td>Real-time</td><td>Needs separate solution (e.g. WebSockets)</td><td>Built-in Subscriptions</td></tr>
+          <tr><td>Related data</td><td>Multiple round trips</td><td>Single query fetches nested/related data</td></tr>
+        </table>
+      </div>
+
+      <h4>Key Features of GraphQL</h4>
+      <ul>
+        <li><strong>Flexible Queries</strong> — avoid over-fetching and under-fetching.</li>
+        <li><strong>Strongly Typed</strong> — schemas reduce runtime errors.</li>
+        <li><strong>Real-time Updates</strong> — supports Subscriptions.</li>
+        <li><strong>Single Endpoint</strong> — unlike REST's many endpoints.</li>
+      </ul>
+
+      <div class="callout note">
+        <div class="callout-title">🔵 NOTE — Syllabus Scope</div>
+        <p>This module covers GraphQL only at a <strong>concept level</strong> — understanding what it is and how it differs from REST, not deep implementation.</p>
+      </div>
+
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 2</span>
+        <div class="mcq-q">Q. What is the main advantage of GraphQL over REST when fetching related data (e.g. a post and its author)?</div>
+        <ul class="mcq-options" data-answer="2">
+          <li>GraphQL is always faster to code</li>
+          <li>GraphQL doesn't need a server</li>
+          <li>GraphQL can fetch both in a single query, reducing network overhead</li>
+          <li>REST cannot fetch related data at all</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: A single GraphQL query can fetch both,</strong> whereas REST often needs two separate requests.</div>
+      </div>
+      <div class="mcq-block">
+        <span class="mcq-tag">MCQ 3</span>
+        <div class="mcq-q">Q. In GraphQL, which type is used to modify/write data (equivalent to POST/PUT/DELETE in REST)?</div>
+        <ul class="mcq-options" data-answer="1">
+          <li>Query</li>
+          <li>Mutation</li>
+          <li>Schema</li>
+          <li>Subscription</li>
+        </ul>
+        <div class="mcq-answer">✅ <strong>Answer: Mutation.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /topics-wrap module4 -->
+</section>
+
+  <div class="mcq-navpanel" id="mcq-nav-panel">
+    <h3>📝 Quick MCQ Navigation</h3>
+    <p style="color:var(--text-dim);font-size:0.88rem;margin-top:-4px;">Jump straight to the MCQs for any topic — great for last-minute revision.</p>
+    <div class="mcq-navgrid">
+      <a href="#mvc">1. MVC Pattern 🔥</a>
+      <a href="#container-presentational">2. Presentational/Container</a>
+      <a href="#hoc">3. HOC Pattern 🔥</a>
+      <a href="#custom-hooks">4. Custom Hooks 🔥</a>
+      <a href="#context-api">5. Context API 🔥</a>
+      <a href="#react-basics">6. React Basics 🔥</a>
+      <a href="#hooks-router">7. Router & Hooks 🔥</a>
+      <a href="#lifecycle">8. Component Lifecycle 🔥</a>
+      <a href="#conditional-rendering">9. Conditional Rendering</a>
+      <a href="#pwa">10. PWAs</a>
+      <a href="#nodejs">11. Node.js Intro 🔥</a>
+      <a href="#modules">12. Node.js Modules</a>
+      <a href="#npm">13. NPM</a>
+      <a href="#async">14. Async Programming 🔥</a>
+      <a href="#filesystem">15. File System 🔥</a>
+      <a href="#eventloop">16. Event Loop 🔥</a>
+      <a href="#expressjs">17. Express Setup/Routing 🔥</a>
+      <a href="#middleware">18. Middleware 🔥</a>
+      <a href="#forms">19. Handling Forms</a>
+      <a href="#template-engines">20. Template Engines</a>
+      <a href="#restapi">21. REST APIs 🔥</a>
+      <a href="#auth">22. Auth: Sessions/JWT 🔥</a>
+      <a href="#realtime">23. WebSockets/GraphQL 🔥</a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  Study notes generated from Module 3 (Client-Side Framework) &amp; Module 4 (Server-Side Web Development) course material.<br>
+  🔥 = topics with high exam probability based on emphasis and depth of coverage in source material. Good luck on your exam!
+</div>
+
+<div class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+function toggleTopic(headEl){
+  const topic = headEl.closest('.topic');
+  topic.classList.toggle('collapsed');
+}
+function toggleModule(headEl){
+  const module = headEl.closest('.module');
+  module.classList.toggle('collapsed');
+}
+
+function collapseAll(){
+  document.querySelectorAll('.topic').forEach(t => t.classList.add('collapsed'));
+  document.querySelectorAll('.module').forEach(m => m.classList.add('collapsed'));
+}
+function expandAll(){
+  document.querySelectorAll('.topic').forEach(t => t.classList.remove('collapsed'));
+  document.querySelectorAll('.module').forEach(m => m.classList.remove('collapsed'));
+}
+
+// MCQ interactivity: click an option to reveal correct/incorrect + explanation
+document.querySelectorAll('.mcq-options').forEach(function(ul){
+  const correctIdx = parseInt(ul.getAttribute('data-answer'), 10);
+  const items = ul.querySelectorAll('li');
+  items.forEach(function(li, idx){
+    li.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(ul.classList.contains('answered')) return;
+      ul.classList.add('answered');
+      items.forEach(function(other, oIdx){
+        if(oIdx === correctIdx) other.classList.add('correct');
+        else if(oIdx === idx) other.classList.add('wrong');
+      });
+      const answerBox = ul.parentElement.querySelector('.mcq-answer');
+      if(answerBox) answerBox.classList.add('show');
+    });
+  });
+});
+
+// Prevent topic-head click bubbling from mcq clicks inside body (safety net)
+document.querySelectorAll('.topic-body').forEach(function(body){
+  body.addEventListener('click', function(e){ e.stopPropagation(); });
+});
+
+// Scroll progress bar + back-to-top button
+const progressBar = document.getElementById('progressBar');
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', function(){
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop/docHeight)*100 : 0;
+  progressBar.style.width = pct + '%';
+  if(scrollTop > 500) backTop.classList.add('show');
+  else backTop.classList.remove('show');
+});
+</script>
+</body>
+</html>

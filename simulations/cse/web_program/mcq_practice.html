@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam MCQ Practice — Module 3 & 4</title>
+<style>
+:root{
+  --bg:#0f0e11;
+  --card:#1e1c22;
+  --border:#2e2c35;
+  --gold:#c4a35a;
+  --blue:#7c9ec9;
+  --green:#8dbf8d;
+  --red:#c98a7c;
+  --text:#e9e7ec;
+  --text-dim:#a9a6b0;
+  --text-faint:#78757e;
+  --mono:'JetBrains Mono','Fira Code',Consolas,'Courier New',monospace;
+  --sans:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;font-size:16px;}
+code{font-family:var(--mono);background:rgba(196,163,90,0.12);color:var(--gold);padding:1px 6px;border-radius:4px;font-size:0.85em;}
+a{color:var(--blue);}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,14,17,0.94);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-inner{
+  max-width:900px;margin:0 auto;padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.brand{color:var(--gold);font-weight:700;font-size:1.05rem;white-space:nowrap;}
+.score-pill{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:6px 16px;font-size:0.86rem;color:var(--text-dim);
+}
+.score-pill strong{color:var(--green);}
+.score-pill .wrong-count{color:var(--red);}
+.progress-track{
+  height:5px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:10px;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--gold),var(--blue));width:0%;
+  transition:width .3s ease;
+}
+
+/* ===== HERO ===== */
+.hero{max-width:900px;margin:0 auto;padding:38px 20px 10px;}
+.hero h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:0 0 8px;color:#f3f1ee;}
+.hero p{color:var(--text-dim);margin:0 0 18px;max-width:620px;}
+
+/* ===== FILTER BAR ===== */
+.filterbar{
+  max-width:900px;margin:0 auto;padding:0 20px 20px;
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.filter-btn{
+  background:var(--card);border:1px solid var(--border);color:var(--text-dim);
+  padding:8px 16px;border-radius:20px;font-size:0.84rem;cursor:pointer;
+  transition:all .15s ease;
+}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+.filter-btn.active{background:rgba(196,163,90,0.12);border-color:var(--gold);color:var(--gold);}
+.restart-btn{
+  margin-left:auto;background:rgba(201,138,124,0.1);border:1px solid var(--red);
+  color:var(--red);padding:8px 16px;border-radius:20px;font-size:0.84rem;cursor:pointer;
+}
+.restart-btn:hover{background:rgba(201,138,124,0.2);}
+
+/* ===== CONTAINER ===== */
+.container{max-width:900px;margin:0 auto;padding:0 20px 80px;}
+
+.module-divider{
+  display:flex;align-items:center;gap:12px;margin:36px 0 18px;
+  color:var(--gold);font-size:1.1rem;font-weight:700;
+}
+.module-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ===== QUESTION CARD ===== */
+.qcard{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:20px 22px;margin-bottom:16px;
+}
+.qcard.correct-state{border-color:var(--green);}
+.qcard.wrong-state{border-color:var(--red);}
+.qmeta{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+  font-size:0.72rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.04em;
+}
+.qmeta .qnum{color:var(--blue);font-weight:700;}
+.difficulty{
+  padding:2px 9px;border-radius:12px;font-size:0.68rem;font-weight:700;letter-spacing:0.03em;
+}
+.difficulty.hard{background:rgba(201,138,124,0.15);color:var(--red);border:1px solid rgba(201,138,124,0.4);}
+.difficulty.applied{background:rgba(124,158,201,0.15);color:var(--blue);border:1px solid rgba(124,158,201,0.4);}
+.qtext{font-size:1rem;color:var(--text);margin-bottom:14px;font-weight:600;}
+.qtext code{white-space:pre-wrap;}
+pre.qcode{
+  background:#141317;border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;overflow-x:auto;margin:0 0 14px;font-size:0.82rem;color:#d9d7de;
+}
+.options{list-style:none;padding:0;margin:0;}
+.options li{
+  padding:10px 14px;border:1px solid var(--border);border-radius:8px;
+  margin:7px 0;font-size:0.9rem;color:var(--text-dim);cursor:pointer;
+  transition:all .15s ease;display:flex;gap:10px;align-items:flex-start;
+}
+.options li:hover{border-color:var(--blue);}
+.options li .opt-letter{
+  flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--text-faint);
+}
+.options li.correct{border-color:var(--green);background:rgba(141,191,141,0.1);color:var(--green);}
+.options li.correct .opt-letter{border-color:var(--green);color:var(--green);}
+.options li.wrong{border-color:var(--red);background:rgba(201,138,124,0.1);color:var(--red);}
+.options li.wrong .opt-letter{border-color:var(--red);color:var(--red);}
+.answer-box{
+  display:none;margin-top:12px;font-size:0.87rem;color:var(--text-dim);
+  background:rgba(255,255,255,0.02);border-left:3px solid var(--gold);
+  padding:10px 14px;border-radius:6px;
+}
+.answer-box.show{display:block;}
+.answer-box strong{color:var(--gold);}
+
+/* ===== RESULT SUMMARY ===== */
+.summary{
+  background:linear-gradient(135deg,rgba(196,163,90,0.1),rgba(30,28,34,0.5));
+  border:1px solid var(--gold);border-radius:14px;padding:24px;text-align:center;margin:30px 0;
+  display:none;
+}
+.summary.show{display:block;}
+.summary h2{color:var(--gold);margin:0 0 8px;}
+.summary .big-score{font-size:2.4rem;font-weight:800;color:var(--text);margin:10px 0;}
+.summary p{color:var(--text-dim);}
+
+.hidden{display:none !important;}
+
+.back-top{
+  position:fixed;bottom:22px;right:22px;width:44px;height:44px;border-radius:50%;
+  background:var(--card);border:1px solid var(--border);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:150;
+}
+.back-top.show{opacity:1;pointer-events:auto;}
+
+@media (max-width:600px){
+  .qtext{font-size:0.94rem;}
+  .filterbar{gap:6px;}
+  .filter-btn{padding:7px 12px;font-size:0.78rem;}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">📝 Exam MCQ Practice</span>
+    <a href="study_notes.html" style="font-size:0.82rem;color:var(--text-dim);border:1px solid var(--border);padding:6px 14px;border-radius:20px;">← Back to Study Notes</a>
+    <div class="score-pill">
+      Score: <strong id="scoreCorrect">0</strong>/<span id="scoreTotal">0</span> correct
+      &nbsp;•&nbsp; <span class="wrong-count" id="scoreWrong">0</span> wrong
+    </div>
+  </div>
+  <div style="max-width:900px;margin:0 auto;padding:0 20px 12px;">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>High-Level MCQ Practice Test</h1>
+  <p>50 exam-style, scenario-based, and applied questions covering <strong>Module 3 (React)</strong> and <strong>Module 4 (Node.js / Express)</strong> — beyond simple definitions. Click an option to check your answer instantly. Your score updates live at the top.</p>
+</div>
+
+<div class="filterbar">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All Questions</button>
+  <button class="filter-btn" data-filter="m3" onclick="setFilter('m3', this)">Module 3 Only</button>
+  <button class="filter-btn" data-filter="m4" onclick="setFilter('m4', this)">Module 4 Only</button>
+  <button class="filter-btn" data-filter="hard" onclick="setFilter('hard', this)">🔴 Hard Only</button>
+  <button class="restart-btn" onclick="restartQuiz()">↺ Restart Quiz</button>
+</div>
+
+<div class="container">
+  <div class="module-divider">⚛️ Module 3 — Client-Side Framework (React)</div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q1</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">In an MVC-based e-commerce app, a user updates their shipping address on a form. Which component is responsible for validating the new address and instructing the database to save it?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>View</li>
+      <li><span class="opt-letter">B</span>Controller</li>
+      <li><span class="opt-letter">C</span>Model</li>
+      <li><span class="opt-letter">D</span>Router</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Controller.</strong> The Controller receives user input from the View, validates/processes it, and instructs the Model to update the database. The Model itself just performs the actual CRUD operation once told to.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q2</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Why is the Presentational/Container pattern considered less necessary in modern React codebases?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Because React no longer supports props</li>
+      <li><span class="opt-letter">B</span>Because class components were removed from React</li>
+      <li><span class="opt-letter">C</span>Because Custom Hooks let you extract "container" logic without needing a wrapper component</li>
+      <li><span class="opt-letter">D</span>Because Context API replaced all component rendering</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Custom Hooks replace the need for wrapper "container" components.</strong> A hook like <code>useFetch()</code> can be called directly inside any functional component, achieving the same logic/UI separation without an extra layer of components.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q3</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You want to add a "loading spinner" behavior to five completely unrelated components without duplicating code. Which pattern is the classic solution designed for exactly this?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>Higher-Order Component (HOC)</li>
+      <li><span class="opt-letter">B</span>MVC Pattern</li>
+      <li><span class="opt-letter">C</span>JSX</li>
+      <li><span class="opt-letter">D</span>Conditional Rendering</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Higher-Order Component (HOC).</strong> An HOC like <code>withLoading(Component)</code> wraps any component and injects shared behavior (like a spinner) without modifying the original component's code.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q4</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">What is the key difference between how an HOC and a Custom Hook share logic across components?</div>
+    <ul class="options" data-answer="3">
+      <li><span class="opt-letter">A</span>There is no difference — they are the same thing</li>
+      <li><span class="opt-letter">B</span>HOCs can only be used in class components; Custom Hooks only in HOCs</li>
+      <li><span class="opt-letter">C</span>Custom Hooks require a database connection; HOCs do not</li>
+      <li><span class="opt-letter">D</span>An HOC wraps a component and returns a new component (adds a layer to the tree); a Custom Hook is just a function you call inside a component (no extra wrapper/nesting)</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: D.</strong> HOCs add an extra component layer ("wrapper hell" if overused), while custom hooks just inject logic directly into an existing component's function body — no extra nesting in the component tree.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q5</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A large app has a "logged-in user" object needed by a top-level Navbar, a deeply nested Comment component, and a Footer. Passing it through 6 layers of props is painful. What's the best fix?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Duplicate the user object in every component's own state</li>
+      <li><span class="opt-letter">B</span>Wrap the app in a Context Provider and use useContext() in whichever component needs the data</li>
+      <li><span class="opt-letter">C</span>Store the user object only in the URL query string</li>
+      <li><span class="opt-letter">D</span>Convert every component into a class component</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B — use Context API.</strong> This is the textbook fix for prop drilling: wrap the relevant part of the tree in a Provider, then any descendant can call <code>useContext()</code> directly.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q6</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext"><strong>What will this code render on screen when <code>count</code> is 0?</strong></div>
+    <pre class="qcode">function CartBadge({ count }) {
+  return &lt;div&gt;{count &amp;&amp; &lt;span&gt;{count} items&lt;/span&gt;}&lt;/div&gt;;
+}</pre>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Nothing at all (empty div)</li>
+      <li><span class="opt-letter">B</span>The literal number 0</li>
+      <li><span class="opt-letter">C</span>"0 items"</li>
+      <li><span class="opt-letter">D</span>A React error</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B — the literal number 0 is rendered.</strong> This is a classic conditional-rendering pitfall: <code>0</code> is falsy, so the <code>&amp;&amp;</code> expression short-circuits to <code>0</code> itself, and React renders that number. The fix is <code>{count &gt; 0 &amp;&amp; ...}</code>.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q7</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You're converting a class component's <code>componentDidMount</code> + <code>componentWillUnmount</code> (which sets up and clears a <code>setInterval</code> timer) into a functional component. What is the correct useEffect setup?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span><code>useEffect(() =&gt; { setInterval(fn, 1000); })</code> with no dependency array</li>
+      <li><span class="opt-letter">B</span><code>useEffect(() =&gt; { fn(); }, [fn])</code></li>
+      <li><span class="opt-letter">C</span><code>useEffect(() =&gt; { const id = setInterval(fn, 1000); return () =&gt; clearInterval(id); }, [])</code></li>
+      <li><span class="opt-letter">D</span>Functional components cannot use timers</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> The empty dependency array <code>[]</code> makes it run once (like componentDidMount), and returning a cleanup function that calls <code>clearInterval</code> replicates componentWillUnmount.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q8</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Which statement about React props vs state is INCORRECT?</div>
+    <ul class="options" data-answer="3">
+      <li><span class="opt-letter">A</span>Props are passed from parent to child and are read-only inside the child</li>
+      <li><span class="opt-letter">B</span>State is local to the component and can be changed using its setter function</li>
+      <li><span class="opt-letter">C</span>Changing state triggers a re-render of that component</li>
+      <li><span class="opt-letter">D</span>A child component can directly mutate the props object it receives to update the parent's data</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: D is incorrect (and thus the answer to find).</strong> Props are strictly read-only/immutable from the child's perspective — a child cannot mutate them to affect the parent. To change parent data, the parent must pass down a callback function as a prop.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q9</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A component fetches user data whenever the route's <code>:id</code> parameter changes. What MUST be included in the useEffect dependency array to avoid stale data bugs?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span><code>id</code> (the value read from useParams())</li>
+      <li><span class="opt-letter">B</span>Nothing — leave the array empty</li>
+      <li><span class="opt-letter">C</span>The entire component</li>
+      <li><span class="opt-letter">D</span><code>useState</code></li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A — id.</strong> If <code>id</code> is omitted from the dependency array, the effect only runs once with the very first id, and the component will keep showing stale data even after the URL changes.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="medium">
+    <div class="qmeta"><span class="qnum">Q10</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Why might an installable, offline-capable news reader web app choose to be built as a PWA instead of a native app?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>PWAs cannot send notifications, so they are simpler</li>
+      <li><span class="opt-letter">B</span>PWAs avoid app store approval, work cross-platform from one codebase, and are lighter-weight while still supporting offline caching and installability</li>
+      <li><span class="opt-letter">C</span>PWAs require a native compiler for every OS</li>
+      <li><span class="opt-letter">D</span>PWAs cannot be installed on a home screen</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> PWAs use Service Workers for offline caching and a Web Manifest for installability, all from a single cross-platform codebase, without App Store review delays.</div>
+  </div>
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q11</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">During reconciliation, React compares the new Virtual DOM tree against the previous one. What is the actual outcome of this comparison used for?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>To recompile the entire application from scratch</li>
+      <li><span class="opt-letter">B</span>To delete and recreate every DOM node on every render</li>
+      <li><span class="opt-letter">C</span>To compute the minimal set of differences ("diffing") and apply only those specific changes to the real DOM</li>
+      <li><span class="opt-letter">D</span>To convert JSX into CSS</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> This diffing + minimal patching is exactly what makes React fast compared to manipulating the real DOM directly on every state change.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q12</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You write a component named <code>car()</code> (lowercase) and use it as <code>&lt;car /&gt;</code> in JSX. What actually happens?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>It works exactly like a capitalized component</li>
+      <li><span class="opt-letter">B</span>React/JSX treats it as a plain (unrecognized) HTML tag, not as your component</li>
+      <li><span class="opt-letter">C</span>It automatically becomes a Custom Hook</li>
+      <li><span class="opt-letter">D</span>It throws a syntax error at write-time, before running</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> JSX uses capitalization to distinguish user components (<code>Car</code>) from built-in HTML tags (<code>car</code>, <code>div</code>, etc.) — lowercase names are always treated as literal DOM tags.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="medium">
+    <div class="qmeta"><span class="qnum">Q13</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Which of these is a genuine advantage of functional components over class components?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>Simpler syntax, no need for `this` binding, and easier to test since there's no lifecycle boilerplate</li>
+      <li><span class="opt-letter">B</span>Only functional components can have state at all</li>
+      <li><span class="opt-letter">C</span>Class components cannot render JSX</li>
+      <li><span class="opt-letter">D</span>Functional components run on the server only</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> Both component types can hold state today (via hooks or this.state), but functional components avoid `this`-binding issues and boilerplate, making them shorter and easier to test.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q14</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">A class component defines <code>shouldComponentUpdate()</code> and always returns <code>false</code>. What is the effect?</div>
+    <ul class="options" data-answer="3">
+      <li><span class="opt-letter">A</span>The component crashes immediately</li>
+      <li><span class="opt-letter">B</span>The component mounts twice</li>
+      <li><span class="opt-letter">C</span>It has no effect on rendering behavior</li>
+      <li><span class="opt-letter">D</span>The component will never re-render again, even if its state or props change</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: D.</strong> <code>shouldComponentUpdate</code> is a performance-optimization hook in the Updating phase — returning false tells React to skip re-rendering entirely for that update.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q15</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Which conditional rendering technique is most appropriate for a component that must render one of FOUR different views based on a "status" string (loading/error/empty/success)?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Ternary operator nested three times</li>
+      <li><span class="opt-letter">B</span>Logical AND (&&) chained four times</li>
+      <li><span class="opt-letter">C</span>A switch statement (or an inline function using if/else) — cleaner for many branches</li>
+      <li><span class="opt-letter">D</span>useEffect</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> Ternary/&& work well for 1–2 conditions, but a switch statement (or a small render function with if/else) reads far more cleanly with 3+ branches.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="medium">
+    <div class="qmeta"><span class="qnum">Q16</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">In the Context API pattern, what happens if a component calls <code>useContext(MyContext)</code> but is NOT nested inside the corresponding <code>&lt;MyContext.Provider&gt;</code>?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>React throws a compile-time error and refuses to build</li>
+      <li><span class="opt-letter">B</span>It receives the context's default value (or undefined if none was set) instead of the Provider's value</li>
+      <li><span class="opt-letter">C</span>The whole app crashes with no error message</li>
+      <li><span class="opt-letter">D</span>It automatically creates a new Provider</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> Without being wrapped by the matching Provider, <code>useContext</code> falls back to the default value passed to <code>createContext()</code>, which is often <code>undefined</code> — a common source of silent bugs.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q17</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Two custom hooks, <code>useAuth()</code> and <code>useCart()</code>, are both called inside the same component. Each internally calls <code>useState</code>. Do they share the same state?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Yes, because both are hooks, they automatically share state</li>
+      <li><span class="opt-letter">B</span>No — each call to useState creates independent state, isolated per hook instance, even inside the same component</li>
+      <li><span class="opt-letter">C</span>Only if they are named the same</li>
+      <li><span class="opt-letter">D</span>Only class components can avoid sharing state</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> Each hook call maintains its own isolated slice of state; hooks don't automatically share data with each other unless you explicitly wire them together (e.g. via Context).</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="medium">
+    <div class="qmeta"><span class="qnum">Q18</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Which of the following is NOT one of the three official phases of the React component lifecycle?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Mounting</li>
+      <li><span class="opt-letter">B</span>Updating</li>
+      <li><span class="opt-letter">C</span>Compiling</li>
+      <li><span class="opt-letter">D</span>Unmounting</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Compiling.</strong> The three real lifecycle phases are Mounting, Updating, and Unmounting.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q19</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Why does splitting components into separate files (e.g. <code>Car.js</code> exporting a component, imported into <code>App.js</code>) matter for larger React apps?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>It improves reusability, readability, and lets multiple developers work on different components independently</li>
+      <li><span class="opt-letter">B</span>It is required by JavaScript syntax rules</li>
+      <li><span class="opt-letter">C</span>It makes the Virtual DOM faster automatically</li>
+      <li><span class="opt-letter">D</span>It disables prop passing between components</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> File-per-component organization is a maintainability/collaboration practice, not a technical requirement of React itself.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q20</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">A PWA needs to show cached content when the user's phone loses internet mid-flight. Which single technology is fundamentally responsible for making that possible?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>The Web App Manifest file</li>
+      <li><span class="opt-letter">B</span>A Service Worker intercepting network requests and serving cached responses</li>
+      <li><span class="opt-letter">C</span>React Router</li>
+      <li><span class="opt-letter">D</span>The Context API</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> The Manifest only controls installability/metadata (icons, name); it's the Service Worker that actually caches assets and intercepts fetch requests to serve them offline.</div>
+  </div>
+  <div class="module-divider">🖥️ Module 4 — Server-Side Web Development (Node.js / Express)</div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q21</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext"><strong>What is the output order of this code?</strong></div>
+    <pre class="qcode">console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");</pre>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>A, D, C, B</li>
+      <li><span class="opt-letter">B</span>A, B, C, D</li>
+      <li><span class="opt-letter">C</span>A, D, B, C</li>
+      <li><span class="opt-letter">D</span>A, C, D, B</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A, D, C, B.</strong> Synchronous code (A, D) always runs first. Then microtasks (Promise callbacks, C) run before the event loop moves to the Timers phase (setTimeout, B) — even with a 0ms delay.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q22</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A Node.js REST API server needs to read a large 2GB log file on every incoming request to a specific route. Which choice avoids blocking all other clients?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>fs.readFileSync() inside the route handler</li>
+      <li><span class="opt-letter">B</span>Reading the file once at server startup only, never per-request</li>
+      <li><span class="opt-letter">C</span>fs.readFile() (async) or a readable stream, so the event loop isn't blocked while reading</li>
+      <li><span class="opt-letter">D</span>It doesn't matter which method is used</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> Sync fs methods block Node's single thread, freezing every other request until the read finishes. Async methods or streams let the event loop keep serving other clients concurrently.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q23</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Between <code>process.nextTick()</code> callbacks and resolved Promise <code>.then()</code> callbacks, which is guaranteed to run first, and why does it matter?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Promise callbacks always run first; nextTick is legacy and ignored</li>
+      <li><span class="opt-letter">B</span>process.nextTick() always runs first — both are processed before the event loop advances to its next phase, but nextTick has higher priority</li>
+      <li><span class="opt-letter">C</span>They run in random order depending on the OS</li>
+      <li><span class="opt-letter">D</span>Neither runs until all setTimeout callbacks finish</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> This ordering matters for writing predictable async code and is a favorite trick question distinguishing microtask priorities in Node.js.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q24</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You need a package that automatically restarts your Express server every time you save a file during development. Which is the right tool?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Express</li>
+      <li><span class="opt-letter">B</span>Nodemon</li>
+      <li><span class="opt-letter">C</span>Mongoose</li>
+      <li><span class="opt-letter">D</span>Axios</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Nodemon.</strong> It's a dev-only tool that watches your files and restarts <code>node</code> automatically on changes.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q25</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Your Express app has this middleware order:</div>
+    <pre class="qcode">app.use(loggerMiddleware);
+app.get('/data', dataHandler);
+app.use(errorHandlerMiddleware); // (err, req, res, next)</pre>
+    <div class="qtext" style="font-weight:400;font-size:0.92rem;margin-top:-8px;">If <code>dataHandler</code> throws an error, will <code>errorHandlerMiddleware</code> catch it as written above?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>Yes, since it's placed after dataHandler and Express automatically routes thrown errors to error-handling middleware placed afterward</li>
+      <li><span class="opt-letter">B</span>No, error middleware must be placed before all routes</li>
+      <li><span class="opt-letter">C</span>No, because loggerMiddleware blocks it</li>
+      <li><span class="opt-letter">D</span>Only if dataHandler calls next() manually with no arguments</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> Error-handling middleware (4-parameter signature) must be defined LAST, after all routes, exactly as shown — this lets it catch errors passed via <code>next(err)</code> or thrown synchronously in route handlers.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q26</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A junior developer writes middleware but forgets to call <code>next()</code> and doesn't send a response either. What happens to the client's request?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Express automatically calls next() after 1 second</li>
+      <li><span class="opt-letter">B</span>The server crashes immediately</li>
+      <li><span class="opt-letter">C</span>The request hangs indefinitely — the client never receives a response</li>
+      <li><span class="opt-letter">D</span>Express sends a default 200 OK automatically</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> Without calling <code>next()</code> or sending a response, the request-response cycle never completes, and the client's connection just hangs (eventually timing out).</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q27</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">You're designing an endpoint to let a client update ONLY a product's "price" field without resending the full product object (name, description, stock, etc). Which HTTP method is semantically correct?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>PUT — because it updates resources</li>
+      <li><span class="opt-letter">B</span>POST — because it modifies data</li>
+      <li><span class="opt-letter">C</span>PATCH — because it's meant for partial updates</li>
+      <li><span class="opt-letter">D</span>GET — because it retrieves the current price first</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: PATCH.</strong> PUT is meant to replace the entire resource (all fields), whereas PATCH is specifically designed for partial updates — exactly this scenario.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q28</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A REST API always includes the full auth token in every request header instead of relying on server memory of "who's logged in." What REST principle does this exemplify?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Caching</li>
+      <li><span class="opt-letter">B</span>Statelessness — every request is self-contained, the server holds no session state between requests</li>
+      <li><span class="opt-letter">C</span>Layered System</li>
+      <li><span class="opt-letter">D</span>Uniform Interface only</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B — Statelessness.</strong> The core REST tenet: the server doesn't remember prior requests, so every request must carry all the context (like an auth token) it needs.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q29</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Why is storing a JWT in <code>localStorage</code> considered a security risk compared to an HttpOnly cookie?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>localStorage is readable by any JavaScript running on the page, so an XSS attack can steal the token; HttpOnly cookies are inaccessible to JS</li>
+      <li><span class="opt-letter">B</span>localStorage tokens expire faster than cookies</li>
+      <li><span class="opt-letter">C</span>Cookies cannot store strings, only numbers</li>
+      <li><span class="opt-letter">D</span>There is no actual security difference</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> Any malicious script injected via XSS can read localStorage and exfiltrate the JWT, whereas an HttpOnly cookie is invisible to JavaScript entirely, mitigating that specific attack vector.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q30</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Your mobile app's backend needs to scale horizontally across many stateless server instances behind a load balancer, with no shared session store. Which authentication approach fits best?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Traditional server-side sessions with in-memory storage</li>
+      <li><span class="opt-letter">B</span>JWT — since the server can verify the signature without any centralized session lookup</li>
+      <li><span class="opt-letter">C</span>Storing the password in a cookie every time</li>
+      <li><span class="opt-letter">D</span>No authentication is needed for scaling</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B — JWT.</strong> Its statelessness is exactly what makes it well-suited to horizontally scaled, load-balanced architectures without a shared session store.</div>
+  </div>
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q31</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">In a signup route, why must you use <code>bcrypt.hash()</code> instead of storing the raw password directly, given bcrypt is a one-way function?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Because plain-text passwords take up more storage</li>
+      <li><span class="opt-letter">B</span>Because bcrypt makes login faster</li>
+      <li><span class="opt-letter">C</span>Because if the database is ever breached, attackers only get irreversible hashes, not usable plain-text passwords</li>
+      <li><span class="opt-letter">D</span>Because Express requires it by default</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> Hashing (with a salt, via bcrypt) means even a full DB leak doesn't expose usable passwords — cracking the hash back to plaintext is computationally infeasible at scale.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q32</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You want to add Google OAuth login to an Express app in addition to existing username/password login, without rewriting your whole auth system. What's the idiomatic tool?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>Passport.js — add a Google OAuth "strategy" alongside your existing local strategy</li>
+      <li><span class="opt-letter">B</span>Rewrite the entire backend in a new framework</li>
+      <li><span class="opt-letter">C</span>Use only cookies with no library</li>
+      <li><span class="opt-letter">D</span>GraphQL</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> Passport.js's whole design is modular "strategies" — you can plug in a Google strategy right next to your local strategy without touching the rest of your app.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q33</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext"><strong>What will req.body contain in this route if the client submits a normal HTML &lt;form&gt; with method="POST"?</strong></div>
+    <pre class="qcode">const express = require('express');
+const app = express();
+// NOTE: no body-parsing middleware registered at all
+
+app.post('/submit-form', (req, res) => {
+  console.log(req.body);
+});</pre>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>An object with all form fields correctly populated</li>
+      <li><span class="opt-letter">B</span>undefined — because express.urlencoded() middleware was never registered</li>
+      <li><span class="opt-letter">C</span>The raw HTML of the form</li>
+      <li><span class="opt-letter">D</span>An error is thrown at startup</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> Without <code>app.use(express.urlencoded({extended:true}))</code>, Express does not parse the form body at all, so <code>req.body</code> is <code>undefined</code>.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q34</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Which template engine syntax would you use in EJS to loop through an array and print each item WITHOUT that loop logic itself appearing on the page?</div>
+    <ul class="options" data-answer="3">
+      <li><span class="opt-letter">A</span><code>{{#each items}}</code></li>
+      <li><span class="opt-letter">B</span><code>&lt;%= items %&gt;</code> only</li>
+      <li><span class="opt-letter">C</span><code>{{ items }}</code></li>
+      <li><span class="opt-letter">D</span><code>&lt;% items.forEach(item =&gt; { %&gt; ... &lt;% }) %&gt;</code> combined with <code>&lt;%= item %&gt;</code> to output each value</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: D.</strong> <code>&lt;% %&gt;</code> runs JS logic silently (like the loop control), while <code>&lt;%= %&gt;</code> is what actually prints a value to the HTML output. Option A/C are Handlebars syntax, not EJS.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q35</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">A stock-trading dashboard needs to push live price updates to thousands of connected browsers the instant prices change, without clients repeatedly polling the server. Which technology is purpose-built for this?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Standard REST GET requests every second</li>
+      <li><span class="opt-letter">B</span>Template engines like EJS</li>
+      <li><span class="opt-letter">C</span>WebSockets — a persistent, full-duplex connection lets the server push updates instantly</li>
+      <li><span class="opt-letter">D</span>Increasing the server's RAM</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C — WebSockets.</strong> Unlike HTTP's request-response model, an open WebSocket connection lets the server push data to the client the moment it's available, with no client polling required.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q36</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">A mobile app screen shows a user's profile AND their last 5 orders. Using REST this needs 2 API calls. How would GraphQL typically handle this instead?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>GraphQL also always requires 2 separate calls</li>
+      <li><span class="opt-letter">B</span>A single GraphQL query can request both the profile fields and nested order fields in one round trip</li>
+      <li><span class="opt-letter">C</span>GraphQL cannot fetch nested/related data at all</li>
+      <li><span class="opt-letter">D</span>GraphQL requires a WebSocket connection for this</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> This is GraphQL's headline advantage: nested/related data (profile + orders) can be requested together in a single query, avoiding REST's multiple round trips.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q37</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">In a GraphQL schema, which type would you define to let a client submit a new blog post (create data), as opposed to fetching existing posts?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Query</li>
+      <li><span class="opt-letter">B</span>Mutation</li>
+      <li><span class="opt-letter">C</span>Schema</li>
+      <li><span class="opt-letter">D</span>Fragment</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Mutation.</strong> Query = read (like GET); Mutation = write (like POST/PUT/PATCH/DELETE combined).</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q38</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You define a route as <code>app.get('/products/:productId?', handler)</code>. What happens when a client requests <code>/products/</code> with no ID?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span><code>req.params.productId</code> is undefined, since the `?` makes the parameter optional</li>
+      <li><span class="opt-letter">B</span>Express throws a 404 automatically</li>
+      <li><span class="opt-letter">C</span>The server crashes</li>
+      <li><span class="opt-letter">D</span>productId defaults to the string "undefined"</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> The <code>?</code> after a route param name marks it optional — the handler still runs, but <code>req.params.productId</code> will be <code>undefined</code> if omitted from the URL.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q39</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Which statement correctly distinguishes CommonJS from ES6 modules in Node.js?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Both use identical `import`/`export` syntax</li>
+      <li><span class="opt-letter">B</span>ES6 modules use `require()`, CommonJS uses `import`</li>
+      <li><span class="opt-letter">C</span>CommonJS uses `require()`/`module.exports` and loads synchronously; ES6 modules use `import`/`export` and are loaded statically/asynchronously (often needing `"type": "module"` in package.json)</li>
+      <li><span class="opt-letter">D</span>CommonJS cannot be used in Node.js at all anymore</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> These are genuinely different module systems with different syntax and loading semantics — a common source of "why doesn't my import work" bugs in Node.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q40</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">You need every incoming request across your entire Express app — regardless of route — to be logged. Where should this middleware be registered?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Only inside a single specific route handler</li>
+      <li><span class="opt-letter">B</span>As application-level middleware near the top, using app.use(), before your routes are defined</li>
+      <li><span class="opt-letter">C</span>Inside error-handling middleware only</li>
+      <li><span class="opt-letter">D</span>It cannot be done in Express</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> Application-level middleware registered via <code>app.use()</code> before your routes runs for every incoming request across the whole app — exactly what a global logger needs.</div>
+  </div>
+
+  <div class="module-divider">🆕 New Additions — Lifecycle, JWT, File System, SSR</div>
+
+  <div class="qcard" data-module="m3" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q41</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">A class component defines <code>shouldComponentUpdate()</code> to always return <code>false</code>, and a button calls <code>this.setState({favoritecolor: "blue"})</code> on click. What actually happens when the button is clicked?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>Nothing happens at all, not even the state change</li>
+      <li><span class="opt-letter">B</span>The component re-renders normally with the new color</li>
+      <li><span class="opt-letter">C</span>State updates internally, but the UI never visually re-renders since shouldComponentUpdate blocked it</li>
+      <li><span class="opt-letter">D</span>React throws an error</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> <code>setState()</code> still updates the internal state object, but because <code>shouldComponentUpdate()</code> returns false, React skips the render step — so the DOM never visually reflects the change.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q42</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Put these Mounting-phase methods in the correct order of execution:</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>componentDidMount() → constructor() → render()</li>
+      <li><span class="opt-letter">B</span>constructor() → render() → componentDidMount()</li>
+      <li><span class="opt-letter">C</span>render() → constructor() → componentDidMount()</li>
+      <li><span class="opt-letter">D</span>constructor() → componentDidMount() → render()</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> constructor() initializes state first, render() outputs the JSX to the DOM, then componentDidMount() runs once the component actually exists in the DOM.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q43</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">In a JWT payload, which claim specifically defines WHEN the token expires?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>iss</li>
+      <li><span class="opt-letter">B</span>sub</li>
+      <li><span class="opt-letter">C</span>exp</li>
+      <li><span class="opt-letter">D</span>aud</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: exp (Expiration).</strong> iss = issuer, sub = subject/user, aud = intended audience/recipient.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q44</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">Which two pieces are combined (along with a secret key) to compute a JWT's HMACSHA256 signature?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>The Base64Url-encoded header and the Base64Url-encoded payload</li>
+      <li><span class="opt-letter">B</span>The username and password only</li>
+      <li><span class="opt-letter">C</span>Two previous signatures</li>
+      <li><span class="opt-letter">D</span>The client's IP address and timestamp</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> Signature = HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret). This is exactly why tampering with either part invalidates the signature.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q45</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">What is the key structural difference between fs.readFileSync() and fs.readFile() in terms of their last argument?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Both take a callback as the last argument</li>
+      <li><span class="opt-letter">B</span>The sync version takes a File Descriptor as its last argument; the async version takes a callback function</li>
+      <li><span class="opt-letter">C</span>The async version never accepts any arguments</li>
+      <li><span class="opt-letter">D</span>There is no difference in arguments</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> Synchronous fs methods take a File Descriptor as the last argument and block execution; asynchronous ones take a callback function as the last argument and don't block.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q46</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">In server-side rendering with a template engine, at which point does the HTML template actually get merged with the server's data?</div>
+    <ul class="options" data-answer="2">
+      <li><span class="opt-letter">A</span>In the browser, after the page loads</li>
+      <li><span class="opt-letter">B</span>Never — templates and data stay separate</li>
+      <li><span class="opt-letter">C</span>On the server, by the template engine, before the HTML is sent to the client</li>
+      <li><span class="opt-letter">D</span>Inside the database</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: C.</strong> The full SSR flow is: data extracted on the server → injected into the template on the server → sent as finished HTML to the client. The browser just displays the result — no templating logic runs client-side.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q47</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">To make an existing Create React App project installable and offline-capable as a PWA, which file must you edit to actually turn ON the offline caching behavior?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>package.json — add a "pwa": true field</li>
+      <li><span class="opt-letter">B</span>src/index.js — change serviceWorkerRegistration.unregister() to .register()</li>
+      <li><span class="opt-letter">C</span>App.css — add offline styles</li>
+      <li><span class="opt-letter">D</span>No file changes are needed; it's automatic</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: B.</strong> By default, CRA's service worker is unregistered. Switching the call to <code>.register()</code> in <code>src/index.js</code> actually activates the service worker that enables offline caching.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q48</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Node.js modules fall into three categories. If you write your own file <code>math.js</code> and import it locally with a relative path, which category does it belong to?</div>
+    <ul class="options" data-answer="1">
+      <li><span class="opt-letter">A</span>Built-in Module</li>
+      <li><span class="opt-letter">B</span>Local / Custom Module</li>
+      <li><span class="opt-letter">C</span>Third-party Module</li>
+      <li><span class="opt-letter">D</span>Global Module</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: Local / Custom Module.</strong> Built-in modules ship with Node itself (fs, http); third-party modules come from npm; anything you author yourself and import via a relative path is a local/custom module.</div>
+  </div>
+
+  <div class="qcard" data-module="m3" data-difficulty="applied">
+    <div class="qmeta"><span class="qnum">Q49</span><span class="difficulty applied">APPLIED</span></div>
+    <div class="qtext">An HOC named <code>withLoading</code> is called as <code>withLoading(UserList)</code>. What does this expression itself evaluate to?</div>
+    <ul class="options" data-answer="3">
+      <li><span class="opt-letter">A</span>The original UserList component, unmodified</li>
+      <li><span class="opt-letter">B</span>undefined</li>
+      <li><span class="opt-letter">C</span>A boolean indicating whether loading is true</li>
+      <li><span class="opt-letter">D</span>A brand-new component that wraps UserList with added loading behavior</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: D.</strong> Calling an HOC with a component returns a new, enhanced component — the original UserList is wrapped, not mutated.</div>
+  </div>
+
+  <div class="qcard" data-module="m4" data-difficulty="hard">
+    <div class="qmeta"><span class="qnum">Q50</span><span class="difficulty hard">HARD</span></div>
+    <div class="qtext">Comparing session-based auth to JWT: in session auth, what does the browser actually store, versus what the server stores?</div>
+    <ul class="options" data-answer="0">
+      <li><span class="opt-letter">A</span>Browser stores only a small Session ID cookie; the server stores the full session data (user info, access level)</li>
+      <li><span class="opt-letter">B</span>Browser stores the full user record; the server stores nothing</li>
+      <li><span class="opt-letter">C</span>Both store identical full copies of the session data</li>
+      <li><span class="opt-letter">D</span>Neither stores anything — sessions are stateless like JWT</li>
+    </ul>
+    <div class="answer-box"><strong>Answer: A.</strong> This is the defining trait of session auth: the heavy data lives server-side, and the client only ever holds a lightweight reference (the Session ID) to look it up.</div>
+  </div>
+
+  <div class="summary" id="summaryBox">
+    <h2>🎉 Quiz Complete!</h2>
+    <div class="big-score" id="finalScoreText">0 / 50</div>
+    <p id="finalScoreMsg">Review any questions above to see explanations.</p>
+  </div>
+
+</div><!-- /container -->
+
+<div class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+let correctCount = 0;
+let wrongCount = 0;
+let answeredCount = 0;
+const allCards = document.querySelectorAll('.qcard');
+const totalQuestions = allCards.length;
+document.getElementById('scoreTotal').textContent = totalQuestions;
+
+function updateScoreUI(){
+  document.getElementById('scoreCorrect').textContent = correctCount;
+  document.getElementById('scoreWrong').textContent = wrongCount;
+  const pct = totalQuestions > 0 ? (answeredCount/totalQuestions)*100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  if(answeredCount === totalQuestions && totalQuestions > 0){
+    const box = document.getElementById('summaryBox');
+    box.classList.add('show');
+    document.getElementById('finalScoreText').textContent = correctCount + ' / ' + totalQuestions;
+    let msg = '';
+    const ratio = correctCount/totalQuestions;
+    if(ratio >= 0.85) msg = "Excellent! You're exam-ready. 🔥";
+    else if(ratio >= 0.6) msg = "Good work — review the missed questions above before your exam.";
+    else msg = "Keep practicing — revisit the study notes for the topics you missed.";
+    document.getElementById('finalScoreMsg').textContent = msg;
+    box.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+document.querySelectorAll('.options').forEach(function(ul){
+  const correctIdx = parseInt(ul.getAttribute('data-answer'), 10);
+  const items = ul.querySelectorAll('li');
+  const card = ul.closest('.qcard');
+  items.forEach(function(li, idx){
+    li.addEventListener('click', function(){
+      if(ul.classList.contains('answered')) return;
+      ul.classList.add('answered');
+      answeredCount++;
+      items.forEach(function(other, oIdx){
+        if(oIdx === correctIdx) other.classList.add('correct');
+        else if(oIdx === idx) other.classList.add('wrong');
+      });
+      if(idx === correctIdx){
+        correctCount++;
+        card.classList.add('correct-state');
+      } else {
+        wrongCount++;
+        card.classList.add('wrong-state');
+      }
+      const answerBox = card.querySelector('.answer-box');
+      if(answerBox) answerBox.classList.add('show');
+      updateScoreUI();
+    });
+  });
+});
+
+function setFilter(filter, btnEl){
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  document.querySelectorAll('.module-divider').forEach(d => d.style.display = (filter==='all') ? 'flex' : 'none');
+  allCards.forEach(function(card){
+    const mod = card.getAttribute('data-module');
+    const diff = card.getAttribute('data-difficulty');
+    let show = true;
+    if(filter === 'm3') show = (mod === 'm3');
+    else if(filter === 'm4') show = (mod === 'm4');
+    else if(filter === 'hard') show = (diff === 'hard');
+    card.style.display = show ? 'block' : 'none';
+  });
+}
+
+function restartQuiz(){
+  correctCount = 0; wrongCount = 0; answeredCount = 0;
+  document.querySelectorAll('.options').forEach(function(ul){
+    ul.classList.remove('answered');
+    ul.querySelectorAll('li').forEach(li => li.classList.remove('correct','wrong'));
+  });
+  document.querySelectorAll('.answer-box').forEach(box => box.classList.remove('show'));
+  document.querySelectorAll('.qcard').forEach(card => card.classList.remove('correct-state','wrong-state'));
+  document.getElementById('summaryBox').classList.remove('show');
+  updateScoreUI();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', function(){
+  if(window.scrollY > 500) backTop.classList.add('show');
+  else backTop.classList.remove('show');
+});
+</script>
+</body>
+</html>
